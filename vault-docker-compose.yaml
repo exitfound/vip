@@ -1,0 +1,30 @@
+version: "3.7"
+services:
+  vault:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VERSION: 1.19.0
+    container_name: vault
+    image: single-vault
+    restart: on-failure
+    command: vault server -config=/vault/config/config.hcl
+    user: vault
+    environment:
+      VAULT_ADDR: http://localhost:8200
+      SKIP_SETCAP: true
+    ports:
+      - 0.0.0.0:8200:8200
+    volumes:
+      - ./properties/config/config.hcl:/vault/config/config.hcl
+      - ./data:/opt/vault/data
+    cap_add:
+      - IPC_LOCK
+    networks:
+      - single-vault
+
+networks:
+  single-vault:
+    name: vault
+    driver: bridge
