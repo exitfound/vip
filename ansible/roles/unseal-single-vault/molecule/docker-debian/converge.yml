@@ -1,0 +1,15 @@
+---
+# Данный файл используется для преобразования состояния экземпляров в реальное состояние, объявленное в реальных тестируемых ролях:
+- name: Converge
+  hosts: all
+  gather_facts: true
+  tasks:
+    # Данный шаг вызывает роль manual-single-vault для последующего прогона роли unseal-single-vault:
+    - name: "Include manual-single-vault role for testing"
+      include_role:
+        name: "manual-single-vault"
+
+    # Данный шаг вызывает роль unseal-single-vault для прогона тестов с помощью Molecule:
+    - name: "Include unseal-single-vault role for testing"
+      include_role:
+        name: "unseal-single-vault"

@@ -1,0 +1,95 @@
+---
+# Вызов предварительной роли system-prepare для полноценного запуска текущей роли:
+- name: Import system-prepare role for running current role on SUSE family distro
+  import_role:
+    name: system-prepare
+    tasks_from: main
+
+# Создание в системе группы с именем Vault:
+- name: Create Vault group on SUSE family distro
+  group:
+    name: "{{ vault_user_and_group }}"
+    state: present
+    gid: 452
+
+# Создание в системе пользователя с именем Vault:
+- name: Create Vault user on SUSE family distro
+  user:
+    name: "{{ vault_user_and_group }}"
+    groups: "{{ vault_user_and_group }}"
+    home: "{{ vault_raft_dir }}"
+    shell: /sbin/nologin
+    create_home: true
+    append: true
+    uid: 452
+
+# Создание нескольких директорий для последующей работы с Vault:
+- name: Create Vault directories on SUSE family distro
+  file:
+    state: directory
+    path: "{{ item.path }}"
+    mode: "{{ vault_dir_mode }}"
+    owner: "{{ vault_user_and_group }}"
+    group: "{{ vault_user_and_group }}"
+    recurse: true
+  with_items:
+    - {path: "{{ vault_config_dir }}"}
+    - {path: "{{ vault_raft_dir }}"}
+  changed_when: false
+
+# Загрузка архива с бинарным файлом Vault из Интернета по прямой ссылке:
+- name: Download Vault binary file for future installation on SUSE family distro
+  get_url:
+    url: "{{ vault_binary_file }}"
+    mode: "{{ vault_file_mode }}"
+    dest: "/tmp/vault.zip"
+
+# Распаковка архива и перемещение бинарного файла в соответствующую директорию:
+- name: Unpack the archive and move the Vault binary file on SUSE family distro
+  unarchive:
+    src: "/tmp/vault.zip"
+    dest: "{{ vault_binary_path }}"
+    remote_src: true
+
+# Копирование файла из директории files и его последующая передача в директорию Bash Completion:
+- name: Copy bash completion file for Vault on SUSE family distro
+  template:
+    src: "templates/{{ vault_autocomplete_j2 }}"
+    dest: "{{ vault_autocomplete_file }}"
+    mode: "{{ vault_file_mode }}"
+    owner: "{{ vault_user_and_group }}"
+    group: "{{ vault_user_and_group }}"
+
+# Обновление терминальной сессии для последующего использования автодополнения:
+- name: Update source on SUSE family distro
+  shell: source "{{ vault_autocomplete_file }}"
+  args:
+    executable: /bin/bash
+  changed_when: false
+
+# Копирование конфигурационного файла из директории templates и его последующая передача в рабочую директорию Vault:
+- name: Copy Vault config file in config directory on SUSE family distro
+  template:
+    src: "templates/{{ vault_raft_cluster_enable_https_config | ternary('vault_raft_cluster_https_config', 'vault_raft_cluster_http_config') }}.j2"
+    dest: "{{ vault_config_dir }}/{{ vault_config_file }}"
+    mode: "{{ vault_file_mode }}"
+    owner: "{{ vault_user_and_group }}"
+    group: "{{ vault_user_and_group }}"
+  changed_when: false
+
+# Копирование Systemd файла из директории templates и его последующая передача в соответствующую директорию:
+- name: Copy Vault systemd config on SUSE family distro
+  template:
+    src: "templates/{{ vault_systemd_file }}.j2"
+    dest: "/usr/lib/systemd/system/{{ vault_systemd_file }}"
+    mode: "{{ vault_file_mode }}"
+    owner: "0"
+    group: "0"
+
+# Запуск и добавление в автозагрузку сервиса Vault с помощью Systemd:
+- name: Start Vault service on SUSE family distro
+  service:
+    name: vault
+    state: started
+    enabled: true
+    daemon_reload: true

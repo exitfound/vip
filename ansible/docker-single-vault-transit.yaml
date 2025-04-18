@@ -1,0 +1,19 @@
+---
+# Вызов роли для последующей установки и настройки Single Vault Transit с помощью Docker для одиночного сервера на удаленных узлах:
+- name: Install and configure Single Vault Transit via Docker on remote hosts
+  gather_facts: true
+  become: true
+  become_method: sudo
+  hosts:
+    - all
+
+  # Вызов непосредственно самой роли Single Vault Transit с помощью Docker для последующего развертывания Vault в системе:
+  roles:
+    - docker-single-vault-transit
+
+  # Информирование о том, что Single Vault Transit с помощью Docker был успешно установлен в системе:
+  post_tasks:
+    - name: Information about the successful completion of the playbook
+      debug:
+        msg:
+          - "Your Single Vault Transit via Docker has been successfully installed on the system"

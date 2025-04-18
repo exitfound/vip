@@ -1,0 +1,19 @@
+---
+# Вызов роли для последующей установки и настройки Single Vault в мануальном режиме для одиночного сервера на удаленных узлах:
+- name: Install and configure Manual Single Vault on remote hosts
+  gather_facts: true
+  become: true
+  become_method: sudo
+  hosts:
+    - all
+
+  # Вызов непосредственно самой роли Single Vault в мануальном режиме для последующего развертывания Vault в системе:
+  roles:
+    - manual-single-vault
+
+  # Информирование о том, что Single Vault в мануальном режиме был успешно установлен в системе:
+  post_tasks:
+    - name: Information about the successful completion of the playbook
+      debug:
+        msg:
+          - "Your Manual Single Vault has been successfully installed on the system"

@@ -1,0 +1,21 @@
+---
+
+# Переменные, необходимые для установки и настройки Single Vault в мануальном режиме, применимые ко всем дистрибутивам в равной степени:
+
+vault_binary_file: "https://releases.hashicorp.com/vault/{{ vault_current_version }}/vault_{{ vault_current_version }}_linux_amd64.zip"
+vault_config_file: "config.hcl"
+vault_systemd_file: "vault.service"
+vault_autocomplete_file: "/etc/bash_completion.d/vault"
+vault_autocomplete_j2: "vault_autocomplete.j2"
+vault_config_dir: "/etc/vault.d"
+vault_raft_dir: "/opt/vault/raft"
+vault_binary_path: "/usr/local/bin"
+vault_dir_mode: "u=rwx,g=rwx,o=r"
+vault_file_mode: "u=rw,g=r,o=r"
+vault_user_and_group: "vault"
+
+# Переменные, необходимые для установки и настройки Single Vault в мануальном режиме на дистрибутиве семейства SUSE:
+
+# Переменные, необходимые для установки и настройки Single Vault в мануальном режиме на дистрибутиве семейства RedHat:
+
+# Переменные, необходимые для установки и настройки Single Vault в мануальном режиме на дистрибутиве семейства Debian:

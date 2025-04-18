@@ -1,0 +1,16 @@
+---
+# Обновление всех пакетов для указанного семейства дистрибутивов:
+- name: Update all packages on Debian family distro
+  apt:
+    name: '*'
+    state: latest
+    update_cache: true
+  tags:
+    - update
+
+# Установка пакетов DEB из списка необходимых, которые определены в виде переменной, в директории defaults:
+- name: Install general packages on Debian family distro
+  apt:
+    name: "{{ system_debian_packages_list }}"
+    state: present
+    update_cache: true

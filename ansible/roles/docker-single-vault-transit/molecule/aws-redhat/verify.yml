@@ -1,0 +1,20 @@
+---
+# Данный файл знаменует успешное завершение запускаемых ранее тестов:
+- name: Verify
+  hosts: all
+  gather_facts: false
+  tasks:
+    # Добавление интервала по времени для загрузки Vault:
+    - name: Wait 10 second for checking Vault
+      wait_for:
+        timeout: 10
+
+#     # Проверка доступности Vault после установки:
+#     - name: Check Vault for Availability
+#       uri:
+#         url: "http://127.0.0.1:{{ vault_host_local_listening_port }}"
+#         method: GET
+#         timeout: 10
+#         return_content: false
+#         validate_certs: false
+#         status_code: [200]

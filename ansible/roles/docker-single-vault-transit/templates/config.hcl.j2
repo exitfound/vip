@@ -1,0 +1,22 @@
+ui                = true
+disable_mlock     = true
+max_lease_ttl     = "768h"
+default_lease_ttl = "24h"
+
+storage "file" {
+  path            = "{{ vault_docker_transit_dir_data }}"
+}
+
+listener "tcp" {
+  address         = "{{ vault_host_local_listening_address }}:{{ vault_host_local_listening_port }}"
+  tls_disable     = "true"
+}
+
+seal "transit" {
+  address         = "{{ vault_transit_backend_tls_skip_verify | ternary('http', 'https') }}://{{ vault_transit_backend_unseal_host }}:{{ vault_transit_backend_host_port }}"
+  token           = "{{ vault_transit_backend_token }}"
+  key_name        = "{{ vault_transit_backend_key_name }}"
+  mount_path      = "{{ vault_transit_backend_mount_path }}"
+  disable_renewal = "{{ vault_transit_backend_disable_renewal | string | lower }}"
+  tls_skip_verify = "{{ vault_transit_backend_tls_skip_verify | string | lower }}"
+}

@@ -1,0 +1,29 @@
+cluster_name            = "{{ vault_raft_cluster_name }}"
+api_addr                = "http://{{ ansible_default_ipv4.address }}:{{ vault_host_local_listening_port }}"
+cluster_addr            = "http://{{ ansible_default_ipv4.address }}:{{ vault_raft_cluster_port }}"
+max_lease_ttl           = "768h"
+default_lease_ttl       = "24h"
+ui                      = true
+disable_mlock           = true
+raw_storage_endpoint    = true
+disable_sealwrap        = true
+disable_printable_check = true
+
+listener "tcp" {
+  address = "{{ vault_host_local_listening_address }}:{{ vault_host_local_listening_port }}"
+  cluster_addr = "{{ vault_host_local_listening_address }}:{{ vault_raft_cluster_port }}"
+  tls_disable = "true"
+}
+
+storage "raft" {
+    path = "{{ vault_raft_dir }}"
+    node_id = "{{ inventory_hostname }}-vault-node"
+
+{% for host in groups[vault_raft_cluster_inventory_group | default("vault")] %}
+{% if host != inventory_hostname %}
+    retry_join {
+      leader_api_addr = "http://{{ hostvars[host]['ansible_default_ipv4']['address'] }}:{{ vault_host_local_listening_port }}"
+    }
+{% endif %}
+{% endfor %}
+}

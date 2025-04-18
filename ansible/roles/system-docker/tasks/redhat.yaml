@@ -1,0 +1,68 @@
+---
+# Активация маршрутизации в системе, для будущей сборки образа Docker через Ansible:
+- name: Enable IP forwarding on RedHat family distro
+  sysctl:
+    name: net.ipv4.ip_forward
+    state: present
+    value: "1"
+    sysctl_set: true
+    reload: true
+
+# Создание группы с именем docker для последующего использования в системе:
+- name: Ensure that docker group exists on RedHat family distro
+  group:
+    name: "{{ system_docker_group_name }}"
+    state: present
+
+# Добавление репозитория для последующей установки Docker в системе:
+- name: Add package repository address on RedHat family distro (Only CentOS)
+  yum_repository:
+    description: Docker Repository
+    name: "{{ system_redhat_centos_docker_repository_name }}"
+    baseurl: "{{ system_redhat_centos_docker_repository_baseurl }}"
+    gpgkey: "{{ system_redhat_centos_docker_repository_gpgkey }}"
+    gpgcheck: true
+  when: ansible_distribution == 'CentOS'
+
+# Добавление репозитория для последующей установки Docker в системе:
+- name: Add package repository address on RedHat family distro (Only RedHat)
+  get_url:
+    url: "{{ system_redhat_docker_repository_url }}"
+    dest: "{{ system_redhat_docker_repository_destination }}"
+  when: ansible_distribution == 'RedHat'
+
+# Загрузка дополнительного RPM-пакета из Интернета, для установки Docker в системе (актуально для Centos 9):
+- name: Install a libcgroup package on RedHat family distro
+  yum:
+    name: "{{ system_redhat_docker_libcgroup }}"
+    state: present
+    disable_gpg_check: true
+  when: 
+    - ansible_distribution in ['CentOS', 'RedHat', 'Red Hat Enterprise Linux']
+    - ansible_distribution_version is version('9', '>=')
+
+# Установка Docker с помощью пакетного менеджера:
+- name: Install Docker on RedHat family distro
+  yum:
+    name: "{{ system_redhat_docker_packages }}"
+    state: present
+    update_cache: true
+
+# Запуск сервиса Docker с помощью Systemd:
+- name: Start Docker service on RedHat family distro
+  service:
+    name: "{{ system_docker_systemd_service }}"
+    state: started
+    enabled: true
+    daemon_reload: true
+
+# Проверка того, был ли запущен Docker в системе:
+- name: Check if Docker is working now on RedHat family distro
+  systemd:
+    name: "{{ system_docker_systemd_service }}"
+  register: docker_service_status
+
+# Результат выполненной ранее проверки:
+- name: The result of our check status on RedHat family distro
+  debug:
+    var: docker_service_status.status.ActiveState

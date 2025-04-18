@@ -1,0 +1,10 @@
+---
+# Данный файл используется для преобразования экземпляров в реальное состояние, объявленное в тестируемых ролях:
+- name: Converge
+  hosts: all
+  gather_facts: true
+  tasks:
+    # Данный шаг вызывает роль docker-single-vault для прогона тестов с помощью Molecule:
+    - name: "Include docker-single-vault role for testing"
+      include_role:
+        name: "docker-single-vault"

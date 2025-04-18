@@ -1,0 +1,92 @@
+---
+# Вызов предварительной роли system-prepare для полноценного запуска текущей роли:
+- name: Import system-prepare role for running current role on RedHat family distro
+  import_role:
+    name: system-prepare
+    tasks_from: main
+
+# Создание группы с именем vault:
+- name: Create Transit Vault group on RedHat family distro
+  group:
+    name: "{{ vault_manual_transit_user_and_group }}"
+    state: present
+    gid: 452
+
+# Создание пользователя с именем vault:
+- name: Create Transit Vault user on RedHat family distro
+  user:
+    name: "{{ vault_manual_transit_user_and_group }}"
+    groups: "{{ vault_manual_transit_user_and_group }}"
+    home: "{{ vault_manual_transit_dir_data }}"
+    shell: /sbin/nologin
+    create_home: true
+    append: true
+    uid: 452
+
+# Создание нескольких директорий для последующей работы с Vault в режиме работы Transit:
+- name: Create Transit Vault directories on RedHat family distro
+  file:
+    state: directory
+    path: "{{ item.path }}"
+    mode: "{{ vault_manual_transit_dir_mode }}"
+    owner: "{{ vault_manual_transit_user_and_group }}"
+    group: "{{ vault_manual_transit_user_and_group }}"
+  loop:
+    - {path: "{{ vault_manual_transit_dir_config }}"}
+    - {path: "{{ vault_manual_transit_dir_data }}"}
+
+# Загрузка архива с бинарным файлом из Интернета по прямой ссылке:
+- name: Download Transit Vault archive for future installation on RedHat family distro
+  get_url:
+    url: "{{ vault_manual_transit_file_archive_link }}"
+    mode: "{{ vault_manual_transit_file_mode }}"
+    dest: "/tmp/{{ vault_manual_transit_file_archive_name }}"
+    force: false
+  changed_when: false
+
+# Извлечение архива и перемещение бинарного файла в соответствующую директорию:
+- name: Unpack the Transit Vault archive and move the binary file on RedHat family distro
+  unarchive:
+    src: "/tmp/{{ vault_manual_transit_file_archive_name }}"
+    dest: "{{ vault_manual_transit_path_binary }}"
+    remote_src: true
+
+# Удаление архива после извлечения бинарного файла:
+- name: Remove Transit Vault archive after extraction on RedHat family distro
+  file:
+    path: "/tmp/{{ vault_manual_transit_file_archive_name }}"
+    state: absent
+  changed_when: false
+
+# Копирование всех конфигурационных файлов Vault в режиме работы Transit и их последующая отправка в соответствующие директории:
+- name: Copy Transit Vault configuration files from templates on RedHat family distro
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode | default(vault_manual_transit_file_mode) }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+  loop:
+    - src: "templates/{{ vault_manual_transit_file_autocomplete_j2 }}"
+      dest: "{{ vault_manual_transit_file_autocomplete_path }}"
+      mode: "{{ vault_manual_transit_file_mode }}"
+      owner: "{{ vault_manual_transit_user_and_group }}"
+      group: "{{ vault_manual_transit_user_and_group }}"
+    - src: "templates/{{ vault_manual_transit_file_config }}.j2"
+      dest: "{{ vault_manual_transit_dir_config }}/{{ vault_manual_transit_file_config }}"
+      mode: "{{ vault_manual_transit_file_mode }}"
+      owner: "{{ vault_manual_transit_user_and_group }}"
+      group: "{{ vault_manual_transit_user_and_group }}"
+    - src: "templates/{{ vault_manual_transit_file_systemd }}.j2"
+      dest: "/usr/lib/systemd/system/{{ vault_manual_transit_file_systemd }}"
+      mode: "{{ vault_manual_transit_file_mode }}"
+      owner: "0"
+      group: "0"
+
+# Запуск и добавление в автозагрузку сервиса Vault в режиме работы Transit с помощью Systemd:
+- name: Start Vault service on RedHat family distro
+  service:
+    name: vault
+    state: started
+    enabled: true
+    daemon_reload: true

@@ -1,0 +1,30 @@
+---
+services:
+  vault:
+    build:
+      context: .
+      dockerfile: {{ vault_docker_file_dockerfile }}
+      args:
+        VERSION: {{ vault_current_version }}
+    container_name: vault
+    image: vault
+    restart: on-failure
+    command: vault server -config=/vault/config/{{ vault_docker_file_config }}
+    user: vault
+    environment:
+      VAULT_ADDR: http://localhost:{{ vault_host_local_listening_port }}
+      SKIP_SETCAP: true
+    ports:
+      - {{ vault_host_local_listening_address }}:{{ vault_host_local_listening_port }}:{{ vault_host_local_listening_port }}
+    volumes:
+      - ./config/{{ vault_docker_file_config }}:/vault/config/{{ vault_docker_file_config }}
+      - ./data:{{ vault_docker_dir_data }}
+    cap_add:
+      - IPC_LOCK
+    networks:
+      - vault
+
+networks:
+  vault:
+    name: vault
+    driver: bridge

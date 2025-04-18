@@ -1,0 +1,2 @@
+complete -C {{ vault_manual_transit_path_binary }}/vault vault
+export VAULT_ADDR="http://127.0.0.1:{{ vault_host_local_listening_port }}"

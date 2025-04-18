@@ -1,0 +1,2 @@
+complete -C {{ vault_binary_path }}/vault vault
+export VAULT_ADDR="http://{{ vault_host_local_listening_address }}:{{ vault_host_local_listening_port }}"

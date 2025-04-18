@@ -1,0 +1,47 @@
+# Глобальные переменные, используемые во всех ролях, которые относятся к установке и настройке Vault:
+vault_current_version: "1.19.0"
+vault_host_local_listening_address: "0.0.0.0"
+vault_host_local_listening_port: "8200"
+
+# Глобальные переменные, используемые для выполнения ролей по развертыванию Transit Vault (manual-transit-single-vault и docker-transit-single-vault):
+vault_transit_backend_unseal_host: "3.76.202.251"
+vault_transit_backend_host_port: "8200" # 443, если он за Proxy и у вас SSL
+vault_transit_backend_token: "hvs.CAESIMlIjUGUOQMnbsM43bVDjmBVzbH-gTJ2Ebe1IFNkD3YoGh4KHGh2cy5pdDZlekRKYlR1bU0xN2t0WHp6dzFiblA"
+vault_transit_backend_key_name: "autounseal"
+vault_transit_backend_mount_path: "transit-backend-01/"
+vault_transit_backend_disable_renewal: false
+vault_transit_backend_tls_skip_verify: true # false, если у вас SSL
+
+
+
+
+
+# Глобальные переменные, используемые для выполнения роли по развертыванию Manual Cluster Vault on Raft (manual-cluster-raft-vault):
+vault_raft_cluster_inventory_group: "vault"
+vault_raft_cluster_name: "vault"
+vault_raft_cluster_port: "8201"
+vault_raft_cluster_http_config: "vault_raft_cluster_http_config.hcl.j2"
+vault_raft_cluster_https_config: "vault_raft_cluster_https_config.hcl.j2"
+vault_raft_cluster_enable_https_config: true
+
+# Глобальные переменные, используемые для инициализации и распечатывания Vault (unseal-single-vault):
+vault_secret_shares: 5
+vault_secret_threshold: 3
+tls_skip_verify: true # false, если у вас SSL
+vault_tls_disable: true # false, если у вас SSL
+
+# ----------------------------------------------------------------------------------------------------------
+# Ниже представлен набор переменных, которые отвечают за работу тестов при использовании Molecule в Ansible:
+
+# Переменные, используемые для запуска тестов с помощью Molecule на базе драйвера EC2 в AWS:
+aws_profile: "default" # Имя вашего профиля при работе с AWS. Если в переменной пусто, то значение по умолчанию: default;
+aws_region: "eu-central-1" # Название региона, в котором будут выполнены тесты. Если в переменной пусто, то значение по умолчанию: eu-central-1;
+aws_instance_type: "t3a.small" # Тип инстанса, на базе которого будут запущены тесты в EC2. Если в переменной пусто, то значение по умолчанию: t3a.medium;
+aws_vpc_subnet_id: "" # Идентификатор подсети, который существует в рамках созданной VPC. Можно брать значение сети по умолчанию в AWS. Если значение пустое, то во время тестов будет создана эфемерная сеть;
+aws_vpc_id: "vpc-cef0f9a7" # Идентификатор сети, представляющий собой ID VPC. Можно брать значение VPC по умолчанию в AWS. Если значение пустое, то во время тестов будет создана эфемерная сеть;
+aws_key_method: "ec2" # Метод по созданию SSH-ключей для подключения. На выбор может быть два значения – ec2 или cloud-init. Если в переменной пусто, то значение по умолчанию: ec2;
+aws_default_ssh_user: "ec2-user" # Имя пользователя для подключения к созданному EC2 во время тестов. Если в переменной пусто, то значение по умолчанию: ubuntu;
+aws_local_private_key: "~/cosmos.pem" # Приватный ключ для подключения к EC2. Необходимо указать путь к файлу. По умолчанию создает в корне Molecule с именем id_rsa;
+aws_local_public_key: "" # Приватный ключ для подключения к EC2. Необходимо указать путь к файлу. По умолчанию создает в корне Molecule с именем id_rsa.pub;
+aws_custom_key_name: "" # Произвольное имя ключа в секции Key Pairs в секции EC2 AWS. По умолчанию создается произвольное имя с приставкой molecule-;
+aws_security_group_name: "" # Произвольное имя существующей Security Group в секции EC2 AWS. По умолчанию создается произвольное имя с приставкой molecule-;

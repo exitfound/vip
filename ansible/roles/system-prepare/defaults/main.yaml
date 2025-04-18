@@ -1,0 +1,26 @@
+---
+
+# Переменные, необходимые для установки пакетов, применимые ко всем дистрибутивам в равной степени:
+
+# Переменные, необходимые для установки пакетов на дистрибутиве семейства SUSE:
+
+system_suse_packages_list:
+  - bash-completion
+  - curl
+  - unzip
+
+# Переменные, необходимые для установки пакетов на дистрибутиве семейства RedHat:
+
+system_redhat_packages_list:
+  - bash-completion
+  - curl
+  - unzip
+
+# Переменные, необходимые для установки пакетов на дистрибутиве семейства Debian:
+
+system_debian_packages_list:
+  - apt-transport-https
+  - bash-completion
+  - ca-certificates
+  - curl
+  - unzip

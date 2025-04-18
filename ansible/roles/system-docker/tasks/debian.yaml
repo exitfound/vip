@@ -1,0 +1,55 @@
+---
+# Удаление старой версии Docker, если таковая была установлена ранее:
+- name: Ensure that old versions of Docker are not installed on Debian family distro
+  package:
+    name: "{{ system_debian_docker_packages_absent }}"
+    state: absent
+
+# Создание группы с именем docker для последующего использования в системе:
+- name: Ensure that docker group exists on Debian family distro
+  group:
+    name: "{{ system_docker_group_name }}"
+    state: present
+
+# Добавление ключа репозитория для последующей установки Docker из пакетного менеджера:
+- name: Add Docker repository key on Debian family distro
+  get_url:
+    url: "{{ system_debian_docker_apt_key }}"
+    dest: "{{ system_debian_docker_destination_key }}"
+    mode: "{{ system_debian_docker_file_mode }}"
+    owner: "0"
+    group: "0"
+    force: true
+
+# Добавление адреса репозитория для последующей установки Docker из пакетного менеджера:
+- name: Add package repository address to sources.list on Debian family distro
+  apt_repository:
+    repo: "deb [arch=amd64 signed-by={{ system_debian_docker_destination_key }}] {{ system_debian_docker_apt_repository }} {{ ansible_distribution_release }} stable"
+    state: present
+    update_cache: true
+
+# Установка Docker с помощью пакетного менеджера:
+- name: Install Docker on Debian family distro
+  apt:
+    name: "{{ system_debian_docker_packages }}"
+    state: present
+    update_cache: true
+
+# Запуск сервиса Docker с помощью Systemd:
+- name: Start Docker service on Debian family distro
+  service:
+    name: "{{ system_docker_systemd_service }}"
+    state: started
+    enabled: true
+    daemon_reload: true
+
+# Проверка того, был ли запущен Docker в системе:
+- name: Check if Docker is working now on Debian family distro
+  systemd:
+    name: "{{ system_docker_systemd_service }}"
+  register: docker_service_status
+
+# Результат выполненной ранее проверки:
+- name: The result of our check status on Debian family distro
+  debug:
+    var: docker_service_status.status.ActiveState

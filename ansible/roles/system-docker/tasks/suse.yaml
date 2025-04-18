@@ -1,0 +1,54 @@
+---
+# Создание группы docker в используемой системе:
+- name: Ensure that docker group exists on SUSE family distro
+  group:
+    name: "{{ system_docker_group_name }}"
+    state: present
+
+# Установка Docker с помощью пакетного менеджера:
+- name: Install Docker on SUSE family distro
+  zypper:
+    name: "{{ system_suse_docker_packages }}"
+    state: present
+    update_cache: true
+
+# Запуск сервиса Docker через systemd:
+- name: Start Docker service on SUSE family distro
+  service:
+    name: "{{ system_docker_systemd_service }}"
+    state: started
+    enabled: true
+    daemon_reload: true
+
+# Проверка того, был ли запущен Docker в системе:
+- name: Check if Docker is working now on SUSE family distro
+  systemd:
+    name: "{{ system_docker_systemd_service }}"
+  register: docker_service_status
+
+# Результат выполненной ранее проверки:
+- name: The result of our check status on SUSE family distro
+  debug:
+    var: docker_service_status.status.ActiveState
+
+# Создание директории для установки плагина Compose в Docker:
+- name: Create Docker Compose directories on SUSE family distro (Only for SLES)
+  file:
+    state: directory
+    path: "{{ system_suse_docker_compose_dir }}"
+    mode: "{{ system_suse_docker_compose_mode }}"
+    owner: "0"
+    group: "0"
+  when:
+    - ansible_facts['os_family'] == 'Suse'
+    - ansible_facts['distribution'] == 'SLES'
+
+# Загрузка плагина Compose для работы с Docker:
+- name: Download Docker Compose plugin on SUSE family distro (Only for SLES)
+  get_url:
+    url: "{{ system_suse_docker_compose_link }}"
+    dest: "{{ system_suse_docker_compose_dir }}/docker-compose"
+    mode: "{{ system_suse_docker_compose_mode }}"
+  when:
+    - ansible_facts['os_family'] == 'Suse'
+    - ansible_facts['distribution'] == 'SLES'
