@@ -1,4 +1,6 @@
 **/data
 **/vault_keys/
+**/.terraform
+**/terraform.tfstate*
 LICENSE.txt
 vault_1.*
