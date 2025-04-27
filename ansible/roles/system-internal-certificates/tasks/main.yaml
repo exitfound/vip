@@ -1,0 +1,4 @@
+---
+# Вызов yaml файла для создания самоподписного CA и последующего выпуска сертификатов для всех узлов:
+- name: Invocation of the certificates.yaml task
+  include_tasks: certificates.yaml

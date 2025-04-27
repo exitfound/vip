@@ -7,10 +7,10 @@ StartLimitIntervalSec=60
 StartLimitBurst=3
 
 [Service]
-ExecStart={{ vault_manual_path_binary }}/vault server -config={{ vault_manual_dir_config }}/{{ vault_manual_file_config }}
+ExecStart={{ local_vault_manual_path_binary }}/vault server -config={{ local_vault_manual_dir_config }}/{{ local_vault_manual_file_config }}
 ExecReload=/bin/kill -HUP $MAINPID
-User={{ vault_manual_user_and_group }}
-Group={{ vault_manual_user_and_group }}
+User={{ local_vault_manual_user }}
+Group={{ local_vault_manual_group }}
 KillMode=process
 KillSignal=SIGINT
 Restart=on-failure

@@ -1,9 +1,8 @@
 ---
-
 # Переменные, необходимые для распечатывания Single Vault (любой режим запуска), применимые ко всем дистрибутивам в равной степени:
-
-display_init_response: false
-vault_keys_output_path: "vault_keys"
+local_vault_single_unseal_output_keys: "vault_keys"
+local_vault_single_unseal_status_code: [200, 501, 503]
+local_vault_single_unseal_json_file: "/dev/shm/vault_init.json"
 
 # Переменные, необходимые для распечатывания Single Vault (любой режим запуска) на дистрибутиве семейства SUSE:
 

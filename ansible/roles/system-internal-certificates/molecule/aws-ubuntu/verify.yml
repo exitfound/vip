@@ -1,0 +1,23 @@
+---
+# Данный файл знаменует об успешном завершении запускаемых ранее тестов в Molecule:
+- name: Verify our tests in Molecule
+  hosts: all
+  tasks:
+    - name: Read CA cert
+      community.crypto.x509_certificate_info:
+        path: "{{ global_vault_system_internal_dir_ca }}/ca.crt"
+      register: ca_certificate_info
+      delegate_to: "{{ global_vault_system_internal_delegate_host }}"
+      run_once: true
+
+    - name: Read signed cert on node
+      community.crypto.x509_certificate_info:
+        path: "{{ global_vault_system_internal_dir_node_certificates }}/{{ inventory_hostname }}.crt"
+      register: node_certificate_info
+
+    - name: Check if issuer of node cert matches CA subject
+      ansible.builtin.assert:
+        that:
+          - node_certificate_info.issuer == ca_certificate_info.subject
+        fail_msg: "Certificate on {{ inventory_hostname }} is not signed by the expected CA"
+        success_msg: "Certificate on {{ inventory_hostname }} is valid and signed by expected CA"

@@ -48,7 +48,7 @@ platforms:
   #   public_key_path: "{{ aws_local_public_key }}"
   #   security_group_name: "{{ aws_secruity_group_name }}"
 
-  - name: "Red Hat 8"
+  - name: "RedHat 8"
     aws_profile: "{{ aws_profile }}"
     region: "{{ aws_region }}"
     image_name: "RHEL-8.10.0_HVM-20250121-x86_64-1662-Hourly2-GP3" # RHEL 8.10
@@ -68,7 +68,7 @@ platforms:
     public_key_path: "{{ aws_local_public_key }}"
     security_group_name: "{{ aws_secruity_group_name }}"
 
-  - name: "Red Hat 9"
+  - name: "RedHat 9"
     aws_profile: "{{ aws_profile }}"
     region: "{{ aws_region }}"
     image_name: "RHEL-9.5.0_HVM-20250128-x86_64-0-Hourly2-GP3" # RHEL 9.5

@@ -12,7 +12,7 @@
     # Проверка доступности Vault после установки:
     - name: Check Vault for Availability
       uri:
-        url: "http://127.0.0.1:{{ vault_host_local_listening_port }}"
+        url: "{{ (global_vault_raft_cluster_enable_https | bool) | ternary('https', 'http') }}://127.0.0.1:{{ global_vault_host_listening_port }}"
         method: GET
         timeout: 10
         return_content: false

@@ -7,10 +7,10 @@ StartLimitIntervalSec=60
 StartLimitBurst=3
 
 [Service]
-ExecStart=/usr/local/bin/vault server -config={{ vault_config_dir }}/{{ vault_config_file }}
+ExecStart={{ local_vault_manual_raft_cluster_path_binary }}/vault server -config={{ local_vault_manual_raft_cluster_dir_config }}/{{ local_vault_manual_raft_cluster_file_config }}
 ExecReload=/bin/kill -HUP $MAINPID
-User={{ vault_user_and_group }}
-Group={{ vault_user_and_group }}
+User={{ local_vault_manual_raft_cluster_user }}
+Group={{ local_vault_manual_raft_cluster_group }}
 KillMode=process
 KillSignal=SIGINT
 Restart=on-failure

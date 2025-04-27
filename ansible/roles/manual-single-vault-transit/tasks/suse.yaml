@@ -8,16 +8,16 @@
 # Создание группы с именем Vault:
 - name: Create Transit Vault group on SUSE family distro
   group:
-    name: "{{ vault_manual_transit_user_and_group }}"
+    name: "{{ local_vault_manual_transit_group }}"
     state: present
     gid: 452
 
 # Создание пользователя с именем Vault:
 - name: Create Transit Vault user on SUSE family distro
   user:
-    name: "{{ vault_manual_transit_user_and_group }}"
-    groups: "{{ vault_manual_transit_user_and_group }}"
-    home: "{{ vault_manual_transit_dir_data }}"
+    name: "{{ local_vault_manual_transit_user }}"
+    groups: "{{ local_vault_manual_transit_group }}"
+    home: "{{ local_vault_manual_transit_dir_data }}"
     shell: /sbin/nologin
     create_home: true
     append: true
@@ -28,60 +28,54 @@
   file:
     state: directory
     path: "{{ item.path }}"
-    mode: "{{ vault_manual_transit_dir_mode }}"
-    owner: "{{ vault_manual_transit_user_and_group }}"
-    group: "{{ vault_manual_transit_user_and_group }}"
+    mode: "{{ local_vault_manual_transit_dir_mode }}"
+    owner: "{{ local_vault_manual_transit_user }}"
+    group: "{{ local_vault_manual_transit_group }}"
   loop:
-    - {path: "{{ vault_manual_transit_dir_config }}"}
-    - {path: "{{ vault_manual_transit_dir_data }}"}
+    - {path: "{{ local_vault_manual_transit_dir_config }}"}
+    - {path: "{{ local_vault_manual_transit_dir_data }}"}
+    - {path: "{{ local_vault_manual_transit_dir_tls }}"}
 
 # Загрузка архива с бинарным файлом Vault из Интернета по прямой ссылке:
 - name: Download Transit Vault archive for future installation on SUSE family distro
   get_url:
-    url: "{{ vault_manual_transit_file_archive_link }}"
-    mode: "{{ vault_manual_transit_file_mode }}"
-    dest: "/tmp/{{ vault_manual_transit_file_archive_name }}"
-    force: false
-  changed_when: false
+    url: "{{ local_vault_manual_transit_file_archive_link }}"
+    mode: "{{ local_vault_manual_transit_file_mode }}"
+    dest: "/tmp/{{ local_vault_manual_transit_file_archive_name }}"
+    force: true
 
 # Извлечение архива и перемещение бинарного файла в соответствующую директорию:
 - name: Unpack the Transit Vault archive and move the binary file on SUSE family distro
   unarchive:
-    src: "/tmp/{{ vault_manual_transit_file_archive_name }}"
-    dest: "{{ vault_manual_transit_path_binary }}"
+    src: "/tmp/{{ local_vault_manual_transit_file_archive_name }}"
+    dest: "{{ local_vault_manual_transit_path_binary }}"
     remote_src: true
 
-# Удаление архива после извлечения бинарного файла Vault:
-- name: Remove Transit Vault archive after extraction on SUSE family distro
-  file:
-    path: "/tmp/{{ vault_manual_transit_file_archive_name }}"
-    state: absent
-  changed_when: false
-
-# Копирование всех конфигурационных файлов Vault и их последующая отправка в соответствующие директории:
+# Копирование всех конфигурационных файлов Vault в режиме работы Transit и их последующая отправка в соответствующие директории:
 - name: Copy Transit Vault configuration files from templates on SUSE family distro
   template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
-    mode: "{{ item.mode | default(vault_manual_transit_file_mode) }}"
+    mode: "{{ item.mode | default(local_vault_manual_transit_file_mode) }}"
     owner: "{{ item.owner }}"
     group: "{{ item.group }}"
   loop:
-    - src: "templates/{{ vault_manual_transit_file_autocomplete_j2 }}"
-      dest: "{{ vault_manual_transit_file_autocomplete_path }}"
-      mode: "{{ vault_manual_transit_file_mode }}"
-      owner: "{{ vault_manual_transit_user_and_group }}"
-      group: "{{ vault_manual_transit_user_and_group }}"
-    - src: "templates/{{ vault_manual_transit_file_config }}.j2"
-      dest: "{{ vault_manual_transit_dir_config }}/{{ vault_manual_transit_file_config }}"
-      mode: "{{ vault_manual_transit_file_mode }}"
-      owner: "{{ vault_manual_transit_user_and_group }}"
-      group: "{{ vault_manual_transit_user_and_group }}"
-    - src: "templates/{{ vault_manual_transit_file_systemd }}.j2"
-      dest: "/usr/lib/systemd/system/{{ vault_manual_transit_file_systemd }}"
-      mode: "{{ vault_manual_transit_file_mode }}"
+    - src: "templates/{{ local_vault_manual_transit_file_autocomplete_j2 }}"
+      dest: "{{ local_vault_manual_transit_file_autocomplete_path }}"
+      mode: "{{ local_vault_manual_transit_file_mode }}"
+      owner: "{{ local_vault_manual_transit_user }}"
+      group: "{{ local_vault_manual_transit_group }}"
+    - src: "templates/{{ local_vault_manual_transit_file_config }}.j2"
+      dest: "{{ local_vault_manual_transit_dir_config }}/{{ local_vault_manual_transit_file_config }}"
+      mode: "{{ local_vault_manual_transit_file_mode }}"
+      owner: "{{ local_vault_manual_transit_user }}"
+      group: "{{ local_vault_manual_transit_group }}"
+    - src: "templates/{{ local_vault_manual_transit_file_systemd }}.j2"
+      dest: "/usr/lib/systemd/system/{{ local_vault_manual_transit_file_systemd }}"
+      mode: "{{ local_vault_manual_transit_file_mode }}"
       owner: "0"
       group: "0"
+  notify: Restart Transit Vault
 
 # Запуск и добавление в автозагрузку сервиса Vault в режиме работы Transit с помощью Systemd:
 - name: Start Transit Vault service on SUSE family distro
@@ -90,3 +84,4 @@
     state: started
     enabled: true
     daemon_reload: true
+  changed_when: false

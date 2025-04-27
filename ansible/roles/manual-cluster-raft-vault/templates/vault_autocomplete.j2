@@ -1,2 +1,2 @@
-complete -C {{ vault_binary_path }}/vault vault
-export VAULT_ADDR="http://{{ vault_host_local_listening_address }}:{{ vault_host_local_listening_port }}"
+complete -C {{ local_vault_manual_raft_cluster_path_binary }}/vault vault
+export VAULT_ADDR="{{ (global_vault_raft_cluster_enable_https | bool) | ternary('https', 'http') }}://127.0.0.1:{{ global_vault_host_listening_port }}"

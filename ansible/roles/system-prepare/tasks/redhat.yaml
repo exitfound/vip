@@ -1,5 +1,5 @@
 ---
-# Обновление всех пакетов для указанного семейства дистрибутивов:
+# # Обновление всех пакетов для указанного семейства дистрибутивов:
 - name: Update all packages on RedHat family distro
   yum:
     name: '*'
@@ -11,7 +11,7 @@
 # Установка пакетов RPM из списка необходимых, которые определены в виде переменной, в директории defaults:
 - name: Install general packages on RedHat family distro
   yum:
-    name: "{{ system_redhat_packages_list }}"
+    name: "{{ local_system_redhat_packages_list }}"
     state: present
     skip_broken: true
     update_cache: true

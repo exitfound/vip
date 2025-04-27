@@ -1,4 +1,4 @@
 ---
-# Вызов yaml файла для инициализации и распечатывания Single Vault (любой режим запуска):
+# Вызов файла unseal-single-vault.yaml для инициализации и распечатывания Single Vault (любой режим запуска):
 - name: Invocation of the unseal-single-vault.yaml task
   include_tasks: unseal-single-vault.yaml

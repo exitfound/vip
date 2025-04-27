@@ -12,7 +12,7 @@
     # # Проверка доступности Vault после установки:
     # - name: Check Vault for Availability
     #   uri:
-    #     url: "http://127.0.0.1:8200"
+    #     url: "http://127.0.0.1:{{ global_vault_host_listening_port }}"
     #     method: GET
     #     timeout: 30
     #     return_content: false

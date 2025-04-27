@@ -1,5 +1,5 @@
 ---
-# Обновление всех пакетов для указанного семейства дистрибутивов:
+# # Обновление всех пакетов для указанного семейства дистрибутивов:
 - name: Update all packages on SUSE family distro
   zypper:
     name: '*'
@@ -11,6 +11,6 @@
 # Установка пакетов RPM из списка необходимых, которые определены в виде переменной, в директории defaults:
 - name: Install general packages on SUSE family distro
   zypper:
-    name: "{{ system_suse_packages_list }}"
+    name: "{{ local_system_suse_packages_list }}"
     state: present
     update_cache: true

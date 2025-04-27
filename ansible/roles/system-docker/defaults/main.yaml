@@ -1,34 +1,34 @@
 ---
 # Переменные, необходимые для установки и настройки Docker, применимые ко всем дистрибутивам в равной степени:
-system_docker_group_name: "docker"
-system_docker_systemd_service: "docker"
+local_system_docker_group_name: "docker"
+local_system_docker_systemd_service: "docker"
 
 # Переменные, необходимые для установки и настройки Docker на дистрибутиве семейства SUSE:
-system_suse_docker_compose_mode: "0755"
-system_suse_docker_compose_dir: /usr/local/lib/docker/cli-plugins
-system_suse_docker_compose_link: https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64
-system_suse_docker_packages:
+local_system_suse_docker_compose_dir: "/usr/local/lib/docker/cli-plugins"
+local_system_suse_docker_compose_mode: "0755"
+local_system_suse_docker_compose_url: "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64"
+local_system_suse_docker_packages_install:
   - docker
   - docker-bash-completion
 
 # Переменные, необходимые для установки и настройки Docker на дистрибутиве семейства RedHat:
-system_redhat_centos_docker_repository_name: "docker"
-system_redhat_centos_docker_repository_baseurl: "https://download.docker.com/linux/centos/8/x86_64/stable/"
-system_redhat_centos_docker_repository_gpgkey: "https://download.docker.com/linux/centos/gpg"
-system_redhat_docker_libcgroup: "https://kojihub.stream.centos.org/kojifiles/packages/libcgroup/0.41/19.el8/x86_64/libcgroup-0.41-19.el8.x86_64.rpm"
-system_redhat_docker_repository_url: "https://download.docker.com/linux/rhel/docker-ce.repo"
-system_redhat_docker_repository_destination: "/etc/yum.repos.d/docker-ce.repo"
-system_redhat_docker_packages:
+local_system_redhat_centos_docker_repository_baseurl: "https://download.docker.com/linux/centos/8/x86_64/stable/"
+local_system_redhat_centos_docker_repository_gpgkey: "https://download.docker.com/linux/centos/gpg"
+local_system_redhat_centos_docker_repository_name: "docker"
+local_system_redhat_docker_libcgroup: "https://kojihub.stream.centos.org/kojifiles/packages/libcgroup/0.41/19.el8/x86_64/libcgroup-0.41-19.el8.x86_64.rpm"
+local_system_redhat_docker_repository_url: "https://download.docker.com/linux/rhel/docker-ce.repo"
+local_system_redhat_docker_repository_destination: "/etc/yum.repos.d/docker-ce.repo"
+local_system_redhat_docker_packages_install:
   - docker-ce
 
 # Переменные, необходимые для установки и настройки Docker на дистрибутиве семейства Debian:
-system_debian_docker_apt_repository: https://download.docker.com/linux/{{ ansible_distribution | lower}}
-system_debian_docker_apt_key: https://download.docker.com/linux/{{ ansible_distribution | lower}}/gpg
-system_debian_docker_destination_key: /etc/apt/trusted.gpg.d/docker.asc
-system_debian_docker_file_mode: "0644"
-system_debian_docker_packages:
+local_system_debian_docker_apt_repository: "https://download.docker.com/linux/{{ ansible_distribution | lower}}"
+local_system_debian_docker_apt_key: "https://download.docker.com/linux/{{ ansible_distribution | lower}}/gpg"
+local_system_debian_docker_destination_key: "/etc/apt/trusted.gpg.d/docker.asc"
+local_system_debian_docker_file_mode: "0644"
+local_system_debian_docker_packages_install:
   - docker-ce
-system_debian_docker_packages_absent:
+local_system_debian_docker_packages_absent:
   - docker
   - docker.io
   - docker-engine

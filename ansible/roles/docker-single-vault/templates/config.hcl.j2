@@ -4,10 +4,10 @@ max_lease_ttl     = "768h"
 default_lease_ttl = "24h"
 
 storage "file" {
-  path            = "{{ vault_docker_dir_data }}"
+  path            = "{{ local_vault_docker_dir_data }}"
 }
 
 listener "tcp" {
-  address         = "{{ vault_host_local_listening_address }}:{{ vault_host_local_listening_port }}"
+  address         = "{{ global_vault_host_listening_address }}:{{ global_vault_host_listening_port }}"
   tls_disable     = "true"
 }

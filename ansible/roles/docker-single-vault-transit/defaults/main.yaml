@@ -1,15 +1,13 @@
 ---
-
 # Переменные, необходимые для установки и настройки Transit Single Vault с помощью Docker, применимые ко всем дистрибутивам в равной степени:
-
-vault_docker_transit_dir_mode: "0755"
-vault_docker_transit_dir_main: "/opt/vault"
-vault_docker_transit_dir_data: "/opt/vault/data"
-vault_docker_transit_dir_config: "/opt/vault/config"
-vault_docker_transit_file_mode: "0644"
-vault_docker_transit_file_config: "config.hcl"
-vault_docker_transit_file_composefile: "vault-docker-compose.yaml"
-vault_docker_transit_file_dockerfile: "vault.dockerfile"
+local_vault_docker_transit_dir_mode: "0755"
+local_vault_docker_transit_dir_main: "/opt/vault"
+local_vault_docker_transit_dir_data: "/opt/vault/data"
+local_vault_docker_transit_dir_config: "/opt/vault/config"
+local_vault_docker_transit_file_mode: "0644"
+local_vault_docker_transit_file_config: "config.hcl"
+local_vault_docker_transit_file_composefile: "vault-docker-compose.yaml"
+local_vault_docker_transit_file_dockerfile: "vault.dockerfile"
 
 # Переменные, необходимые для установки и настройки Transit Single Vault с помощью Docker на дистрибутиве семейства SUSE:
 

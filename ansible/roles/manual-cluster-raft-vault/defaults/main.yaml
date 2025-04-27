@@ -1,18 +1,18 @@
 ---
-
 # Переменные, необходимые для установки и настройки Single Vault в мануальном режиме, применимые ко всем дистрибутивам в равной степени:
-
-vault_binary_file: "https://releases.hashicorp.com/vault/{{ vault_current_version }}/vault_{{ vault_current_version }}_linux_amd64.zip"
-vault_config_file: "config.hcl"
-vault_systemd_file: "vault.service"
-vault_autocomplete_file: "/etc/bash_completion.d/vault"
-vault_autocomplete_j2: "vault_autocomplete.j2"
-vault_config_dir: "/etc/vault.d"
-vault_raft_dir: "/opt/vault/raft"
-vault_binary_path: "/usr/local/bin"
-vault_dir_mode: "u=rwx,g=rwx,o=r"
-vault_file_mode: "u=rw,g=r,o=r"
-vault_user_and_group: "vault"
+local_vault_manual_raft_cluster_dir_mode: "0755"
+local_vault_manual_raft_cluster_dir_config: "/etc/vault.d"
+local_vault_manual_raft_cluster_dir_raft: "/opt/vault/raft"
+local_vault_manual_raft_cluster_file_mode: "0644"
+local_vault_manual_raft_cluster_file_archive_link: "https://releases.hashicorp.com/vault/{{ global_vault_current_version }}/vault_{{ global_vault_current_version }}_linux_amd64.zip"
+local_vault_manual_raft_cluster_file_archive_name: "vault.zip"
+local_vault_manual_raft_cluster_file_autocomplete_j2: "vault_autocomplete.j2"
+local_vault_manual_raft_cluster_file_autocomplete_path: "/etc/bash_completion.d/vault"
+local_vault_manual_raft_cluster_file_config: "config.hcl"
+local_vault_manual_raft_cluster_file_systemd: "vault.service"
+local_vault_manual_raft_cluster_path_binary: "/usr/local/bin"
+local_vault_manual_raft_cluster_group: "vault"
+local_vault_manual_raft_cluster_user: "vault"
 
 # Переменные, необходимые для установки и настройки Single Vault в мануальном режиме на дистрибутиве семейства SUSE:
 

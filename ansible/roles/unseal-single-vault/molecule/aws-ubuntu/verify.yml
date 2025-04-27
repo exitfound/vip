@@ -1,6 +1,6 @@
 ---
-# Данный файл знаменует успешное завершение запускаемых ранее тестов:
-- name: Verify
+# Данный файл знаменует об успешном завершении запускаемых ранее тестов в Molecule:
+- name: Verify our tests in Molecule
   hosts: all
   gather_facts: false
   tasks:
@@ -12,7 +12,7 @@
     # Проверка доступности Vault после установки:
     - name: Check Vault for Availability
       uri:
-        url: "http://127.0.0.1:{{ vault_host_local_listening_port }}"
+        url: "http://127.0.0.1:{{ global_vault_host_listening_port }}"
         method: GET
         timeout: 10
         return_content: false

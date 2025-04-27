@@ -16,32 +16,32 @@
   file:
     state: directory
     path: "{{ item.path }}"
-    mode: "{{ vault_docker_dir_mode }}"
+    mode: "{{ local_vault_docker_dir_mode }}"
     owner: "1000"
     group: "1000"
   loop:
-    - {path: "{{ vault_docker_dir_main }}"}
-    - {path: "{{ vault_docker_dir_data }}"}
-    - {path: "{{ vault_docker_dir_config }}"}
+    - {path: "{{ local_vault_docker_dir_main }}"}
+    - {path: "{{ local_vault_docker_dir_data }}"}
+    - {path: "{{ local_vault_docker_dir_config }}"}
 
 # Копирование конфигурационных файлов из директории templates и их последующая передача в рабочие директории Vault:
 - name: Copy config files in directories on RedHat family distro
   template:
     src: "templates/{{ item.file }}.j2"
     dest: "{{ item.path }}/{{ item.file }}"
-    mode: "{{ vault_docker_file_mode }}"
+    mode: "{{ local_vault_docker_file_mode }}"
     owner: "1000"
     group: "1000"
   loop:
-    - {path: "{{ vault_docker_dir_main }}", file: "{{ vault_docker_file_composefile }}"}
-    - {path: "{{ vault_docker_dir_main }}", file: "{{ vault_docker_file_dockerfile }}"}
-    - {path: "{{ vault_docker_dir_config }}", file: "{{ vault_docker_file_config }}"}
+    - {path: "{{ local_vault_docker_dir_main }}", file: "{{ local_vault_docker_file_composefile }}"}
+    - {path: "{{ local_vault_docker_dir_main }}", file: "{{ local_vault_docker_file_dockerfile }}"}
+    - {path: "{{ local_vault_docker_dir_config }}", file: "{{ local_vault_docker_file_config }}"}
 
 # Запуск Vault с помощью Docker Compose на удаленном узле:
 - name: Run Vault via Docker Compose on RedHat family distro
   community.docker.docker_compose_v2:
-    project_src: "{{ vault_docker_dir_main }}"
-    files: "{{ vault_docker_file_composefile }}"
+    project_src: "{{ local_vault_docker_dir_main }}"
+    files: "{{ local_vault_docker_file_composefile }}"
     build: "always"
     recreate: "always"
     state: "present"

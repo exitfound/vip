@@ -10,14 +10,14 @@ USER root
 
 RUN apk --no-cache add shadow \
     && usermod --uid 1000 ${USER} \
-    && mkdir -p {{ vault_docker_dir_data }} \
-    && chown -R ${USER}:${USER} {{ vault_docker_dir_data }} /vault/* \
+    && mkdir -p {{ local_vault_docker_dir_data }} \
+    && chown -R ${USER}:${USER} {{ local_vault_docker_dir_data }} /vault/* \
     && apk del shadow
 
 USER ${USER}
 
-COPY config/{{ vault_docker_file_config }} /vault/config/
+COPY config/{{ local_vault_docker_file_config }} /vault/config/
 
-EXPOSE {{ vault_host_local_listening_port }}
+EXPOSE {{ global_vault_host_listening_port }}
 
-HEALTHCHECK --interval=5m --timeout=3s CMD ["curl", "-f", "http://127.0.0.1:{{ vault_host_local_listening_port }} || exit 1"]
+HEALTHCHECK --interval=5m --timeout=3s CMD ["curl", "-f", "http://127.0.0.1:{{ global_vault_host_listening_port }} || exit 1"]
