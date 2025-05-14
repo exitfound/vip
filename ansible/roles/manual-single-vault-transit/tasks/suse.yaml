@@ -34,7 +34,6 @@
   loop:
     - {path: "{{ local_vault_manual_transit_dir_config }}"}
     - {path: "{{ local_vault_manual_transit_dir_data }}"}
-    - {path: "{{ local_vault_manual_transit_dir_tls }}"}
 
 # Загрузка архива с бинарным файлом Vault из Интернета по прямой ссылке:
 - name: Download Transit Vault archive for future installation on SUSE family distro
@@ -42,7 +41,7 @@
     url: "{{ local_vault_manual_transit_file_archive_link }}"
     mode: "{{ local_vault_manual_transit_file_mode }}"
     dest: "/tmp/{{ local_vault_manual_transit_file_archive_name }}"
-    force: true
+    force: false
 
 # Извлечение архива и перемещение бинарного файла в соответствующую директорию:
 - name: Unpack the Transit Vault archive and move the binary file on SUSE family distro

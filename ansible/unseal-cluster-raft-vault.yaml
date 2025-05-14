@@ -1,0 +1,19 @@
+---
+# Вызов роли для инициализации и распечатывания Cluster Vault на базе Raft на удаленных узлах:
+- name: Init and Unseal Single Vault on remote hosts
+  gather_facts: true
+  become: true
+  become_method: sudo
+  hosts:
+    - all
+
+  # Вызов непосредственно самой роли Unseal Cluster Vault на базе Raft для последующего распечатывания Vault в системе:
+  roles:
+    - system-unseal-cluster-raft-vault
+
+  # Информирование о том, что Vault был успешно проинициализирован и распечатан в запущенной ранее системе:
+  post_tasks:
+    - name: Information about the successful completion of the playbook
+      debug:
+        msg:
+          - "Your Cluster Vault has been successfully unsealed on the system"

@@ -8,7 +8,7 @@
 
 # Обновление центра сертификации в системе:
 - name: Update certificate store on each Node
-  command: update-ca-certificates
+  command: c_rehash
   environment:
     PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
   changed_when: false

@@ -32,7 +32,7 @@
     var: docker_service_status.status.ActiveState
 
 # Создание директории для установки дополнительного плагина Compose в Docker:
-- name: Create Docker Compose directories on SUSE family distro (Only for SLES)
+- name: Create Docker Compose directories on SUSE family distro
   file:
     state: directory
     path: "{{ local_system_suse_docker_compose_dir }}"
@@ -44,7 +44,7 @@
   #   - ansible_facts['distribution'] == 'SLES'
 
 # Загрузка дополнительного плагина Compose для работы с Docker:
-- name: Download Docker Compose plugin on SUSE family distro (Only for SLES)
+- name: Download Docker Compose plugin on SUSE family distro
   get_url:
     url: "{{ local_system_suse_docker_compose_url }}"
     dest: "{{ local_system_suse_docker_compose_dir }}/docker-compose"

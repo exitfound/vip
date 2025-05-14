@@ -2,9 +2,8 @@
 # Переменные, необходимые для установки и настройки Single Vault Transit в мануальном режиме, применимые ко всем дистрибутивам в равной степени:
 local_vault_manual_transit_dir_config: "/etc/vault.d"
 local_vault_manual_transit_dir_data: "/opt/vault/data"
-local_vault_manual_transit_dir_tls: "/opt/vault/tls"
 local_vault_manual_transit_dir_mode: "0755"
-local_vault_manual_transit_file_mode: "0644"
+local_vault_manual_transit_file_mode: "0640"
 local_vault_manual_transit_file_archive_link: "https://releases.hashicorp.com/vault/{{ global_vault_current_version }}/vault_{{ global_vault_current_version }}_linux_amd64.zip"
 local_vault_manual_transit_file_archive_name: "vault.zip"
 local_vault_manual_transit_file_autocomplete_j2: "vault_autocomplete.j2"

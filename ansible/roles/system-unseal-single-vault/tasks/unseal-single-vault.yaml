@@ -1,0 +1,143 @@
+---
+# Создание директории, в которую будет записана информация о ключах:
+- name: Ensure that directory for save keys exists
+  file:
+    path: "./{{ local_vault_single_unseal_output_keys }}"
+    state: directory
+  delegate_to: localhost
+  run_once: true
+  become: false
+
+# Проверка текущего жизненного статуса Vault:
+- name: Check general Vault health status that was run in Manual Mode
+  uri:
+    url: "{{ global_vault_unseal_tls_disable | ternary('http', 'https') }}://{{ hostvars[inventory_hostname].ansible_host | default(inventory_hostname) }}:{{ global_vault_host_listening_port }}/v1/sys/health"
+    validate_certs: "{{ not global_vault_unseal_tls_skip_verify }}"
+    status_code: "{{ local_vault_single_unseal_status_code }}"
+  register: vault_health_response
+
+# Передача полученного результата в специальную переменную:
+- name: Set a received Vault status to a variable
+  set_fact:
+    vault_status: "{{ vault_health_response.status }}"
+
+# Вывод текущего статус кода в Vault для наглядности:
+- name: Show current status code for each Vault Instance
+  debug:
+    msg: "Current status code is {{ vault_status }} for Vault on {{ inventory_hostname }}"
+
+# Вызов блока для первоначальной инициализации и последюущего распечатывания Vault:
+- block:
+    # Запуск процесса инициализации Vault в случае соблюдения входящего условия:
+    - name: Start the Vault initialization process
+      uri:
+        url: "{{ global_vault_unseal_tls_disable | ternary('http', 'https') }}://{{ hostvars[inventory_hostname].ansible_host | default(inventory_hostname) }}:{{ global_vault_host_listening_port }}/v1/sys/init"
+        validate_certs: "{{ not global_vault_unseal_tls_skip_verify }}"
+        status_code: "{{ local_vault_single_unseal_status_code }}"
+        body:
+          secret_shares: "{{ global_vault_unseal_secret_shares }}"
+          secret_threshold: "{{ global_vault_unseal_secret_threshold }}"
+        body_format: json
+        method: PUT
+      register: vault_init_response
+
+    # Сохранение полученного корневого токена и ключей для распечатывания в специальную переменную:
+    - name: Save Root Token and Unseal Keys to a variables
+      set_fact:
+        vault_keys: "{{ vault_init_response.json.keys_base64 }}"
+      no_log: true
+
+    # Создание в ОЗУ временного JSON-файла с ключами для распечатывания:
+    - name: Create temporary JSON file with Vault keys in RAM
+      copy:
+        content: "{{ vault_init_response.json | to_nice_json }}"
+        dest: "{{ local_vault_single_unseal_json_file }}"
+        mode: "0600"
+      no_log: true
+
+    # Передача полученного ранее корневого токена и ключей для распечатывания в систему, откуда был запущен вызов данной роли:
+    - name: Transfer the Root Token and Unseal Keys from Vault to a file that will be created on the executable host (Your System)
+      fetch:
+        src: "{{ local_vault_single_unseal_json_file }}"
+        dest: "./{{ local_vault_single_unseal_output_keys }}/{{ inventory_hostname }}/vault_keys.json"
+        flat: true
+      no_log: true
+
+    # Запуск процесса распечатывания Vault в случае соблюдения входящего условия:
+    - name: Start the Vault unseal process
+      uri:
+        url: "{{ global_vault_unseal_tls_disable | ternary('http', 'https') }}://{{ hostvars[inventory_hostname].ansible_host | default(inventory_hostname) }}:{{ global_vault_host_listening_port }}/v1/sys/health"
+        validate_certs: "{{ not global_vault_unseal_tls_skip_verify }}"
+        status_code: 503
+      register: vault_unseal_response
+      until: vault_unseal_response.status == 503
+      retries: 5
+      delay: 3
+
+    # Распечатывание Vault с помощью полученных ранее ключей:
+    - name: Performing unseal Vault using previously obtained keys
+      uri:
+        url: "{{ global_vault_unseal_tls_disable | ternary('http', 'https') }}://{{ hostvars[inventory_hostname].ansible_host | default(inventory_hostname) }}:{{ global_vault_host_listening_port }}/v1/sys/unseal"
+        validate_certs: "{{ not global_vault_unseal_tls_skip_verify }}"
+        body:
+          key: "{{ item }}"
+        body_format: json
+        method: PUT
+      loop: "{{ vault_keys[0:global_vault_unseal_secret_threshold] }}"
+      no_log: true
+
+    # Проверка на предмет того, был ли распечатан Vault после его инициализации:
+    - name: Verify that Vault is unsealed
+      uri:
+        url: "{{ global_vault_unseal_tls_disable | ternary('http', 'https') }}://{{ inventory_hostname }}:8200/v1/sys/health"
+        validate_certs: "{{ not global_vault_unseal_tls_skip_verify }}"
+        status_code: 200
+      register: vault_final_status
+      until: vault_final_status.status == 200
+      retries: 5
+      delay: 3
+
+    # Фактический вывод результата по распечатыванию:
+    - name: Output of the actual result for each Vault Instance
+      debug:
+        msg: "Unseal Vault status: is {{ vault_final_status.json.sealed == false }} for {{ inventory_hostname }}"
+
+    # Удаление из ОЗУ временнного JSON-файла с ключами для распечатывания:
+    - name: Delete temporary JSON file with Vault keys from RAM
+      file:
+        path: "{{ local_vault_single_unseal_json_file }}"
+        state: absent
+  when: vault_status | string == "501"
+
+# Вызов блока для повторного распечатывания Vault посредством сохраненных ранее ключей:
+- block:
+    # Считывание ключей из файла, который ранее был создан на исполняемой системе:
+    - name: Read Unseal Keys from the file that was created during Vault initialization
+      slurp:
+        src: "./{{ local_vault_single_unseal_output_keys }}/{{ inventory_hostname }}/vault_keys.json"
+      register: unseal_vault_keys
+      delegate_to: localhost
+
+    # Конвертирование данных из Base64 в открытый текст:
+    - name: Convert keys from Base64 to plain text
+      set_fact:
+        vault_keys_from_file: "{{ unseal_vault_keys.content | b64decode | from_json | json_query('keys_base64') }}"
+
+    # Распечатывание Vault с помощью полученных ранее ключей:
+    - name: Unseal Vault using Keys from a file
+      uri:
+        url: "{{ global_vault_unseal_tls_disable | ternary('http', 'https') }}://{{ hostvars[inventory_hostname].ansible_host | default(inventory_hostname) }}:{{ global_vault_host_listening_port }}/v1/sys/unseal"
+        validate_certs: "{{ not global_vault_unseal_tls_skip_verify }}"
+        body:
+          key: "{{ item }}"
+        body_format: json
+        method: PUT
+      loop: "{{ vault_keys_from_file }}"
+      no_log: true
+      when: vault_keys_from_file is defined
+  when: vault_status | string == "503"
+
+# Прекращение исполнения роли в случае обнаружения уже проинициализированного и распечатонного Vault:
+- name: End the playbook if Vault already has been initialized and unsealed
+  meta: end_play
+  when: vault_status | string == "200"

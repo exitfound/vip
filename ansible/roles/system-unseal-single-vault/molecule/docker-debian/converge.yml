@@ -1,0 +1,20 @@
+---
+# Данный файл используется для преобразования состояния экземпляров в реальное состояние, объявленное в реальных тестируемых ролях:
+- name: Converge
+  hosts: all
+  gather_facts: true
+  tasks:
+    # Данный шаг вызывает роль manual-single-vault для последующего прогона роли system-unseal-single-vault:
+    - name: "Include manual-single-vault role for testing"
+      include_role:
+        name: "manual-single-vault"
+
+    # Добавление интервала по времени для загрузки Vault:
+    - name: "Wait 10 second for checking Vault"
+      wait_for:
+        timeout: 10
+
+    # Данный шаг вызывает роль system-unseal-single-vault для прогона тестов с помощью Molecule:
+    - name: "Include system-unseal-single-vault role for testing"
+      include_role:
+        name: "system-unseal-single-vault"

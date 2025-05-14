@@ -1,5 +1,5 @@
 ---
-# Вызов роли для последующей установки и настройки Cluster Vault on Raft в мануальном режиме для группы серверов на удаленных узлах:
+# Вызов роли для последующей установки и настройки Manual Cluster Vault на базе Raft для группы серверов на удаленных узлах:
 - name: Install and configure Manual Cluster Vault on Raft on remote hosts
   gather_facts: true
   become: true
@@ -7,11 +7,11 @@
   hosts:
     - all
 
-  # Вызов непосредственно самой роли Cluster Vault on Raft в мануальном режиме для последующего развертывания кластера Vault в системе:
+  # Вызов непосредственно самой роли Manual Cluster Vault на базе Raft для последующего развертывания кластера Vault в системе:
   roles:
     - manual-cluster-raft-vault
 
-  # Информирование о том, что Cluster Vault on Raft в мануальном режиме был успешно установлен в системе:
+  # Информирование о том, что Manual Cluster Vault на базе Raft был успешно установлен в системе:
   post_tasks:
     - name: Information about the successful completion of the playbook
       debug:

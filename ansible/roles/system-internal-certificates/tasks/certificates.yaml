@@ -7,7 +7,7 @@
     gid: 452
 
 # Создание директорий для последующей работы роли:
-- name: Ensure CA directorys exists on Delegate Host
+- name: Ensure CA directories exists on Delegate Host
   file:
     state: directory
     path: "{{ item.path }}"
@@ -54,27 +54,44 @@
     #   - "DNS:{{ ansible_fqdn | default(inventory_hostname) }}"
     #   - "IP:{{ ansible_default_ipv4.address }}"
     #   - "IP:127.0.0.1"
+    # subject_alt_name: >-
+    #   {{
+    #     (
+    #       global_vault_system_internal_csr_san_dns | default([])
+    #     )
+    #     +
+    #     (
+    #       groups[global_vault_raft_cluster_inventory_group | default('vault')]
+    #       | map('extract', hostvars, ['ansible_default_ipv4', 'address'])
+    #       | select('string')
+    #       | map('regex_replace', '^', 'IP:')
+    #       | list
+    #     )
+    #     +
+    #     (
+    #       groups[global_vault_raft_cluster_inventory_group | default('vault')]
+    #       | map('regex_replace', '^', 'DNS:')
+    #       | list
+    #     )
+    #     +
+    #     ['IP:127.0.0.1']
+    #     +
+    #     ['DNS:localhost']
+    #   }}
     subject_alt_name: >-
       {{
         (
           global_vault_system_internal_csr_san_dns | default([])
-        ) 
+        )
         +
-        (
-          groups[global_vault_raft_cluster_inventory_group | default('vault')]
-          | map('extract', hostvars, ['ansible_default_ipv4', 'address'])
-          | select('string')
-          | map('regex_replace', '^', 'IP:')
-          | list
-        )
-        + 
-        (
-          groups[global_vault_raft_cluster_inventory_group | default('vault')]
-          | map('regex_replace', '^', 'DNS:')
-          | list
-        )
-        + 
+        [
+          'IP:' ~ (hostvars[inventory_hostname]['ansible_default_ipv4']['address'] | default('127.0.0.1')),
+          'DNS:' ~ (hostvars[inventory_hostname]['ansible_fqdn'] | default(inventory_hostname))
+        ]
+        +
         ['IP:127.0.0.1']
+        +
+        ['DNS:localhost']
       }}
   delegate_to: "{{ global_vault_system_internal_delegate_host }}"
   run_once: true
@@ -128,23 +145,16 @@
       {{
         (
           global_vault_system_internal_csr_san_dns | default([])
-        ) 
+        )
         +
-        (
-          groups[global_vault_raft_cluster_inventory_group | default('vault')]
-          | map('extract', hostvars, ['ansible_default_ipv4', 'address'])
-          | select('string')
-          | map('regex_replace', '^', 'IP:')
-          | list
-        )
-        + 
-        (
-          groups[global_vault_raft_cluster_inventory_group | default('vault')]
-          | map('regex_replace', '^', 'DNS:')
-          | list
-        )
-        + 
+        [
+          'IP:' ~ (hostvars[inventory_hostname]['ansible_default_ipv4']['address'] | default('127.0.0.1')),
+          'DNS:' ~ (hostvars[inventory_hostname]['ansible_fqdn'] | default(inventory_hostname))
+        ]
+        +
         ['IP:127.0.0.1']
+        +
+        ['DNS:localhost']
       }}
     use_common_name_for_san: false
     create_subject_key_identifier: true

@@ -37,7 +37,7 @@
     name: "{{ local_system_redhat_docker_libcgroup }}"
     state: present
     disable_gpg_check: true
-  when: 
+  when:
     - ansible_distribution in ['CentOS', 'RedHat', 'Red Hat Enterprise Linux']
     - ansible_distribution_version is version('9', '>=')
 

@@ -9,7 +9,7 @@
 
   # Вызов непосредственно самой роли Unseal Single Vault для последующего распечатывания Vault в системе:
   roles:
-    - unseal-single-vault
+    - system-unseal-single-vault
 
   # Информирование о том, что Vault был успешно проинициализирован и распечатан в запущенной ранее системе:
   post_tasks:

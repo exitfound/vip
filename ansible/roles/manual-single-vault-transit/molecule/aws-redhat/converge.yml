@@ -10,4 +10,3 @@
     - name: "Include manual-single-vault-transit role for testing"
       include_role:
         name: "manual-single-vault-transit"
-

@@ -6,7 +6,7 @@
   become: true
   become_method: sudo
   tasks:
-    # Данный шаг вызывает роль manual-single-vault для прогона тестов с помощью Molecule:
-    - name: "Include manual-single-vault role for testing"
+    # Данный шаг вызывает роль manual-cluster-raft-vault для прогона тестов с помощью Molecule:
+    - name: "Include manual-cluster-raft-vault role for testing"
       include_role:
-        name: "manual-single-vault"
+        name: "manual-cluster-raft-vault"
