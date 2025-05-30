@@ -1,0 +1,11 @@
+---
+# Переменные, необходимые для распечатывания Manual Cluster Vault, применимые ко всем дистрибутивам в равной степени:
+local_vault_cluster_unseal_json_file: "/dev/shm/vault_init.json"
+local_vault_cluster_unseal_output_keys: "vault_keys"
+local_vault_cluster_unseal_status_code: [200, 429, 472, 501, 503]
+
+# Переменные, необходимые для распечатывания Manual Cluster Vault для дистрибутива семейства SUSE:
+
+# Переменные, необходимые для распечатывания Manual Cluster Vault для дистрибутива семейства RedHat:
+
+# Переменные, необходимые для распечатывания Manual Cluster Vault для дистрибутива семейства Debian:

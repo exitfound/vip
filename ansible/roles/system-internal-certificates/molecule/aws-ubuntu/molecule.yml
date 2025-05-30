@@ -25,6 +25,9 @@ platforms:
     private_key_path: "{{ aws_local_private_key }}"
     public_key_path: "{{ aws_local_public_key }}"
     security_group_name: "{{ aws_secruity_group_name }}"
+    groups:
+      - vault
+      - consul
 
   - name: "ubuntu22.04"
     aws_profile: "{{ aws_profile }}"
@@ -45,6 +48,9 @@ platforms:
     private_key_path: "{{ aws_local_private_key }}"
     public_key_path: "{{ aws_local_public_key }}"
     security_group_name: "{{ aws_secruity_group_name }}"
+    groups:
+      - vault
+      - consul
 
   - name: "ubuntu24.04"
     aws_profile: "{{ aws_profile }}"
@@ -65,6 +71,9 @@ platforms:
     private_key_path: "{{ aws_local_private_key }}"
     public_key_path: "{{ aws_local_public_key }}"
     security_group_name: "{{ aws_secruity_group_name }}"
+    groups:
+      - vault
+      - consul
 
 provisioner:
   name: ansible

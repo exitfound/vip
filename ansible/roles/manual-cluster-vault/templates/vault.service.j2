@@ -1,0 +1,27 @@
+[Unit]
+Description="HashiCorp Vault - A tool for managing secrets"
+Documentation=https://developer.hashicorp.com/vault/docs
+Requires=network-online.target
+After=network-online.target
+StartLimitIntervalSec=60
+StartLimitBurst=3
+
+[Service]
+ExecStart={{ local_vault_manual_cluster_path_binary }}/vault server -config={{ local_vault_manual_cluster_dir_config }}/{{ local_vault_manual_cluster_file_config }}
+ExecReload=/bin/kill -HUP $MAINPID
+User={{ local_vault_manual_cluster_user }}
+Group={{ local_vault_manual_cluster_group }}
+KillMode=process
+KillSignal=SIGINT
+StandardOutput=journal
+StandardError=journal
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+LimitNOFILE=65536
+LimitMEMLOCK=infinity
+AmbientCapabilities=CAP_IPC_LOCK
+CapabilityBoundingSet=CAP_SYSLOG CAP_IPC_LOCK
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,4 @@
+---
+# Вызов файла unseal-cluster-vault.yaml для инициализации и распечатывания Manual Cluster Vault на базе Raft:
+- name: Invocation of the unseal-cluster-vault.yaml task
+  include_tasks: unseal-cluster-vault.yaml

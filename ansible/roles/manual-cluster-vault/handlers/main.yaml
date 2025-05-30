@@ -1,0 +1,8 @@
+---
+# Перезапуск сервиса Vault в случае изменения одного из конфигурационных файлов:
+- name: Restart Vault Cluster
+  systemd:
+    name: vault
+    state: restarted
+    enabled: true
+    daemon_reload: true

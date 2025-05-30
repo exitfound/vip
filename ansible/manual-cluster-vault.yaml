@@ -1,0 +1,19 @@
+---
+# Вызов роли для последующей установки и настройки Manual Vault Cluster для группы серверов на удаленных узлах:
+- name: Install and configure Manual Vault Cluster on remote hosts
+  gather_facts: true
+  become: true
+  become_method: sudo
+  hosts:
+    - all
+
+  # Вызов непосредственно самой роли Manual Vault Cluster для последующего развертывания кластера Vault в системе:
+  roles:
+    - manual-cluster-vault
+
+  # Информирование о том, что Manual Vault Cluster был успешно установлен в системе:
+  post_tasks:
+    - name: Information about the successful completion of the playbook
+      debug:
+        msg:
+          - "Your Manual Vault Cluster has been successfully installed on the each system"

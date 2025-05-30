@@ -1,0 +1,27 @@
+---
+# Данный файл знаменует успешное завершение запускаемых ранее тестов:
+- name: Verify
+  hosts: all
+  gather_facts: false
+  tasks:
+    # Добавление интервала по времени для загрузки Consul:
+    - name: Wait 10 second for checking Consul
+      wait_for:
+        timeout: 10
+
+    # Проверка доступности Consul после установки:
+    - name: Check Consul for Availability
+      uri:
+        url: "http://127.0.0.1:{{ global_consul_cluster_http_port }}/v1/status/leader"
+        # url: >-
+        #   {{
+        #     ( 'https' if global_consul_cluster_enable_https else 'http' ) ~ '://127.0.0.1:' ~
+        #     ( global_consul_cluster_https_port if global_consul_cluster_enable_https else global_consul_cluster_http_port ) ~
+        #     '/v1/status/leader'
+        #   }}
+        method: GET
+        timeout: 10
+        return_content: false
+        validate_certs: false
+        status_code: [200]
+      when: not global_consul_cluster_enable_https

@@ -1,3 +1,4 @@
+{% set suffix = "-transit" if global_vault_transit_backend_enable | default(false) else "" %}
 ---
 services:
   vault:
@@ -6,8 +7,8 @@ services:
       dockerfile: {{ local_vault_docker_file_dockerfile }}
       args:
         VERSION: {{ global_vault_current_version }}
-    container_name: vault
-    image: vault
+    container_name: vault{{ suffix }}
+    image: vault{{ suffix }}
     restart: on-failure
     command: vault server -config=/vault/config/{{ local_vault_docker_file_config }}
     user: vault
@@ -22,9 +23,9 @@ services:
     cap_add:
       - IPC_LOCK
     networks:
-      - vault
+      - vault{{ suffix }}
 
 networks:
-  vault:
-    name: vault
+  vault{{ suffix }}:
+    name: vault{{ suffix }}
     driver: bridge

@@ -11,6 +11,7 @@ local_system_suse_packages_list:
 local_system_redhat_packages_list:
   - bash-completion
   - curl
+  - python3-cryptography
   - unzip
 
 # Переменные, необходимые для установки пакетов на дистрибутиве семейства Debian:

@@ -1,0 +1,22 @@
+---
+# Переменные, необходимые для установки и настройки Manual Cluster Consul, применимые ко всем дистрибутивам в равной степени:
+local_consul_manual_cluster_dir_mode: "0755"
+local_consul_manual_cluster_dir_config: "/etc/consul.d"
+local_consul_manual_cluster_dir_data: "/opt/consul/data"
+local_consul_manual_cluster_file_mode: "0640"
+local_consul_manual_cluster_file_archive_link: "https://releases.hashicorp.com/consul/{{ global_consul_cluster_current_version }}/consul_{{ global_consul_cluster_current_version }}_linux_amd64.zip"
+local_consul_manual_cluster_file_archive_name: "consul.zip"
+local_consul_manual_cluster_file_autocomplete_j2: "consul_autocomplete.j2"
+local_consul_manual_cluster_file_autocomplete_path: "/etc/bash_completion.d/consul"
+local_consul_manual_cluster_file_config: "config.hcl"
+local_consul_manual_cluster_file_systemd: "consul.service"
+local_consul_manual_cluster_path_binary: "/usr/local/bin"
+local_consul_manual_cluster_user: "consul"
+local_consul_manual_cluster_group: "consul"
+local_consul_manual_cluster_group_id: 451
+
+# Переменные, необходимые для установки и настройки Manual Cluster Consul для дистрибутивов семейства SUSE:
+
+# Переменные, необходимые для установки и настройки Manual Cluster Consul для дистрибутивов семейства RedHat:
+
+# Переменные, необходимые для установки и настройки Manual Cluster Consul для дистрибутивов семейства Debian:

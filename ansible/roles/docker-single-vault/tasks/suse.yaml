@@ -56,7 +56,7 @@
     fail_msg: >-
       Vault container is not running! Current state: {{
         docker_compose_output.containers
-        | selectattr("Service", "equalto", "vault")
+        | selectattr("Name", "equalto", vault_container_name)
         | first
         | default({})
         | dict2items
@@ -68,8 +68,10 @@
     success_msg: >-
       Vault container is running and healthy
   vars:
+    vault_container_name: >-
+      {{ "vault-transit" if global_vault_transit_backend_enable | default(false) else "vault" }}
     vault_container: >-
       {{ docker_compose_output.containers
-         | selectattr("Service", "equalto", "vault")
+         | selectattr("Name", "equalto", vault_container_name)
          | selectattr("State", "equalto", "running")
          | first }}

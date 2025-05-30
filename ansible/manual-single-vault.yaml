@@ -1,5 +1,5 @@
 ---
-# Вызов роли для последующей установки и настройки Single Vault в мануальном режиме для одиночного сервера на удаленных узлах:
+# Вызов роли для последующей установки и настройки Single Vault в мануальном режиме на удаленных узлах:
 - name: Install and configure Manual Single Vault on remote hosts
   gather_facts: true
   become: true

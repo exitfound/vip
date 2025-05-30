@@ -11,3 +11,17 @@ listener "tcp" {
   address         = "{{ global_vault_host_listening_address }}:{{ global_vault_host_listening_port }}"
   tls_disable     = "true"
 }
+
+{% if global_vault_transit_backend_enable %}
+# Enable Transit
+seal "transit" {
+  address         = "{{ global_vault_transit_backend_tls_skip_verify | ternary('http', 'https') }}://{{ global_vault_transit_backend_unseal_host }}:{{ global_vault_transit_backend_host_port }}"
+  token           = "{{ global_vault_transit_backend_token }}"
+  key_name        = "{{ global_vault_transit_backend_key_name }}"
+  mount_path      = "{{ global_vault_transit_backend_mount_path }}"
+  disable_renewal = "{{ global_vault_transit_backend_disable_renewal | string | lower }}"
+  tls_skip_verify = "{{ global_vault_transit_backend_tls_skip_verify | string | lower }}"
+}
+{% else %}
+# Disable Transit
+{% endif %}

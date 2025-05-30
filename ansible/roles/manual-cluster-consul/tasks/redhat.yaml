@@ -1,0 +1,92 @@
+---
+# Вызов предварительной роли system-prepare для полноценного запуска текущей роли:
+- name: Import system-prepare role for running current role on RedHat family distro
+  import_role:
+    name: system-prepare
+    tasks_from: main
+
+# Вызов предварительной роли system-internal-certificates для полноценного запуска текущей роли:
+- name: Import system-internal-certificates role for running current role on Debian family distro
+  import_role:
+    name: system-internal-certificates
+    tasks_from: main
+  when: global_consul_cluster_enable_https | bool
+
+# Создание группы с именем Consul:
+- name: Create Consul Cluster group on RedHat family distro
+  group:
+    name: "{{ local_consul_manual_cluster_group }}"
+    gid: "{{ local_consul_manual_cluster_group_id }}"
+    state: present
+
+# Создание пользователя с именем Consul:
+- name: Create Consul Cluster user on RedHat family distro
+  user:
+    name: "{{ local_consul_manual_cluster_user }}"
+    groups: "{{ local_consul_manual_cluster_group }}"
+    home: "{{ local_consul_manual_cluster_dir_data }}"
+    shell: /sbin/nologin
+    create_home: true
+    append: true
+    uid: "{{ local_consul_manual_cluster_group_id }}"
+
+# Создание нескольких директорий для последующей работы с кластером Consul:
+- name: Create Consul Cluster directories on RedHat family distro
+  file:
+    state: directory
+    path: "{{ item.path }}"
+    mode: "{{ local_consul_manual_cluster_dir_mode }}"
+    owner: "{{ local_consul_manual_cluster_user }}"
+    group: "{{ local_consul_manual_cluster_group }}"
+  loop:
+    - {path: "{{ local_consul_manual_cluster_dir_config }}"}
+    - {path: "{{ local_consul_manual_cluster_dir_data }}"}
+
+# Загрузка архива с бинарным файлом Consul из Интернета по прямой ссылке:
+- name: Download Consul Cluster archive for future installation on RedHat family distro
+  get_url:
+    url: "{{ local_consul_manual_cluster_file_archive_link }}"
+    mode: "{{ local_consul_manual_cluster_file_mode }}"
+    dest: "/tmp/{{ local_consul_manual_cluster_file_archive_name }}"
+    force: false
+
+# Извлечение архива и перемещение бинарного файла в соответствующую директорию:
+- name: Unpack the Consul Cluster archive and move the binary file on RedHat family distro
+  unarchive:
+    src: "/tmp/{{ local_consul_manual_cluster_file_archive_name }}"
+    dest: "{{ local_consul_manual_cluster_path_binary }}"
+    remote_src: true
+
+# Копирование всех конфигурационных файлов Consul и их последующая отправка в соответствующие директории:
+- name: Copy Consul Cluster configuration files from templates on RedHat family distro
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode | default(local_consul_manual_cluster_file_mode) }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+  loop:
+    - src: "templates/{{ local_consul_manual_cluster_file_autocomplete_j2 }}"
+      dest: "{{ local_consul_manual_cluster_file_autocomplete_path }}"
+      mode: "{{ local_consul_manual_cluster_file_mode }}"
+      owner: "{{ local_consul_manual_cluster_user }}"
+      group: "{{ local_consul_manual_cluster_group }}"
+    - src: "templates/{{ global_consul_cluster_server_config }}"
+      dest: "{{ local_consul_manual_cluster_dir_config }}/{{ local_consul_manual_cluster_file_config }}"
+      mode: "{{ local_consul_manual_cluster_file_mode }}"
+      owner: "{{ local_consul_manual_cluster_user }}"
+      group: "{{ local_consul_manual_cluster_group }}"
+    - src: "templates/{{ local_consul_manual_cluster_file_systemd }}.j2"
+      dest: "/etc/systemd/system/{{ local_consul_manual_cluster_file_systemd }}"
+      mode: "{{ local_consul_manual_cluster_file_mode }}"
+      owner: "0"
+      group: "0"
+  notify: Restart Consul Cluster
+
+# Запуск и добавление в автозагрузку сервиса Consul с помощью Systemd:
+- name: Start Consul Cluster service on RedHat family distro
+  service:
+    name: consul
+    state: started
+    enabled: true
+    daemon_reload: true

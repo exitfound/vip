@@ -1,18 +1,10 @@
-# Глобальные переменные, используемые в том или ином виде во всех ролях, которые относятся к установке и настройке Vault:
+# Глобальные переменные, используемые в том или ином виде во всех ролях, которые относятся к установке и настройке Vault (все режимы работы):
 global_vault_current_version: "1.19.0"
 global_vault_host_listening_address: "0.0.0.0"
 global_vault_host_listening_port: "8200"
 
-# Глобальные переменные, используемые для выполнения роли по развертыванию Manual Cluster Vault на базе Raft (manual-cluster-raft-vault):
-global_vault_raft_cluster_inventory_group: "vault"
-global_vault_raft_cluster_name: "vault"
-global_vault_raft_cluster_port: "8201"
-global_vault_raft_cluster_http_config: "vault_raft_cluster_http_config.hcl.j2"
-global_vault_raft_cluster_https_config: "vault_raft_cluster_https_config.hcl.j2"
-global_vault_raft_cluster_enable_https: false
-global_vault_raft_cluster_enable_transit: false
-
-# Глобальные переменные, используемые для выполнения ролей по развертыванию Transit Vault (любая роль в режиме Single Vault):
+# Глобальные переменные, используемые для развертывания и настройки Transit Vault (все режимы работы):
+global_vault_transit_backend_enable: false
 global_vault_transit_backend_unseal_host: ""
 global_vault_transit_backend_host_port: "8200" # 443, если он за Proxy и у вас SSL
 global_vault_transit_backend_token: ""
@@ -21,28 +13,11 @@ global_vault_transit_backend_mount_path: "transit/"
 global_vault_transit_backend_disable_renewal: false
 global_vault_transit_backend_tls_skip_verify: true # false, если у вас SSL
 
-# Глобальные переменные, используемые для инициализации и распечатывания Vault (только Single Vault):
+# Глобальные переменные, используемые для инициализации и распечатывания Vault (все режимы работы):
 global_vault_unseal_secret_shares: 5
 global_vault_unseal_secret_threshold: 3
 global_vault_unseal_tls_skip_verify: true # false, если у вас SSL
 global_vault_unseal_tls_disable: true # false, если у вас SSL
-
-# Глобальные переменные, используемые для создания CA и выпуска самоподписных сертификатов:
-global_vault_system_internal_delegate_host: "{{ groups[global_vault_raft_cluster_inventory_group | default('vault')] | first }}"
-global_vault_system_internal_dir_ca: "/opt/vault/tls/ca"
-global_vault_system_internal_dir_node_certificates: "/opt/vault/tls"
-global_vault_system_internal_file_ca_certificate: "ca.crt.pem"
-global_vault_system_internal_file_ca_csr: "ca.csr.pem"
-global_vault_system_internal_file_ca_privatekey: "ca.key.pem"
-global_vault_system_internal_privatekey_type: "RSA"
-global_vault_system_internal_privatekey_size: 4096
-global_vault_system_internal_csr_country_name: "US"
-global_vault_system_internal_csr_common_name: "Local Vault Certificate Authority"
-global_vault_system_internal_csr_organization_name: "Local Vault Entertainment"
-global_vault_system_internal_csr_email_address: "admin@vault.internal"
-global_vault_system_internal_csr_san_dns:
-  - "DNS:vault.local.com"
-  - "DNS:*.vault.local.com"
 
 # ----------------------------------------------------------------------------------------------------------
 # Ниже представлен набор переменных, которые отвечают за работу тестов при использовании Molecule в Ansible:
