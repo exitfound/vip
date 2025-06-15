@@ -1,5 +1,20 @@
 [all:vars]
 
+[vault_cluster]
+vault_cluster1       ansible_host=3.67.193.149
+vault_cluster2       ansible_host=3.70.72.93
+vault_cluster3       ansible_host=35.159.228.219
+
+[consul_agent]
+consul_agent1       ansible_host=3.67.193.149
+consul_agent2       ansible_host=3.70.72.93
+consul_agent3       ansible_host=35.159.228.219
+
+[consul_cluster]
+consul_cluster1      ansible_host=18.193.86.238
+consul_cluster2      ansible_host=52.59.240.203
+consul_cluster3      ansible_host=3.79.247.247
+
 [suse:children]
 opensuse15.5
 opensuse15.6

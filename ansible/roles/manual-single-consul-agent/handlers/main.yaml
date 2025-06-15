@@ -1,0 +1,8 @@
+---
+# Перезапуск сервиса Consul Agent в случае изменения одного из конфигурационных файлов:
+- name: Restart Consul Agent
+  systemd:
+    name: consul
+    state: restarted
+    enabled: true
+    daemon_reload: true

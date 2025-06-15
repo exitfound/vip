@@ -1,6 +1,6 @@
 ---
 # Перезапуск сервиса Vault в случае изменения одного из конфигурационных файлов:
-- name: Restart Vault
+- name: Restart Single Vault
   systemd:
     name: vault
     state: restarted

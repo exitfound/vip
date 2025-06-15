@@ -1,0 +1,19 @@
+---
+# Вызов роли для последующей установки и настройки Single Consul Agent в мануальном режиме на удаленных узлах:
+- name: Install and configure Single Consul Agent on remote hosts
+  gather_facts: true
+  become: true
+  become_method: sudo
+  hosts:
+    - all
+
+  # Вызов непосредственно самой роли Single Consul Agent для последующего развертывания кластера Consul в системе:
+  roles:
+    - manual-single-consul-agent
+
+  # Информирование о том, что Single Consul Agent в мануальном режиме был успешно установлен в системе:
+  post_tasks:
+    - name: Information about the successful completion of the playbook
+      debug:
+        msg:
+          - "Your Single Consul Agent has been successfully installed on the each system"

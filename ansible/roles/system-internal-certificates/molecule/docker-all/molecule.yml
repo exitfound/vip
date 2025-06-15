@@ -16,8 +16,8 @@ platforms:
     security_opts:
       - seccomp=unconfined
     groups:
-      - vault
-      - consul
+      - vault_cluster
+      - consul_cluster
 
   - name: opensuse15.6
     image: mdd13/ansible-docker-suse:opensuse15.6
@@ -29,8 +29,8 @@ platforms:
     security_opts:
       - seccomp=unconfined
     groups:
-      - vault
-      - consul
+      - vault_cluster
+      - consul_cluster
 
   - name: centos8
     image: mdd13/ansible-docker-redhat:centos8
@@ -42,8 +42,8 @@ platforms:
     security_opts:
       - seccomp=unconfined
     groups:
-      - vault
-      - consul
+      - vault_cluster
+      - consul_cluster
 
   - name: centos9
     image: mdd13/ansible-docker-redhat:centos9
@@ -55,8 +55,8 @@ platforms:
     security_opts:
       - seccomp=unconfined
     groups:
-      - vault
-      - consul
+      - vault_cluster
+      - consul_cluster
 
   - name: redhat8
     image: mdd13/ansible-docker-redhat:redhat8
@@ -68,8 +68,8 @@ platforms:
     security_opts:
       - seccomp=unconfined
     groups:
-      - vault
-      - consul
+      - vault_cluster
+      - consul_cluster
 
   - name: redhat9
     image: mdd13/ansible-docker-redhat:redhat9
@@ -81,8 +81,8 @@ platforms:
     security_opts:
       - seccomp=unconfined
     groups:
-      - vault
-      - consul
+      - vault_cluster
+      - consul_cluster
 
   - name: debian10
     image: mdd13/ansible-docker-debian:debian10
@@ -94,8 +94,8 @@ platforms:
     security_opts:
       - seccomp=unconfined
     groups:
-      - vault
-      - consul
+      - vault_cluster
+      - consul_cluster
 
   - name: debian11
     image: mdd13/ansible-docker-debian:debian11
@@ -107,8 +107,8 @@ platforms:
     security_opts:
       - seccomp=unconfined
     groups:
-      - vault
-      - consul
+      - vault_cluster
+      - consul_cluster
 
   - name: debian12
     image: mdd13/ansible-docker-debian:debian12
@@ -120,8 +120,8 @@ platforms:
     security_opts:
       - seccomp=unconfined
     groups:
-      - vault
-      - consul
+      - vault_cluster
+      - consul_cluster
 
   - name: ubuntu20.04
     image: mdd13/ansible-docker-ubuntu:ubuntu20.04
@@ -133,8 +133,8 @@ platforms:
     security_opts:
       - seccomp=unconfined
     groups:
-      - vault
-      - consul
+      - vault_cluster
+      - consul_cluster
 
   - name: ubuntu22.04
     image: mdd13/ansible-docker-ubuntu:ubuntu22.04
@@ -146,8 +146,8 @@ platforms:
     security_opts:
       - seccomp=unconfined
     groups:
-      - vault
-      - consul
+      - vault_cluster
+      - consul_cluster
 
   - name: ubuntu24.04
     image: mdd13/ansible-docker-ubuntu:ubuntu24.04
@@ -159,8 +159,8 @@ platforms:
     security_opts:
       - seccomp=unconfined
     groups:
-      - vault
-      - consul
+      - vault_cluster
+      - consul_cluster
 
 provisioner:
   name: ansible

@@ -1,20 +1,15 @@
 ---
 # Глобальные переменные, используемые для выполнения роли по развертыванию Manual Cluster Consul:
-global_consul_cluster_inventory_group: "consul"
-global_consul_cluster_current_version: "1.21.0"
-global_consul_cluster_client_address: "0.0.0.0"
-global_consul_cluster_http_port: "8500"
-global_consul_cluster_https_port: "8443"
-global_consul_cluster_dns_port: "8600"
+global_consul_cluster_inventory_group: "consul_cluster"
 global_consul_cluster_dc_name: "dc1"
 global_consul_cluster_server_config: "consul_server_config.hcl.j2"
-global_consul_cluster_enable_https: true
+global_consul_cluster_enable_https: false
 global_consul_cluster_enable_tls_incoming: true
 global_consul_cluster_enable_tls_outgoing: true
 global_consul_cluster_enable_tls_server_hostname: true
 
 # Глобальные переменные, используемые для создания CA и выпуска самоподписных сертификатов:
-global_system_internal_delegate_host: "{{ groups[global_consul_cluster_inventory_group | default('consul')] | first }}"
+global_system_internal_delegate_host: "{{ groups[global_consul_cluster_inventory_group | default('consul_cluster')] | first }}"
 global_system_internal_ca_key_group: "consul"
 global_system_internal_ca_key_group_id: 451
 global_system_internal_dir_ca: "/opt/consul/tls/ca"
@@ -31,7 +26,6 @@ global_system_internal_csr_email_address: "admin@consul.internal"
 global_system_internal_csr_san_dns:
   - "DNS:*.{{ global_consul_cluster_dc_name }}.consul"
   - "DNS:server.{{ global_consul_cluster_dc_name }}.consul"
-  - "DNS:consul-{{ inventory_hostname }}-client"
-  - "DNS:consul-{{ inventory_hostname }}-server"
+  - "DNS:{{ inventory_hostname }}-server"
   - "DNS:local.internal"
   - "DNS:*.local.internal"

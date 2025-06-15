@@ -15,7 +15,7 @@ platforms:
     cgroupns_mode: host
     security_opts:
       - seccomp=unconfined
-    groups: ["vault"]
+    groups: ["vault_cluster"]
 
   - name: debian11
     image: mdd13/ansible-docker-debian:debian11
@@ -26,7 +26,7 @@ platforms:
     cgroupns_mode: host
     security_opts:
       - seccomp=unconfined
-    groups: ["vault"]
+    groups: ["vault_cluster"]
 
   - name: debian12
     image: mdd13/ansible-docker-debian:debian12
@@ -42,7 +42,7 @@ platforms:
     cgroup_parent: docker.slice
     cgroupns_mode: host
     override_command: false
-    groups: ["vault"]
+    groups: ["vault_cluster"]
 
 provisioner:
   name: ansible

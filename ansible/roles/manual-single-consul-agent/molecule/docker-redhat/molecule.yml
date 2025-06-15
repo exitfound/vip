@@ -1,0 +1,66 @@
+---
+dependency:
+  name: galaxy
+
+driver:
+  name: docker
+
+platforms:
+  - name: centos8
+    image: mdd13/ansible-docker-redhat:centos8
+    pre_build_image: true
+    privileged: true
+    override_command: false
+    cgroup_parent: docker.slice
+    cgroupns_mode: host
+    security_opts:
+      - seccomp=unconfined
+    groups:
+      - consul_agent
+
+  - name: centos9
+    image: mdd13/ansible-docker-redhat:centos9
+    pre_build_image: true
+    privileged: true
+    override_command: false
+    cgroup_parent: docker.slice
+    cgroupns_mode: host
+    security_opts:
+      - seccomp=unconfined
+    groups:
+      - consul_agent
+
+  - name: redhat8
+    image: mdd13/ansible-docker-redhat:redhat8
+    pre_build_image: true
+    privileged: true
+    override_command: false
+    cgroup_parent: docker.slice
+    cgroupns_mode: host
+    security_opts:
+      - seccomp=unconfined
+    groups:
+      - consul_agent
+
+  - name: redhat9
+    image: mdd13/ansible-docker-redhat:redhat9
+    pre_build_image: true
+    privileged: true
+    override_command: false
+    cgroup_parent: docker.slice
+    cgroupns_mode: host
+    security_opts:
+      - seccomp=unconfined
+    groups:
+      - consul_agent
+
+provisioner:
+  name: ansible
+  env:
+    ANSIBLE_STDOUT_CALLBACK: yaml
+  inventory:
+    links:
+      group_vars: ../../../../group_vars/
+
+verifier:
+  name: ansible

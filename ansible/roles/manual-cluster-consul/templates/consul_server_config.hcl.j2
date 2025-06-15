@@ -1,24 +1,25 @@
-client_addr       = "{{ global_consul_cluster_client_address }}"
+client_addr       = "{{ global_consul_host_listening_address | string }}"
 bind_addr         = "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
-retry_join        = [{% for host in groups[global_consul_cluster_inventory_group | default("consul")] -%}
+retry_join        = [{% for host in groups[global_consul_cluster_inventory_group | default("consul_cluster")] -%}
 "{{ hostvars[host]['ansible_default_ipv4']['address'] }}"{% if not loop.last %}, {% endif %}{%- endfor %}]
 
 server            = true
-bootstrap_expect  = {{ groups[global_consul_cluster_inventory_group | default("consul")] | length }}
+bootstrap_expect  = {{ groups[global_consul_cluster_inventory_group | default("consul_cluster")] | length }}
 data_dir          = "{{ local_consul_manual_cluster_dir_data }}"
 datacenter        = "{{ global_consul_cluster_dc_name }}"
-node_name         = "consul-{{ inventory_hostname }}-server"
+node_name         = "{{ inventory_hostname }}-server"
 log_level         = "INFO"
 
 ports {
   server          = 8300
   serf_lan        = 8301
   serf_wan        = 8302
-  dns             = {{ global_consul_cluster_dns_port | int }}
+  dns             = {{ global_consul_host_listening_dns_port | int }}
 {% if global_consul_cluster_enable_https %}
-  https           = {{ global_consul_cluster_https_port | int }}
+  https           = {{ global_consul_host_listening_https_port | int }}
+  http            = {{ global_consul_host_listening_http_port | int }}
 {% else %}
-  http            = {{ global_consul_cluster_http_port | int }}
+  http            = {{ global_consul_host_listening_http_port | int }}
 {% endif %}
 }
 

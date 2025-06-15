@@ -23,8 +23,8 @@ platforms:
     security_opts:
       - seccomp=unconfined
     groups:
-      - vault
-      - consul
+      - vault_cluster
+      - consul_cluster
 
   - name: ubuntu22.04
     image: mdd13/ansible-docker-ubuntu:ubuntu22.04
@@ -43,8 +43,8 @@ platforms:
     security_opts:
       - seccomp=unconfined
     groups:
-      - vault
-      - consul
+      - vault_cluster
+      - consul_cluster
 
   - name: ubuntu24.04
     image: mdd13/ansible-docker-ubuntu:ubuntu24.04
@@ -63,8 +63,8 @@ platforms:
     security_opts:
       - seccomp=unconfined
     groups:
-      - vault
-      - consul
+      - vault_cluster
+      - consul_cluster
 
 provisioner:
   name: ansible

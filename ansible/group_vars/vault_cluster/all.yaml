@@ -1,22 +1,20 @@
 ---
 # Глобальные переменные, используемые для выполнения роли по развертыванию Manual Cluster Vault (все режимы работы):
-global_vault_cluster_inventory_group: "vault"
+global_vault_cluster_inventory_group: "vault_cluster"
 global_vault_cluster_name: "vault"
-global_vault_cluster_port: "8201"
+global_vault_cluster_port: 8201
 global_vault_cluster_http_config: "vault_cluster_http_config.hcl.j2"
 global_vault_cluster_https_config: "vault_cluster_https_config.hcl.j2"
-global_vault_cluster_enable_https: true
+global_vault_cluster_enable_https: false
 global_vault_cluster_enable_transit: false
 global_vault_cluster_enable_raft: true
 global_vault_cluster_enable_consul: false
-global_vault_cluster_enable_consul_scheme: false
+global_vault_cluster_enable_consul_https: false
 global_vault_cluster_enable_consul_path: "vault/"
 global_vault_cluster_enable_consul_client: "127.0.0.1"
-global_vault_cluster_enable_consul_http_port: 8500
-global_vault_cluster_enable_consul_https_port: 8443
 
 # Глобальные переменные, используемые для создания CA и выпуска самоподписных сертификатов:
-global_system_internal_delegate_host: "{{ groups[global_vault_cluster_inventory_group | default('vault')] | first }}"
+global_system_internal_delegate_host: "{{ groups[global_vault_cluster_inventory_group | default('vault_cluster')] | first }}"
 global_system_internal_ca_key_group: "vault"
 global_system_internal_ca_key_group_id: 452
 global_system_internal_dir_ca: "/opt/vault/tls/ca"
@@ -33,4 +31,4 @@ global_system_internal_csr_email_address: "admin@vault.internal"
 global_system_internal_csr_san_dns:
   - "DNS:local.internal"
   - "DNS:*.local.internal"
-  - "DNS:vault-{{ inventory_hostname }}-node"
+  - "DNS:{{ inventory_hostname }}-node"

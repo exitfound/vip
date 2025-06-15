@@ -18,7 +18,7 @@ platforms:
   #   volumes: []
   #   security_groups: []
   #   key_inject_method: "{{ aws_key_method }}"
-  #   ssh_user: "{{ aws_default_ubuntu_ssh_user }}"
+  #   ssh_user: "{{ aws_default_ssh_user }}"
   #   ssh_port: 22
   #   assign_public_ip: true
   #   boot_wait_seconds: 120
@@ -26,7 +26,7 @@ platforms:
   #   private_key_path: "{{ aws_local_private_key }}"
   #   public_key_path: "{{ aws_local_public_key }}"
   #   security_group_name: "{{ aws_secruity_group_name }}"
-  #   groups: ["vault"]
+  #   groups: ["vault_cluster"]
 
   - name: "SUSE SLES 15 SP5"
     aws_profile: "{{ aws_profile }}"
@@ -39,7 +39,7 @@ platforms:
     volumes: []
     security_groups: []
     key_inject_method: "{{ aws_key_method }}"
-    ssh_user: "{{ aws_default_ubuntu_ssh_user }}"
+    ssh_user: "{{ aws_default_ssh_user }}"
     ssh_port: 22
     assign_public_ip: true
     boot_wait_seconds: 120
@@ -47,7 +47,7 @@ platforms:
     private_key_path: "{{ aws_local_private_key }}"
     public_key_path: "{{ aws_local_public_key }}"
     security_group_name: "{{ aws_secruity_group_name }}"
-    groups: ["vault"]
+    groups: ["vault_cluster"]
 
   - name: "SUSE SLES 15 SP6"
     aws_profile: "{{ aws_profile }}"
@@ -60,7 +60,7 @@ platforms:
     volumes: []
     security_groups: []
     key_inject_method: "{{ aws_key_method }}"
-    ssh_user: "{{ aws_default_ubuntu_ssh_user }}"
+    ssh_user: "{{ aws_default_ssh_user }}"
     ssh_port: 22
     assign_public_ip: true
     boot_wait_seconds: 120
@@ -68,7 +68,7 @@ platforms:
     private_key_path: "{{ aws_local_private_key }}"
     public_key_path: "{{ aws_local_public_key }}"
     security_group_name: "{{ aws_secruity_group_name }}"
-    groups: ["vault"]
+    groups: ["vault_cluster"]
 
 provisioner:
   name: ansible

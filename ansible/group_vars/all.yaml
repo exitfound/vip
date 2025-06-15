@@ -1,12 +1,19 @@
 # Глобальные переменные, используемые в том или ином виде во всех ролях, которые относятся к установке и настройке Vault (все режимы работы):
 global_vault_current_version: "1.19.0"
-global_vault_host_listening_address: "0.0.0.0"
-global_vault_host_listening_port: "8200"
+global_vault_host_listening_address: 0.0.0.0
+global_vault_host_listening_port: 8200
+
+# Глобальные переменные, используемые в том или ином виде во всех ролях, которые относятся к установке и настройке Consul (все режимы работы):
+global_consul_current_version: "1.21.0"
+global_consul_host_listening_address: 0.0.0.0
+global_consul_host_listening_dns_port: 8600
+global_consul_host_listening_http_port: 8500
+global_consul_host_listening_https_port: 8443
 
 # Глобальные переменные, используемые для развертывания и настройки Transit Vault (все режимы работы):
 global_vault_transit_backend_enable: false
 global_vault_transit_backend_unseal_host: ""
-global_vault_transit_backend_host_port: "8200" # 443, если он за Proxy и у вас SSL
+global_vault_transit_backend_host_port: 8200 # 443, если он за Proxy и у вас SSL
 global_vault_transit_backend_token: ""
 global_vault_transit_backend_key_name: "autounseal"
 global_vault_transit_backend_mount_path: "transit/"
@@ -29,7 +36,7 @@ aws_instance_type: "t3a.small" # Тип инстанса, на базе кото
 aws_vpc_subnet_id: "" # Идентификатор подсети, который существует в рамках созданной VPC. Можно брать значение сети по умолчанию в AWS. Если значение пустое, то во время тестов будет создана эфемерная сеть;
 aws_vpc_id: "vpc-cef0f9a7" # Идентификатор сети, представляющий собой ID VPC. Можно брать значение VPC по умолчанию в AWS. Если значение пустое, то во время тестов будет создана эфемерная сеть;
 aws_key_method: "ec2" # Метод по созданию SSH-ключей для подключения. На выбор может быть два значения – ec2 или cloud-init. Если в переменной пусто, то значение по умолчанию: ec2;
-aws_default_ssh_user: "ec2-user" # Имя пользователя для подключения к созданному EC2 во время тестов. Если в переменной пусто, то значение по умолчанию: ubuntu;
+aws_default_ssh_user: "ubuntu" # Имя пользователя для подключения к созданному EC2 во время тестов. Если в переменной пусто, то значение по умолчанию: ubuntu;
 aws_local_private_key: "~/cosmos.pem" # Приватный ключ для подключения к EC2. Необходимо указать путь к файлу. По умолчанию создает в корне Molecule с именем id_rsa;
 aws_local_public_key: "" # Приватный ключ для подключения к EC2. Необходимо указать путь к файлу. По умолчанию создает в корне Molecule с именем id_rsa.pub;
 aws_custom_key_name: "" # Произвольное имя ключа в секции Key Pairs в секции EC2 AWS. По умолчанию создается произвольное имя с приставкой molecule-;

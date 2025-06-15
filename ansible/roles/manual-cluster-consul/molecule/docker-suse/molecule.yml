@@ -15,7 +15,8 @@ platforms:
     cgroupns_mode: host
     security_opts:
       - seccomp=unconfined
-    groups: ["consul"]
+    groups:
+      - consul_cluster
 
   - name: opensuse15.6
     image: mdd13/ansible-docker-suse:opensuse15.6
@@ -26,7 +27,8 @@ platforms:
     cgroupns_mode: host
     security_opts:
       - seccomp=unconfined
-    groups: ["consul"]
+    groups:
+      - consul_cluster
 
 provisioner:
   name: ansible

@@ -1,0 +1,28 @@
+[Unit]
+Description="HashiCorp Consul - A service mesh solution"
+Documentation=https://www.consul.io/
+Requires=network-online.target
+After=network-online.target
+StartLimitIntervalSec=60
+StartLimitBurst=3
+
+[Service]
+ExecStart={{ local_consul_manual_agent_path_binary }}/consul agent -config-file={{ local_consul_manual_agent_dir_config }}/{{ local_consul_manual_agent_file_config }} -config-dir={{ local_consul_manual_agent_dir_config }}
+User={{ local_consul_manual_agent_user }}
+Group={{ local_consul_manual_agent_group }}
+WorkingDirectory={{ local_consul_manual_agent_dir_data }}
+KillMode=process
+KillSignal=SIGINT
+StandardOutput=journal
+StandardError=journal
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+LimitNOFILE=65536
+ProtectSystem=full
+ProtectHome=true
+NoNewPrivileges=true
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+
+[Install]
+WantedBy=multi-user.target

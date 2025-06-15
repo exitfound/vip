@@ -18,7 +18,7 @@ platforms:
   #   volumes: []
   #   security_groups: []
   #   key_inject_method: "{{ aws_key_method }}"
-  #   ssh_user: "{{ aws_default_ubuntu_ssh_user }}"
+  #   ssh_user: "{{ aws_default_ssh_user }}"
   #   ssh_port: 22
   #   assign_public_ip: true
   #   boot_wait_seconds: 120
@@ -38,7 +38,7 @@ platforms:
     volumes: []
     security_groups: []
     key_inject_method: "{{ aws_key_method }}"
-    ssh_user: "{{ aws_default_ubuntu_ssh_user }}"
+    ssh_user: "{{ aws_default_ssh_user }}"
     ssh_port: 22
     assign_public_ip: true
     boot_wait_seconds: 120
@@ -58,7 +58,7 @@ platforms:
     volumes: []
     security_groups: []
     key_inject_method: "{{ aws_key_method }}"
-    ssh_user: "{{ aws_default_ubuntu_ssh_user }}"
+    ssh_user: "{{ aws_default_ssh_user }}"
     ssh_port: 22
     assign_public_ip: true
     boot_wait_seconds: 120

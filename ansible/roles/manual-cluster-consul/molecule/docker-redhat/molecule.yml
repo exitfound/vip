@@ -15,7 +15,8 @@ platforms:
     cgroupns_mode: host
     security_opts:
       - seccomp=unconfined
-    groups: ["consul"]
+    groups:
+      - consul_cluster
 
   - name: centos9
     image: mdd13/ansible-docker-redhat:centos9
@@ -26,7 +27,8 @@ platforms:
     cgroupns_mode: host
     security_opts:
       - seccomp=unconfined
-    groups: ["consul"]
+    groups:
+      - consul_cluster
 
   - name: redhat8
     image: mdd13/ansible-docker-redhat:redhat8
@@ -37,7 +39,8 @@ platforms:
     cgroupns_mode: host
     security_opts:
       - seccomp=unconfined
-    groups: ["consul"]
+    groups:
+      - consul_cluster
 
   - name: redhat9
     image: mdd13/ansible-docker-redhat:redhat9
@@ -48,7 +51,8 @@ platforms:
     cgroupns_mode: host
     security_opts:
       - seccomp=unconfined
-    groups: ["consul"]
+    groups:
+      - consul_cluster
 
 provisioner:
   name: ansible

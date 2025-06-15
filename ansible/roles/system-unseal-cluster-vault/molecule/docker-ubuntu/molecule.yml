@@ -22,7 +22,7 @@ platforms:
     override_command: false
     security_opts:
       - seccomp=unconfined
-    groups: ["vault"]
+    groups: ["vault_cluster"]
 
   - name: ubuntu22.04
     image: mdd13/ansible-docker-ubuntu:ubuntu22.04
@@ -40,7 +40,7 @@ platforms:
     override_command: false
     security_opts:
       - seccomp=unconfined
-    groups: ["vault"]
+    groups: ["vault_cluster"]
 
   - name: ubuntu24.04
     image: mdd13/ansible-docker-ubuntu:ubuntu24.04
@@ -58,7 +58,7 @@ platforms:
     override_command: false
     security_opts:
       - seccomp=unconfined
-    groups: ["vault"]
+    groups: ["vault_cluster"]
 
 provisioner:
   name: ansible

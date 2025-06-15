@@ -1,0 +1,133 @@
+---
+# Вызов предварительной роли system-prepare для полноценного запуска текущей роли:
+- name: Import system-prepare role for running current role on Debian family distro
+  import_role:
+    name: system-prepare
+    tasks_from: main
+
+# Создание группы с именем Consul:
+- name: Create Consul Agent group on Debian family distro
+  group:
+    name: "{{ local_consul_manual_agent_group }}"
+    gid: "{{ local_consul_manual_agent_group_id }}"
+    state: present
+
+# Создание пользователя с именем Consul:
+- name: Create Consul Agent user on Debian family distro
+  user:
+    name: "{{ local_consul_manual_agent_user }}"
+    groups: "{{ local_consul_manual_agent_group }}"
+    home: "{{ local_consul_manual_agent_dir_data }}"
+    uid: "{{ local_consul_manual_agent_group_id }}"
+    shell: /sbin/nologin
+    append: true
+
+# Вызов предварительной задачи consul-ca-tls.yaml для полноценного завершения текущей роли в рамках заданных условий:
+- name: Import Consul CA task for running current role on Debian family distro
+  include_tasks: consul-ca-tls.yaml
+  when: global_consul_manual_agent_enable_https | bool
+
+# Создание нескольких директорий для последующей работы агента Consul:
+- name: Create Consul Agent directories on Debian family distro
+  file:
+    state: directory
+    path: "{{ item.path }}"
+    mode: "{{ local_consul_manual_agent_dir_mode }}"
+    owner: "{{ local_consul_manual_agent_user }}"
+    group: "{{ local_consul_manual_agent_group }}"
+  loop:
+    - {path: "{{ local_consul_manual_agent_dir_config }}"}
+    - {path: "{{ local_consul_manual_agent_dir_data }}"}
+
+# Загрузка архива с бинарным файлом Consul из Интернета по прямой ссылке:
+- name: Download Consul Agent archive for future installation on Debian family distro
+  get_url:
+    url: "{{ local_consul_manual_agent_file_archive_link }}"
+    mode: "{{ local_consul_manual_agent_file_mode }}"
+    dest: "/tmp/{{ local_consul_manual_agent_file_archive_name }}"
+    force: false
+
+# Извлечение архива и перемещение бинарного файла в соответствующую директорию:
+- name: Unpack the Consul Agent archive and move the binary file on Debian family distro
+  unarchive:
+    src: "/tmp/{{ local_consul_manual_agent_file_archive_name }}"
+    dest: "{{ local_consul_manual_agent_path_binary }}"
+    remote_src: true
+
+# Копирование всех конфигурационных файлов агента Consul и их последующая отправка в соответствующие директории:
+- name: Copy Consul Agent configuration files from templates on Debian family distro
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode | default(local_consul_manual_agent_file_mode) }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+  loop:
+    - src: "templates/{{ local_consul_manual_agent_file_autocomplete_j2 }}"
+      dest: "{{ local_consul_manual_agent_file_autocomplete_path }}"
+      mode: "{{ local_consul_manual_agent_file_mode }}"
+      owner: "{{ local_consul_manual_agent_user }}"
+      group: "{{ local_consul_manual_agent_group }}"
+    - src: "templates/{{ global_consul_manual_agent_config }}"
+      dest: "{{ local_consul_manual_agent_dir_config }}/{{ local_consul_manual_agent_file_config }}"
+      mode: "{{ local_consul_manual_agent_file_mode }}"
+      owner: "{{ local_consul_manual_agent_user }}"
+      group: "{{ local_consul_manual_agent_group }}"
+  notify: Restart Consul Agent
+
+# Копирование Systemd файла из директории templates и его последующая передача в соответствующую директорию:
+- name: Copy Consul Agent systemd config on Debian family distro
+  template:
+    src: "templates/{{ local_consul_manual_agent_file_systemd }}.j2"
+    dest: "/usr/lib/systemd/system/{{ local_consul_manual_agent_file_systemd }}"
+    mode: "{{ local_consul_manual_agent_file_mode }}"
+    owner: "0"
+    group: "0"
+  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian' and ansible_distribution_major_version | int == 12
+  notify: Restart Consul Agent
+
+# Копирование Systemd файла из директории templates и его последующая передача в соответствующую директорию:
+- name: Copy Consul Agent systemd config on Debian family distro (Old Debian Versions)
+  template:
+    src: "templates/{{ local_consul_manual_agent_file_systemd }}.j2"
+    dest: "/etc/systemd/system/{{ local_consul_manual_agent_file_systemd }}"
+    mode: "{{ local_consul_manual_agent_file_mode }}"
+    owner: "0"
+    group: "0"
+  when: ansible_distribution == 'Debian' and ansible_distribution_major_version | int != 12
+  notify: Restart Consul Agent
+
+# Запуск и добавление в автозагрузку сервиса Consul с помощью Systemd:
+- name: Start Consul Agent service on Debian family distro
+  service:
+    name: consul
+    state: started
+    enabled: true
+    daemon_reload: true
+
+# Проверка того, что клиентский сертификат успешно работает на запущенном узле:
+- name: Check that certificate is valid on one of retry_join IPs on Debian family distro
+  block:
+    - name: Try connection to each IP from retry_join
+      shell: |
+        openssl s_client -connect {{ item }}:{{ global_consul_host_listening_https_port }} -CAfile {{ local_consul_manual_agent_dir_tls }}/{{ external_consul_manual_cluster_file_ca_certificate }} < /dev/null 2>/dev/null
+      loop: "{{ global_consul_manual_agent_retry_join }}"
+      register: openssl_check_results
+      changed_when: false
+      failed_when: false
+
+    - name: Set fact if at least one IP succeeded
+      set_fact:
+        consul_certitifacte_check_success: "{{ openssl_check_results.results | selectattr('stdout', 'search', 'Verification: OK') | list | length > 0 }}"
+
+    - name: Fail if no valid certificate was found
+      fail:
+        msg: "No Consul agent responded with a valid certificate on HTTPS port"
+      when: not consul_certitifacte_check_success
+  when: global_consul_manual_agent_enable_https | bool
+
+# Финальный вывод после проверки работоспособности сертификата:
+- name: Output the result on Debian family distro
+  debug:
+    msg: "{{ (openssl_check_results.results | selectattr('stdout', 'search', 'Verification: OK') | list).0.stdout }}"
+  when: global_consul_manual_agent_enable_https | bool

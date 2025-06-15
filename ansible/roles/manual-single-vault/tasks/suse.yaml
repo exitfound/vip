@@ -74,7 +74,7 @@
       mode: "{{ local_vault_manual_file_mode }}"
       owner: "0"
       group: "0"
-  notify: Restart Vault
+  notify: Restart Single Vault
 
 # Запуск и добавление в автозагрузку сервиса Vault с помощью Systemd:
 - name: Start Vault service on SUSE family distro

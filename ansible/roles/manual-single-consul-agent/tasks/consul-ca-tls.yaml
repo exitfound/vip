@@ -1,0 +1,156 @@
+---
+# Создание директории TLS для хранения сертификатов, относящихся к серверной части Consul:
+- name: Create TLS directory on Consul Agent
+  file:
+    state: directory
+    path: "{{ local_consul_manual_agent_dir_tls }}"
+    mode: "{{ local_consul_manual_agent_dir_mode }}"
+    owner: "{{ external_consul_manual_cluster_file_ca_node_value_owner }}"
+    group: "{{ local_consul_manual_agent_group }}"
+
+# Поиск узлов в группе, которые относятся к Consul Cluster:
+- name: Search Nodes in a Consul Cluster group
+  set_fact:
+    global_consul_cluster_inventory_group: "{{ item }}"
+  loop: "{{ groups.keys() | list }}"
+  when: groups[item] is defined and
+        groups[item] | length > 0 and
+        (groups[item] | select('match', 'consul.*$') | list | length) > 0
+  run_once: true
+
+# Установка факта после нахождения нужного узла в группе Consul Cluster:
+- name: Set fact with Consul CA path from source Node in Consul Cluster group
+  set_fact:
+    consul_server_path_to_certificates: "{{ hostvars[groups[global_consul_cluster_inventory_group][0]]['global_system_internal_dir_ca'] ~ '/' ~ hostvars[groups[global_consul_cluster_inventory_group][0]]['global_system_internal_file_ca_certificate'] }}"
+  run_once: true
+
+# Поиск узла в группе Consul Cluster, на котором расположен CA сертификат:
+- name: Search Node in Consul Cluster with actual CA certificate file
+  stat:
+    path: "{{ consul_server_path_to_certificates }}"
+  delegate_to: "{{ item }}"
+  loop: "{{ groups[global_consul_cluster_inventory_group] }}"
+  register: ca_file_check
+  run_once: true
+
+# Установка факта после нахождения узла, который содержит в себе корневой сертификат в группе Consul Cluster:
+- name: Set fact based on a known Node that have a CA certificate
+  set_fact:
+    consul_ca_server_node: "{{ item.item }}"
+  loop: "{{ ca_file_check.results }}"
+  when: item.stat.exists
+  run_once: true
+
+# Установка фактов для получения нужных путей в рамках работы с корневым сертификатом Consul Cluster:
+- name: Set fact with Consul CA paths from Consul Cluster
+  set_fact:
+    consul_server_source_ca_certificate: "{{ hostvars[consul_ca_server_node]['global_system_internal_dir_ca'] }}/{{ hostvars[consul_ca_server_node]['global_system_internal_file_ca_certificate'] }}"
+    consul_server_source_ca_privatekey: "{{ hostvars[consul_ca_server_node]['global_system_internal_dir_ca'] }}/{{ hostvars[consul_ca_server_node]['global_system_internal_file_ca_privatekey'] }}"
+  run_once: true
+
+# Получение CA сертификата из узла группы Consul Cluster:
+- name: Get CA Certificate from specific Node in Consul Cluster
+  fetch:
+    src: "{{ consul_server_source_ca_certificate }}"
+    dest: "/tmp/{{ external_consul_manual_cluster_file_ca_certificate }}"
+    flat: true
+  delegate_to: "{{ consul_ca_server_node }}"
+  run_once: true
+
+# Передача CA сертификата с узла группы Consul Cluster на узел Consul Agent:
+- name: Distribute Consul CA from specific Node in Consul Cluster to Consul Agent
+  copy:
+    src: "/tmp/{{ external_consul_manual_cluster_file_ca_certificate }}"
+    dest: "{{ local_consul_manual_agent_dir_tls }}/{{ external_consul_manual_cluster_file_ca_certificate }}"
+    mode: "{{ external_consul_manual_cluster_file_ca_node_value_file_mode }}"
+    group: "{{ local_consul_manual_agent_group }}"
+    owner: "{{ external_consul_manual_cluster_file_ca_node_value_owner }}"
+
+# Получения CA приватного ключа из узла группы Consul Cluster:
+- name: Get CA Private Key from specific Node in Consul Cluster
+  fetch:
+    src: "{{ consul_server_source_ca_privatekey }}"
+    dest: "/tmp/{{ external_consul_manual_cluster_file_ca_private_key }}"
+    flat: true
+  delegate_to: "{{ consul_ca_server_node }}"
+  run_once: true
+
+# Передача CA приватного ключа с узла группы Consul Cluster на узел Consul Agent:
+- name: Distribute Consul CA Private Key from Consul Cluster to Consul Agent
+  copy:
+    src: /tmp/{{ external_consul_manual_cluster_file_ca_private_key }}
+    dest: "{{ local_consul_manual_agent_dir_tls }}/{{ external_consul_manual_cluster_file_ca_private_key }}"
+    mode: "{{ external_consul_manual_cluster_file_ca_node_value_file_mode }}"
+    group: "{{ local_consul_manual_agent_group }}"
+    owner: "{{ external_consul_manual_cluster_file_ca_node_value_owner }}"
+  # changed_when: false
+
+# Установка фактов для получения нужных параметров с целью создания новых сертификатов и ключей:
+- name: Set fact with Consul CA values from Consul Cluster for new Certificates and Keys on Consul Agent
+  set_fact:
+    consul_server_source_ca_privatekey_type: "{{ hostvars[consul_ca_server_node]['global_system_internal_privatekey_type'] }}"
+    consul_server_source_ca_privatekey_size: "{{ hostvars[consul_ca_server_node]['global_system_internal_privatekey_size'] }}"
+    consul_server_source_csr_common_name: "{{ hostvars[consul_ca_server_node]['global_system_internal_csr_common_name'] }}"
+    consul_server_source_csr_country_name: "{{ hostvars[consul_ca_server_node]['global_system_internal_csr_country_name'] }}"
+    consul_server_source_csr_organization_name: "{{ hostvars[consul_ca_server_node]['global_system_internal_csr_organization_name'] }}"
+    consul_server_source_csr_san_dns: "{{ hostvars[consul_ca_server_node]['global_system_internal_csr_san_dns'] }}"
+  run_once: true
+
+# Создание приватного ключа на Consul Agent для последующего взаимодействия с Consul Cluster посредством использования TLS:
+- name: Generate Private Key on each Consul Agent Node
+  community.crypto.openssl_privatekey:
+    path: "{{ local_consul_manual_agent_dir_tls }}/{{ external_consul_manual_cluster_file_ca_node_value }}.key.pem"
+    type: "{{ consul_server_source_ca_privatekey_type }}"
+    size: "{{ consul_server_source_ca_privatekey_size }}"
+    mode: "{{ external_consul_manual_cluster_file_ca_node_value_file_mode }}"
+    owner: "{{ external_consul_manual_cluster_file_ca_node_value_owner }}"
+    group: "{{ local_consul_manual_agent_group }}"
+
+# Создание CSR на Consul Agent для последующего взаимодействия с Consul Cluster посредством использования TLS:
+- name: Generate CSR on each Consul Agent Node
+  community.crypto.openssl_csr:
+    group: "{{ local_consul_manual_agent_group }}"
+    mode: "{{ external_consul_manual_cluster_file_ca_node_value_file_mode }}"
+    path: "{{ local_consul_manual_agent_dir_tls }}/{{ external_consul_manual_cluster_file_ca_node_value }}.csr.pem"
+    privatekey_path: "{{ local_consul_manual_agent_dir_tls }}/{{ external_consul_manual_cluster_file_ca_node_value }}.key.pem"
+    common_name: "{{ consul_server_source_csr_common_name }}"
+    country_name: "{{ consul_server_source_csr_country_name }}"
+    organization_name: "{{ consul_server_source_csr_organization_name }}"
+    email_address: "admin@{{ external_consul_manual_cluster_file_ca_node_value }}"
+    subject_alt_name: >-
+      {{
+        (
+          consul_server_source_csr_san_dns | default([]) +
+          [
+            'IP:' ~ (hostvars[inventory_hostname]['ansible_default_ipv4']['address'] | default('127.0.0.1')),
+            'DNS:' ~ (hostvars[inventory_hostname]['ansible_fqdn'] | default(inventory_hostname)),
+            'DNS:' ~ (inventory_hostname)
+          ]
+          +
+          ['IP:127.0.0.1', 'DNS:localhost']
+        )
+        | select('defined') | select('string') | unique | sort
+      }}
+    use_common_name_for_san: false
+    create_subject_key_identifier: true
+
+# Выпуск сертификатов для Consul Agent на базе CA Consul Cluster, который был получен ранее:
+- name: Sign certificate file for each Consul Agent Node
+  community.crypto.x509_certificate:
+    group: "{{ local_consul_manual_agent_group }}"
+    mode: "{{ external_consul_manual_cluster_file_ca_node_value_file_mode }}"
+    path: "{{ local_consul_manual_agent_dir_tls }}/{{ external_consul_manual_cluster_file_ca_node_value }}.crt.pem"
+    csr_path: "{{ local_consul_manual_agent_dir_tls }}/{{ external_consul_manual_cluster_file_ca_node_value }}.csr.pem"
+    provider: ownca
+    ownca_path: "{{ local_consul_manual_agent_dir_tls }}/{{ external_consul_manual_cluster_file_ca_certificate }}"
+    ownca_privatekey_path: "{{ local_consul_manual_agent_dir_tls }}/{{ external_consul_manual_cluster_file_ca_private_key }}"
+    ownca_not_after: "+365d"
+    ownca_create_authority_key_identifier: true
+    ownca_create_subject_key_identifier: "create_if_not_provided"
+
+# # Удаление CA приватного ключа с узлов Consul Agent после всех шагов:
+# - name: Remove CA Private Key from Consul Agent Nodes
+#   file:
+#     path: "{{ local_consul_manual_agent_dir_tls }}/{{ external_consul_manual_cluster_file_ca_private_key }}"
+#     state: absent
+#   changed_when: false
