@@ -6,26 +6,6 @@ driver:
   name: ec2
 
 platforms:
-  - name: "debian10"
-    aws_profile: "{{ aws_profile }}"
-    region: "{{ aws_region }}"
-    image_name: "debian-10-amd64-20240703-1797" # Debian 10
-    image_owner: "136693071363"
-    instance_type: "{{ aws_instance_type }}"
-    vpc_id: "{{ aws_vpc_id }}"
-    vpc_subnet_id: "{{ aws_vpc_subnet_id }}"
-    volumes: []
-    security_groups: []
-    key_inject_method: "{{ aws_key_method }}"
-    ssh_user: "{{ aws_default_ssh_user }}"
-    ssh_port: 22
-    assign_public_ip: true
-    boot_wait_seconds: 120
-    key_name: "{{ aws_custom_key_name }}"
-    private_key_path: "{{ aws_local_private_key }}"
-    public_key_path: "{{ aws_local_public_key }}"
-    security_group_name: "{{ aws_secruity_group_name }}"
-
   - name: "debian11"
     aws_profile: "{{ aws_profile }}"
     region: "{{ aws_region }}"
@@ -50,6 +30,26 @@ platforms:
     aws_profile: "{{ aws_profile }}"
     region: "{{ aws_region }}"
     image_name: "debian-12-amd64-20241201-1948" # Debian 12
+    image_owner: "136693071363"
+    instance_type: "{{ aws_instance_type }}"
+    vpc_id: "{{ aws_vpc_id }}"
+    vpc_subnet_id: "{{ aws_vpc_subnet_id }}"
+    volumes: []
+    security_groups: []
+    key_inject_method: "{{ aws_key_method }}"
+    ssh_user: "{{ aws_default_ssh_user }}"
+    ssh_port: 22
+    assign_public_ip: true
+    boot_wait_seconds: 120
+    key_name: "{{ aws_custom_key_name }}"
+    private_key_path: "{{ aws_local_private_key }}"
+    public_key_path: "{{ aws_local_public_key }}"
+    security_group_name: "{{ aws_secruity_group_name }}"
+
+  - name: "debian13"
+    aws_profile: "{{ aws_profile }}"
+    region: "{{ aws_region }}"
+    image_name: "debian-13-amd64-20250806-2196" # Debian 13
     image_owner: "136693071363"
     instance_type: "{{ aws_instance_type }}"
     vpc_id: "{{ aws_vpc_id }}"

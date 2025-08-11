@@ -26,6 +26,23 @@ global_vault_unseal_secret_threshold: 3
 global_vault_unseal_tls_skip_verify: true # false, если у вас SSL
 global_vault_unseal_tls_disable: true # false, если у вас SSL
 
+# Глобальные переменные, используемые для установки и настройки Nginx (все режимы работы):
+global_nginx_enable_certbot_certificates: false
+global_nginx_enable_certbot_certificates_email_address: "evoukin@gmail.com"
+global_nginx_enable_certbot_certificates_command: "certbot certonly --noninteractive --nginx --agree-tos --email {{ global_nginx_enable_certbot_certificates_email_address }} --domains {{ global_nginx_host_domain }}"
+global_nginx_host_domain: "molecule.local.vault"
+global_nginx_set_http_scheme: "http"
+global_nginx_set_proxy_pass_scheme: "http"
+global_nginx_set_cluster_vault_config: true
+global_nginx_set_cluster_vault_addresses:
+  - "172.31.2.29"
+  - "172.31.7.239"
+  - "172.31.6.123"
+global_nginx_set_cluster_vault_weight:
+  - "10"
+  - "5"
+  - "3"
+
 # ----------------------------------------------------------------------------------------------------------
 # Ниже представлен набор переменных, которые отвечают за работу тестов при использовании Molecule в Ansible:
 

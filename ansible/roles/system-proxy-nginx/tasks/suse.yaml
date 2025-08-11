@@ -1,0 +1,65 @@
+---
+# Вызов предварительной роли system-prepare для полноценного запуска текущей роли:
+- name: Import system-prepare role for running current role on SUSE family distro
+  import_role:
+    name: system-prepare
+    tasks_from: main
+
+# Определение конечного списка пакетов для установки в зависимости от используемой схемы HTTP:
+- name: Set final package list for this role on SUSE family distro
+  set_fact:
+    local_system_nginx_package_list: >-
+      {{
+        local_system_nginx_main_package_list +
+        (global_nginx_enable_certbot_certificates | bool | ternary(local_system_nginx_additional_package_list, []))
+      }}
+
+# Установка всех необходимых пакетов с помощью пакетного менеджера:
+- name: Install required packages on SUSE family distro
+  zypper:
+    name: "{{ local_system_nginx_package_list }}"
+    state: present
+    update_cache: true
+
+# Устранение проблемы из-за которой SUSE не воспринимает конфигурационный файл, лежащий в conf.d:
+- name: Replace 'localhost' with '_' in server_name directive
+  replace:
+    path: "{{ local_system_nginx_suse_default_config }}"
+    regexp: 'server_name\s+localhost;'
+    replace: 'server_name _;'
+  notify: Restart Nginx
+
+# Передача конфигурационного файла Nginx для проксирования запросов при обращении к Vault:
+- name: Copy Nginx config for Vault on SUSE family distro
+  template:
+    src: "templates/{{ lookup('vars', global_nginx_set_cluster_vault_config | ternary('local_system_nginx_cluster_vault_config', 'local_system_nginx_single_vault_config')) }}"
+    dest: "{{ local_system_nginx_redhat_default_path }}/{{ global_nginx_host_domain }}.conf"
+    mode: "{{ local_system_nginx_file_mode }}"
+    owner: "{{ local_system_nginx_file_owner }}"
+    group: "{{ local_system_nginx_file_group }}"
+  notify: Restart Nginx
+
+# Вызов задачи по усозданию и установке внешнего сертификата для указанного домена:
+- name: Invocation of the certificate.yaml task on SUSE family distro
+  include_tasks: certificate.yaml
+  when: global_nginx_enable_certbot_certificates | default(false) | bool
+
+# Регистрация проверки конфигурации Nginx в переменную:
+- name: Register the output of command nginx -t after changes on SUSE family distro
+  command: nginx -t
+  register: nginx_validate
+  failed_when: false
+  changed_when: false
+
+# Результат вывода переменной на экран:
+- name: The output result of our variable on SUSE family distro
+  debug:
+    var: nginx_validate.stderr
+
+# Запуск сервиса Nginx через systemd:
+- name: Start Nginx service on SUSE family distro
+  systemd:
+    name: nginx
+    state: started
+    daemon_reload: true
+    enabled: true

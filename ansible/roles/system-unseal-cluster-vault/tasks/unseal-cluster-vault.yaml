@@ -123,7 +123,7 @@
     # Фактический вывод результата по распечатыванию:
     - name: Output of the actual result for each Vault Instance
       debug:
-        msg: "Vault Master Node unseal status: {{ vault_master_final_status.json.sealed == false }} for {{ vault_master_node }}"
+        msg: "Vault Master Node unseal status: {{ vault_master_final_status.json.sealed == false }} for {{ inventory_hostname }}"
 
     # Удаление из ОЗУ временнного JSON-файла с ключами для распечатывания:
     - name: Delete temporary JSON file with Vault keys from RAM

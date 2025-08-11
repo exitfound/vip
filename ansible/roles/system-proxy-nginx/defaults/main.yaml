@@ -1,0 +1,28 @@
+---
+# Переменные, необходимые для конфигурирования Nginx, применимые ко всем дистрибутивам в равной степени:
+local_system_nginx_file_mode: "0640"
+local_system_nginx_file_owner: "0"
+local_system_nginx_file_group: "0"
+local_system_nginx_single_vault_config: "single_vault_http_scheme.conf.j2"
+local_system_nginx_cluster_vault_config: "cluster_vault_http_scheme.conf.j2"
+local_system_nginx_main_package_list:
+  - nginx
+local_system_nginx_additional_package_list:
+  - certbot
+  - python3-certbot-nginx
+
+# Переменные, необходимые для конфигурирования Nginx, применимые к дистрибутиву семейства SUSE:
+local_system_nginx_suse_default_config: "/etc/nginx/nginx.conf"
+local_system_nginx_suse_default_path: "/etc/nginx/conf.d"
+local_system_nginx_suse_package_list:
+  - certbot-systemd-timer
+
+# Переменные, необходимые для конфигурирования Nginx, применимые к дистрибутиву семейства Redhat:
+local_system_nginx_redhat_default_config: "/etc/nginx/nginx.conf"
+local_system_nginx_redhat_default_path: "/etc/nginx/conf.d"
+
+# Переменные, необходимые для конфигурирования Nginx, применимые к дистрибутиву семейства Debian:
+local_system_nginx_debian_available_dir: "/etc/nginx/sites-available"
+local_system_nginx_debian_enabled_dir: "/etc/nginx/sites-enabled"
+local_system_nginx_debian_pip_package_list:
+  - appengine-python-standard

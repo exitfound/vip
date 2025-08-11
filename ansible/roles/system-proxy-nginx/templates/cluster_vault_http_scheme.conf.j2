@@ -1,0 +1,63 @@
+upstream cluster {
+    ip_hash;
+{% for ip, weight in global_nginx_set_cluster_vault_addresses | zip(global_nginx_set_cluster_vault_weight) %}
+    server {{ ip }}:{{ global_vault_host_listening_port }} weight={{ weight }};
+{% endfor %}
+}
+
+server {
+{% if global_nginx_set_http_scheme == 'http' %}
+    listen 80;
+    listen [::]:80 ipv6only=on;
+    server_name {{ global_nginx_host_domain }};
+
+{% elif global_nginx_set_http_scheme == 'https' %}
+    listen 443 ssl;
+    listen [::]:443 ipv6only=on;
+    server_name {{ global_nginx_host_domain }};
+
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+    ssl_certificate /etc/letsencrypt/live/{{ global_nginx_host_domain }}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/{{ global_nginx_host_domain }}/privkey.pem;
+
+    if ($host = www.{{ global_nginx_host_domain }}) {
+        return 301 {{ global_nginx_set_http_scheme }}://{{ global_nginx_host_domain }}$request_uri;
+    }
+
+{% else %}
+    # Fallback: default to http
+    listen 80;
+    listen [::]:80 ipv6only=on;
+    server_name {{ global_nginx_host_domain }};
+
+{% endif %}    access_log /var/log/nginx/vault_access.log;
+    error_log /var/log/nginx/vault_error.log;
+
+    location / {
+        proxy_pass {{ global_nginx_set_proxy_pass_scheme }}://cluster;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Connection "";
+
+        proxy_buffering off;
+        proxy_http_version 1.1;
+        proxy_redirect off;
+{% if global_nginx_set_http_scheme == 'https' %}
+        proxy_ssl_verify off;
+{% else %}
+{% endif %}
+    }
+}
+
+{% if global_nginx_set_http_scheme == 'https' %}
+server {
+    listen       80;
+    listen       [::]:80;
+    server_name {{ global_nginx_host_domain }} www.{{ global_nginx_host_domain }};
+    return 301 {{ global_nginx_set_http_scheme }}://{{ global_nginx_host_domain }}$request_uri;
+}
+{% else %}
+{% endif %}

@@ -64,6 +64,8 @@ aws ec2 describe-images --owners 136693071363 --filters "Name=name,Values=debian
 aws ec2 describe-images --owners 136693071363 --filters "Name=name,Values=debian-11-amd64-*" --query "Images[*].[OwnerId,CreationDate,Name,ImageId]" --output table
 # Для Debian 12
 aws ec2 describe-images --owners 136693071363 --filters "Name=name,Values=debian-12-amd64-*" --query "Images[*].[OwnerId,CreationDate,Name,ImageId]" --output table
+# Для Debian 13
+aws ec2 describe-images --owners 136693071363 --filters "Name=name,Values=debian-13-amd64-*" --query "Images[*].[OwnerId,CreationDate,Name,ImageId]" --output table
 ```
 
 * Для **SUSE** это:
