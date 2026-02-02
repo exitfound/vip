@@ -123,7 +123,6 @@ platforms:
       - vault_cluster
       - consul_cluster
 
-
   - name: ubuntu20.04
     image: mdd13/ansible-docker-ubuntu:ubuntu20.04
     pre_build_image: true

@@ -23,6 +23,9 @@ platforms:
     override_command: false
     cgroup_parent: docker.slice
     cgroupns_mode: host
+    tmpfs:
+      - /var/lib/containerd
+      - /var/lib/docker
     security_opts:
       - seccomp=unconfined
 
@@ -33,6 +36,9 @@ platforms:
     override_command: false
     cgroup_parent: docker.slice
     cgroupns_mode: host
+    tmpfs:
+      - /var/lib/containerd
+      - /var/lib/docker
     security_opts:
       - seccomp=unconfined
 
@@ -43,6 +49,9 @@ platforms:
     override_command: false
     cgroup_parent: docker.slice
     cgroupns_mode: host
+    tmpfs:
+      - /var/lib/containerd
+      - /var/lib/docker
     security_opts:
       - seccomp=unconfined
 

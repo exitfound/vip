@@ -2,10 +2,10 @@
 cluster_name            = "{{ global_vault_cluster_name }}"
 api_addr                = "http://{{ ansible_default_ipv4.address }}:{{ global_vault_host_listening_port }}"
 cluster_addr            = "http://{{ ansible_default_ipv4.address }}:{{ global_vault_cluster_port }}"
-max_lease_ttl           = "768h"
-default_lease_ttl       = "24h"
+default_lease_ttl       = "{{ global_vault_lease_default_value }}"
+max_lease_ttl           = "{{ global_vault_lease_max_value }}"
 ui                      = true
-disable_mlock           = true
+disable_mlock           = false
 raw_storage_endpoint    = true
 disable_sealwrap        = true
 disable_printable_check = true

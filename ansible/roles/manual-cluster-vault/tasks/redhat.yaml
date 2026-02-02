@@ -24,7 +24,7 @@
   user:
     name: "{{ local_vault_manual_cluster_user }}"
     groups: "{{ local_vault_manual_cluster_group }}"
-    uid: "{{ local_vault_manual_cluster_group_id }}"
+    uid: "{{ local_vault_manual_cluster_user_id }}"
     home: "{{ local_vault_manual_cluster_dir_data }}"
     shell: /sbin/nologin
     append: true
@@ -52,6 +52,7 @@
     url: "{{ local_vault_manual_cluster_file_archive_link }}"
     mode: "{{ local_vault_manual_cluster_file_mode }}"
     dest: "/tmp/{{ local_vault_manual_cluster_file_archive_name }}"
+    checksum: "{{ global_vault_file_archive_checksum }}"
     force: false
 
 # Извлечение архива и перемещение бинарного файла в соответствующую директорию:
@@ -59,6 +60,8 @@
   unarchive:
     src: "/tmp/{{ local_vault_manual_cluster_file_archive_name }}"
     dest: "{{ local_vault_manual_cluster_path_binary }}"
+    creates: "{{ local_vault_manual_cluster_path_binary }}/vault"
+    mode: "0755"
     remote_src: true
 
 # Копирование всех конфигурационных файлов Vault и их последующая отправка в соответствующие директории:
@@ -89,7 +92,7 @@
 
 # Запуск и добавление в автозагрузку сервиса Vault с помощью Systemd:
 - name: Start Vault Cluster service on RedHat family distro
-  service:
+  systemd:
     name: vault
     state: started
     enabled: true

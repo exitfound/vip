@@ -5,7 +5,7 @@
     name: system-prepare
     tasks_from: main
 
-# Включение HTTPS трафика на сервере, если SELinux был включен:
+# Включение HTTPS трафика на сервере, если SELinux был предварительно включен:
 - name: Enable httpd trafic via SELinux on RedHat family distro
   seboolean:
     name: httpd_can_network_connect
@@ -22,12 +22,48 @@
         (global_nginx_enable_certbot_certificates | bool | ternary(local_system_nginx_additional_package_list, []))
       }}
 
+# Установка EPEL репозитория для Certbot на CentOS/Rocky/Alma:
+- name: Install EPEL repository on on RedHat family distro
+  yum:
+    name: "{{ local_system_nginx_redhat_family_package_list }}"
+    state: present
+    update_cache: true
+  when:
+    - global_nginx_enable_certbot_certificates | default(false) | bool
+    - ansible_distribution in ['CentOS', 'Rocky', 'AlmaLinux']
+
+# Установка EPEL репозитория для Certbot на RHEL:
+- name: Install EPEL repository on RedHat family distro
+  yum:
+    name: "{{ local_system_nginx_redhat_package_list }}"
+    state: present
+    disable_gpg_check: true
+  when:
+    - global_nginx_enable_certbot_certificates | default(false) | bool
+    - ansible_distribution == 'RedHat'
+
 # Установка всех необходимых пакетов с помощью пакетного менеджера:
 - name: Install required packages on RedHat family distro
   yum:
     name: "{{ local_system_nginx_package_list }}"
     state: present
     update_cache: true
+
+# Проверка на наличие сертификата (только если Certbot включен):
+- name: Check if certificate exists on RedHat family distro
+  stat:
+    path: "{{ local_system_nginx_certbot_dir_path }}/{{ global_nginx_host_domain }}/cert.pem"
+  register: cert_exists
+  when: global_nginx_enable_certbot_certificates | default(false) | bool
+
+# Определение схемы для конфигурации (HTTP если сертификата нет, иначе заданная схема):
+- name: Set nginx scheme for config on RedHat family distro
+  set_fact:
+    nginx_config_scheme: >-
+      {{
+        (global_nginx_enable_certbot_certificates | default(false) | bool and not cert_exists.stat.exists | default(false))
+        | ternary('http', global_nginx_set_http_scheme)
+      }}
 
 # Передача конфигурационного файла Nginx для проксирования запросов при обращении к Vault:
 - name: Copy Nginx config for Vault on RedHat family distro
@@ -39,7 +75,7 @@
     group: "{{ local_system_nginx_file_group }}"
   notify: Restart Nginx
 
-# Устранение проблемы из-за которой Centos 8 не воспринимает конфигурационный файл, лежащий в conf.d:
+# Устранение проблемы из-за которой Centos 8 и RedHat 8 не воспринимают конфигурационный файл, лежащий в conf.d:
 - name: Remove 'default_server' from listen directives in nginx.conf on RedHat family distro
   ansible.builtin.replace:
     path: "{{ local_system_nginx_redhat_default_config }}"
@@ -48,10 +84,33 @@
   when: (ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat') and ansible_distribution_major_version == '8'
   notify: Restart Nginx
 
-# Вызов задачи по усозданию и установке внешнего сертификата для указанного домена:
+# Вызов задачи по созданию и установке внешнего сертификата для указанного домена:
 - name: Invocation of the certificate.yaml task on RedHat family distro
   include_tasks: certificate.yaml
-  when: global_nginx_enable_certbot_certificates | default(false) | bool
+  when:
+    - global_nginx_enable_certbot_certificates | default(false) | bool
+    - not cert_exists.stat.exists | default(false)
+
+# Обновление схемы на HTTPS после получения сертификата:
+- name: Set nginx scheme to HTTPS after certificate generation on RedHat family distro
+  set_fact:
+    nginx_config_scheme: "{{ global_nginx_set_http_scheme }}"
+  when:
+    - global_nginx_enable_certbot_certificates | default(false) | bool
+    - not cert_exists.stat.exists | default(false)
+
+# Повторный вызов конфигурации с HTTPS после получения сертификата:
+- name: Re-deploy Nginx config with HTTPS after certificate generation on RedHat family distro
+  template:
+    src: "templates/{{ lookup('vars', global_nginx_set_cluster_vault_config | ternary('local_system_nginx_cluster_vault_config', 'local_system_nginx_single_vault_config')) }}"
+    dest: "{{ local_system_nginx_redhat_default_path }}/{{ global_nginx_host_domain }}.conf"
+    mode: "{{ local_system_nginx_file_mode }}"
+    owner: "{{ local_system_nginx_file_owner }}"
+    group: "{{ local_system_nginx_file_group }}"
+  when:
+    - global_nginx_enable_certbot_certificates | default(false) | bool
+    - not cert_exists.stat.exists | default(false)
+  notify: Restart Nginx
 
 # Регистрация проверки конфигурации Nginx в переменную:
 - name: Output of command nginx -t after changes on RedHat family distro
@@ -64,6 +123,7 @@
 - name: The output result of our variable on RedHat family distro
   debug:
     var: nginx_validate.stderr
+  when: nginx_validate.rc != 0
 
 # Запуск сервиса Nginx с помощью Systemd:
 - name: Start Nginx service on RedHat family distro

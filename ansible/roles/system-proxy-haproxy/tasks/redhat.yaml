@@ -1,0 +1,98 @@
+---
+# Вызов предварительной роли system-prepare для полноценного запуска текущей роли:
+- name: Import system-prepare role for running current role on RedHat family distro
+  import_role:
+    name: system-prepare
+    tasks_from: main
+
+# Включение HTTPS трафика на сервере, если SELinux был включен по умолчанию в системе:
+- name: Enable httpd trafic via SELinux on RedHat family distro
+  seboolean:
+    name: httpd_can_network_connect
+    state: true
+    persistent: true
+  when:
+    - ansible_selinux is defined
+    - ansible_selinux.status == "enabled"
+
+# Определение конечного списка пакетов для установки в зависимости от используемой схемы HTTP:
+- name: Set final package list for this role on RedHat family distro
+  set_fact:
+    local_system_haproxy_package_list: >-
+      {{
+        local_system_haproxy_main_package_list +
+        (global_haproxy_enable_certbot_certificates | bool | ternary(local_system_haproxy_additional_package_list, []))
+      }}
+
+# Установка всех необходимых пакетов с помощью пакетного менеджера:
+- name: Install required packages on RedHat family distro
+  yum:
+    name: "{{ local_system_haproxy_package_list }}"
+    state: present
+    update_cache: true
+
+# Создание дополнительной директории для хранения специфической конфигурации:
+- name: Create HAProxy conf.d/ directory on RedHat family distro
+  file:
+    state: directory
+    path: "{{ local_system_haproxy_redhat_dir_config }}"
+    mode: "{{ local_system_haproxy_dir_mode }}"
+    owner: "{{ local_system_haproxy_file_owner }}"
+    group: "{{ local_system_haproxy_file_group }}"
+
+# Определение используемой конфигурации для Vault:
+- name: Set Vault config template name on RedHat family distro
+  set_fact:
+    _haproxy_vault_config: "{{ global_haproxy_set_cluster_vault_config | bool | ternary(local_system_haproxy_cluster_vault_config, local_system_haproxy_single_vault_config) }}"
+
+# Копирование всех конфигурационных файлов HAProxy и их последующая отправка в соответствующие директории:
+- name: Copy HAProxy configuration files from templates on RedHat family distro
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode | default(local_system_haproxy_file_mode) }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+  loop:
+    - src: "templates/{{ local_system_haproxy_main_config }}"
+      dest: "{{ local_system_haproxy_redhat_default_config }}"
+      mode: "{{ local_system_haproxy_file_mode }}"
+      owner: "{{ local_system_haproxy_file_owner }}"
+      group: "{{ local_system_haproxy_file_group }}"
+    - src: "templates/{{ _haproxy_vault_config }}"
+      dest: "{{ local_system_haproxy_redhat_dir_config }}/{{ global_haproxy_host_domain }}.cfg"
+      mode: "{{ local_system_haproxy_file_mode }}"
+      owner: "{{ local_system_haproxy_file_owner }}"
+      group: "{{ local_system_haproxy_file_group }}"
+    - src: "templates/{{ local_system_haproxy_manual_file_systemd }}.j2"
+      dest: "/usr/lib/systemd/system/{{ local_system_haproxy_manual_file_systemd }}"
+      mode: "{{ local_system_haproxy_file_mode }}"
+      owner: "0"
+      group: "0"
+  notify: Restart HAProxy
+
+# Вызов задачи по созданию и установке внешнего сертификата для указанного домена:
+- name: Invocation of the certificate.yaml task on RedHat family distro
+  include_tasks: certificate.yaml
+  when: global_haproxy_enable_certbot_certificates | default(false) | bool
+
+# Регистрация проверки конфигурации HAProxy в переменную:
+- name: Register the output of command haproxy -c -f /etc/haproxy/haproxy.cfg after changes on RedHat family distro
+  command: haproxy -c -f {{ local_system_haproxy_redhat_default_config }} -f {{ local_system_haproxy_redhat_dir_config }}
+  register: haproxy_validate
+  failed_when: false
+  changed_when: false
+
+# Результат вывода переменной на экран:
+- name: The output result of our variable for HAProxy on RedHat family distro
+  debug:
+    var: haproxy_validate.stderr
+  when: haproxy_validate.rc != 0
+
+# Запуск сервиса HAProxy через Systemd:
+- name: Start HAProxy service on RedHat family distro
+  systemd:
+    name: haproxy
+    state: started
+    daemon_reload: true
+    enabled: true

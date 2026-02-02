@@ -27,8 +27,6 @@ platforms:
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
     privileged: true
-    capabilities:
-      - SYS_ADMIN
     cgroup_parent: docker.slice
     cgroupns_mode: host
     override_command: false
@@ -44,8 +42,6 @@ platforms:
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
     privileged: true
-    capabilities:
-      - SYS_ADMIN
     cgroup_parent: docker.slice
     cgroupns_mode: host
     override_command: false

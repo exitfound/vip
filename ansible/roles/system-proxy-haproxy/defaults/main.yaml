@@ -1,0 +1,32 @@
+---
+# Переменные, необходимые для конфигурирования HAProxy, применимые ко всем дистрибутивам в равной степени:
+local_system_haproxy_dir_mode: "0755"
+local_system_haproxy_file_mode: "0640"
+local_system_haproxy_file_owner: "0"
+local_system_haproxy_file_group: "haproxy"
+local_system_haproxy_dir_ssl: "/etc/haproxy/ssl"
+local_system_haproxy_main_config: "haproxy_default_config.cfg.j2"
+local_system_haproxy_manual_file_systemd: "haproxy.service"
+local_system_haproxy_single_vault_config: "haproxy_single_vault_http_scheme.cfg.j2"
+local_system_haproxy_cluster_vault_config: "haproxy_cluster_vault_http_scheme.cfg.j2"
+local_system_haproxy_main_package_list:
+  - haproxy
+local_system_haproxy_additional_package_list:
+  - certbot
+
+# Переменные, необходимые для конфигурирования HAProxy, применимые к дистрибутиву семейства SUSE:
+local_system_haproxy_suse_default_config: "/etc/haproxy/haproxy.cfg"
+local_system_haproxy_suse_dir_config: "/etc/haproxy/conf.d"
+local_system_haproxy_suse_package_list:
+  - certbot-systemd-timer
+
+# Переменные, необходимые для конфигурирования HAProxy, применимые к дистрибутиву семейства Redhat:
+local_system_haproxy_redhat_default_config: "/etc/haproxy/haproxy.cfg"
+local_system_haproxy_redhat_dir_config: "/etc/haproxy/conf.d"
+
+# Переменные, необходимые для конфигурирования HAProxy, применимые к дистрибутиву семейства Debian:
+local_system_haproxy_debian_default_config: "/etc/haproxy/haproxy.cfg"
+local_system_haproxy_debian_dir_config: "/etc/haproxy/conf.d"
+local_system_haproxy_debian_dir_errors: "/etc/haproxy/errors"
+local_system_haproxy_debian_pip_package_list:
+  - appengine-python-standard

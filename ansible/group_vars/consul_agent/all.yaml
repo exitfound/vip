@@ -1,11 +1,12 @@
 ---
 # Глобальные переменные, используемые для развертывания и настройки Manual Consul Agent:
+global_consul_cluster_inventory_group: "consul_cluster"
 global_consul_manual_agent_config: "consul_agent_config.hcl.j2"
 global_consul_manual_agent_data_center: "dc1"
 global_consul_manual_agent_retry_join:
-  - "172.31.0.31"
-  - "172.31.13.155"
-  - "172.31.14.194"
+  - "10.0.0.1"
+  - "10.0.0.2"
+  - "10.0.0.3"
 global_consul_manual_agent_enable_https: false
 global_consul_manual_agent_enable_tls_incoming: true
 global_consul_manual_agent_enable_tls_outgoing: true

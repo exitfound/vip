@@ -45,7 +45,6 @@ platforms:
     cgroup_parent: docker.slice
     cgroupns_mode: host
     override_command: false
-    groups: ["vault_cluster"]
 
 provisioner:
   name: ansible

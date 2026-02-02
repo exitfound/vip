@@ -21,6 +21,7 @@ local_vault_manual_cluster_file_config: "config.hcl"
 local_vault_manual_cluster_file_systemd: "vault.service"
 local_vault_manual_cluster_path_binary: "/usr/local/bin"
 local_vault_manual_cluster_user: "vault"
+local_vault_manual_cluster_user_id: 452
 local_vault_manual_cluster_group: "vault"
 local_vault_manual_cluster_group_id: 452
 

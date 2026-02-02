@@ -2,7 +2,7 @@
 
 Данная секция предназначена для запуска и выполнения тестов с помощью такого инструмента, как `Molecule`. Этот инструмент осуществляет предварительный запуск ролей на указанных платформах (Docker, Cloud и т.д.). Делается это для того, чтобы когда роль была написана или изменена, не приходилось выполнять её запуск непосредственно на реальных серверах, так как это может привести к непредвиденным обстоятельствам.
 
-### **Установка molecule:**
+### **Установка Molecule:**
 
 Для того чтобы установить `Molecule` локально со всеми зависимостями, выполните следующую команду в корне проекта:
 
@@ -68,7 +68,7 @@ aws ec2 describe-images --owners 136693071363 --filters "Name=name,Values=debian
 aws ec2 describe-images --owners 136693071363 --filters "Name=name,Values=debian-13-amd64-*" --query "Images[*].[OwnerId,CreationDate,Name,ImageId]" --output table
 ```
 
-* Для **SUSE** это:
+* Для **SLES** это:
 ```
 # Для SLEL 15 (можно менять версии SP)
 aws ec2 describe-images --owners 013907871322 --filters "Name=name,Values=suse-sles-15-sp5-*-x86_64" --query "Images[*].[OwnerId,CreationDate,Name,ImageId]" --output table

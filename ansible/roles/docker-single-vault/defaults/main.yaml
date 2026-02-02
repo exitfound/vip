@@ -8,6 +8,8 @@ local_vault_docker_file_mode: "0640"
 local_vault_docker_file_config: "config.hcl"
 local_vault_docker_file_composefile: "vault-docker-compose.yaml"
 local_vault_docker_file_dockerfile: "vault.dockerfile"
+local_vault_docker_group_id: 1000
+local_vault_docker_user_id: 1000
 
 # Переменные, необходимые для установки и настройки Single Vault с помощью Docker на дистрибутиве семейства SUSE:
 

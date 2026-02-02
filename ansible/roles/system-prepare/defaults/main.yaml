@@ -23,5 +23,7 @@ local_system_debian_packages_list:
   - ca-certificates
   - curl
   - gnupg
+  - gpg
+  - procps
   - python3-pip
   - unzip

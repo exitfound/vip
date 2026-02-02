@@ -18,7 +18,7 @@
     name: "{{ local_consul_manual_agent_user }}"
     groups: "{{ local_consul_manual_agent_group }}"
     home: "{{ local_consul_manual_agent_dir_data }}"
-    uid: "{{ local_consul_manual_agent_group_id }}"
+    uid: "{{ local_consul_manual_agent_user_id }}"
     shell: /sbin/nologin
     append: true
 
@@ -27,7 +27,7 @@
   include_tasks: consul-ca-tls.yaml
   when: global_consul_manual_agent_enable_https | bool
 
-# Создание нескольких директорий для последующей работы агнета Consul:
+# Создание нескольких директорий для последующей работы агента Consul:
 - name: Create Consul Agent directories on RedHat family distro
   file:
     state: directory
@@ -45,13 +45,20 @@
     url: "{{ local_consul_manual_agent_file_archive_link }}"
     mode: "{{ local_consul_manual_agent_file_mode }}"
     dest: "/tmp/{{ local_consul_manual_agent_file_archive_name }}"
+    checksum: "{{ global_consul_file_archive_checksum }}"
     force: false
+  retries: 3
+  delay: 5
+  register: consul_download
+  until: consul_download is succeeded
 
 # Извлечение архива и перемещение бинарного файла в соответствующую директорию:
 - name: Unpack the Consul Agent archive and move the binary file on RedHat family distro
   unarchive:
     src: "/tmp/{{ local_consul_manual_agent_file_archive_name }}"
     dest: "{{ local_consul_manual_agent_path_binary }}"
+    creates: "{{ local_consul_manual_agent_path_binary }}/consul"
+    mode: "0755"
     remote_src: true
 
 # Копирование всех конфигурационных файлов Consul и их последующая отправка в соответствующие директории:
@@ -82,7 +89,7 @@
 
 # Запуск и добавление в автозагрузку сервиса Consul с помощью Systemd:
 - name: Start Consul Agent service on RedHat family distro
-  service:
+  systemd:
     name: consul
     state: started
     enabled: true
@@ -92,7 +99,7 @@
 - name: Check that certificate is valid on one of retry_join IPs on RedHat family distro
   block:
     - name: Try connection to each IP from retry_join
-      shell: |
+      command: |
         openssl s_client -connect {{ item }}:{{ global_consul_host_listening_https_port }} -CAfile {{ local_consul_manual_agent_dir_tls }}/{{ external_consul_manual_cluster_file_ca_certificate }} < /dev/null 2>/dev/null
       loop: "{{ global_consul_manual_agent_retry_join }}"
       register: openssl_check_results
@@ -101,12 +108,12 @@
 
     - name: Set fact if at least one IP succeeded
       set_fact:
-        consul_certitifacte_check_success: "{{ openssl_check_results.results | selectattr('stdout', 'search', 'Verification: OK') | list | length > 0 }}"
+        consul_certificate_check_success: "{{ openssl_check_results.results | selectattr('stdout', 'search', 'Verification: OK') | list | length > 0 }}"
 
     - name: Fail if no valid certificate was found
       fail:
         msg: "No Consul agent responded with a valid certificate on HTTPS port"
-      when: not consul_certitifacte_check_success
+      when: not consul_certificate_check_success
   when: global_consul_manual_agent_enable_https | bool
 
 # Финальный вывод после проверки работоспособности сертификата:

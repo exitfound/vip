@@ -2,6 +2,7 @@
 # Данный файл используется для преобразования состояния экземпляров в реальное состояние, объявленное в реальных тестируемых ролях:
 - name: Converge
   hosts: all
+  gather_facts: true
   tasks:
     # Данный шаг вызывает роль system-internal-certificates для прогона тестов с помощью Molecule:
     - name: "Include system-internal-certificates role for testing"

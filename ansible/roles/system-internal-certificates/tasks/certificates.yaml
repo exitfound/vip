@@ -3,8 +3,8 @@
 - name: Create a group name to grant rights to certificates
   group:
     name: "{{ global_system_internal_ca_key_group }}"
-    state: present
     gid: "{{ global_system_internal_ca_key_group_id }}"
+    state: present
 
 # Создание директорий для последующей работы роли:
 - name: Ensure CA directories exists on Delegate Host
@@ -53,30 +53,6 @@
     email_address: "{{ global_system_internal_csr_email_address }}"
     create_subject_key_identifier: true
     use_common_name_for_san: false
-    # subject_alt_name: >-
-    #   {{
-    #     (
-    #       global_system_internal_csr_san_dns | default([])
-    #     )
-    #     +
-    #     (
-    #       groups[global_vault_cluster_inventory_group | default('vault_cluster')]
-    #       | map('extract', hostvars, ['ansible_default_ipv4', 'address'])
-    #       | select('string')
-    #       | map('regex_replace', '^', 'IP:')
-    #       | list
-    #     )
-    #     +
-    #     (
-    #       groups[global_vault_cluster_inventory_group | default('vault_cluster')]
-    #       | map('regex_replace', '^', 'DNS:')
-    #       | list
-    #     )
-    #     +
-    #     ['IP:127.0.0.1']
-    #     +
-    #     ['DNS:localhost']
-    #   }}
     subject_alt_name: >-
       {{
         (
@@ -170,7 +146,7 @@
 # Копирование CSR файлов со всех узлов на делегированный узел, где был создан CA:
 - name: Copy each Node CSR file to CA Delegate Host
   copy:
-    content: "{{ csr_file_base64['content'] | b64decode }}.csr.pem"
+    content: "{{ csr_file_base64['content'] | b64decode }}"
     dest: "{{ local_system_internal_dir_temporary }}/{{ inventory_hostname }}.csr.pem"
     mode: "{{ local_system_internal_file_ca_cert_mode }}"
     owner: "{{ local_system_internal_ca_key_owner }}"
@@ -180,18 +156,18 @@
 # Выпуск сертификатов для каждого узла на базе CA, который был создан ранее:
 - name: Sign each Node certificate file on CA Delegate Host
   community.crypto.x509_certificate:
+    provider: ownca
+    ownca_path: "{{ local_system_internal_file_ca_cert_path }}"
+    ownca_privatekey_path: "{{ local_system_internal_file_ca_key_path }}"
+    ownca_not_before: "-1d"
+    ownca_not_after: "+730d"
+    ownca_create_authority_key_identifier: true
+    ownca_create_subject_key_identifier: "create_if_not_provided"
     mode: "{{ local_system_internal_file_ca_cert_mode }}"
     owner: "{{ local_system_internal_ca_key_owner }}"
     group: "{{ global_system_internal_ca_key_group }}"
     path: "{{ local_system_internal_dir_temporary }}/{{ inventory_hostname }}.crt.pem"
     csr_path: "{{ local_system_internal_dir_temporary }}/{{ inventory_hostname }}.csr.pem"
-    provider: ownca
-    ownca_path: "{{ local_system_internal_file_ca_cert_path }}"
-    ownca_privatekey_path: "{{ local_system_internal_file_ca_key_path }}"
-    ownca_not_before: "-1d"
-    ownca_not_after: "+365d"
-    ownca_create_authority_key_identifier: true
-    ownca_create_subject_key_identifier: "create_if_not_provided"
   delegate_to: "{{ global_system_internal_delegate_host }}"
 
 # Считывание всех сертификатов на делегированном узле для их последующего копирования:
@@ -237,7 +213,7 @@
   include_tasks: redhat.yaml
   when: ansible_os_family == 'RedHat'
 
-# Вызов файла redhat.yaml для настройки необходимых компонентов на дистрибутиве семейства SUSE:
+# Вызов файла suse.yaml для настройки необходимых компонентов на дистрибутиве семейства SUSE:
 - name: Invocation of the suse.yaml task
   include_tasks: suse.yaml
   when: ansible_os_family == 'Suse'

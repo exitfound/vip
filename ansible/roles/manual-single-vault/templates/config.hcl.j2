@@ -1,7 +1,7 @@
 ui                = true
-disable_mlock     = true
-max_lease_ttl     = "768h"
-default_lease_ttl = "24h"
+disable_mlock     = false
+default_lease_ttl = "{{ global_vault_lease_default_value }}"
+max_lease_ttl     = "{{ global_vault_lease_max_value }}"
 
 storage "file" {
   path            = "{{ local_vault_manual_dir_data }}"

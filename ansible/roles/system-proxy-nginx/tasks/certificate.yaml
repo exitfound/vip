@@ -1,7 +1,7 @@
 ---
 # Установка специфического пакета, который необходим для корректной работы Certbot (только SUSE):
 - name: Install systemd package for Certbot on SUSE family distro
-  package:
+  zypper:
     name: "{{ local_system_nginx_suse_package_list }}"
     state: present
   when: ansible_os_family == 'Suse'

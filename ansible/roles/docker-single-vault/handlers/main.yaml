@@ -1,0 +1,7 @@
+---
+# Перезапуск контейнера Vault в случае изменения конфигурационного файла:
+- name: Restart Vault Docker
+  community.docker.docker_compose_v2:
+    project_src: "{{ local_vault_docker_dir_main }}"
+    files: "{{ local_vault_docker_file_composefile }}"
+    state: restarted

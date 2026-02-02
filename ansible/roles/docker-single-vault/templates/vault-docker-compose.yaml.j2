@@ -14,7 +14,8 @@ services:
     user: vault
     environment:
       VAULT_ADDR: http://localhost:{{ global_vault_host_listening_port }}
-      SKIP_SETCAP: true
+      SKIP_SETCAP: "true"
+      SKIP_CHOWN: "true"
     ports:
       - {{ global_vault_host_listening_address }}:{{ global_vault_host_listening_port }}:{{ global_vault_host_listening_port }}
     volumes:
@@ -22,6 +23,10 @@ services:
       - ./data:{{ local_vault_docker_dir_data }}
     cap_add:
       - IPC_LOCK
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
     networks:
       - vault{{ suffix }}
 

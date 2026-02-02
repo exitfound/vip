@@ -103,7 +103,7 @@ molecule converge -s [aws-debian, aws-ubuntu, aws-suse, aws-redhat] # Укажи
 ```
 molecule idempotence -s [docker-debian, docker-ubuntu, docker-suse, docker-redhat] # Укажите на выбор одно из семейств дистрибутивов Linux;
 molecule idempotence -s [aws-debian, aws-ubuntu, aws-suse, aws-redhat] # Укажите на выбор одно из семейств дистрибутивов Linux;
-``
+```
 
 Чтобы явно уничтожить следы деятельности прогона тестов используйте следующую команду:
 

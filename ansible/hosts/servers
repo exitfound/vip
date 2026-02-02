@@ -1,30 +1,32 @@
 [all:vars]
 
 [vault_cluster]
-ubuntu20.04-instance1       ansible_host=3.67.193.149
-ubuntu22.04-instance1       ansible_host=3.67.193.149
-ubuntu24.04-instance1       ansible_host=35.159.228.219
+vault_cluster1              ansible_host=35.159.175.77        global_haproxy_host_domain=u24.kitezh.world
+vault_cluster2              ansible_host=18.159.215.90        global_haproxy_host_domain=u22.kitezh.world
+vault_cluster3              ansible_host=54.93.102.209        global_haproxy_host_domain=u20.kitezh.world
 
 [consul_agent]
-consul_agent1               ansible_host=3.67.193.149
-consul_agent2               ansible_host=3.70.72.93
-consul_agent3               ansible_host=35.159.228.219
+consul_agent1               ansible_host=35.159.175.77
+consul_agent2               ansible_host=18.159.215.90
+consul_agent3               ansible_host=54.93.102.209
 
 [consul_cluster]
-consul_cluster1             ansible_host=18.193.86.238
-consul_cluster2             ansible_host=52.59.240.203
-consul_cluster3             ansible_host=3.79.247.247
+consul_cluster1             ansible_host=63.177.249.151         ansible_user=ubuntu
+consul_cluster2             ansible_host=18.197.73.242          ansible_user=ubuntu
+consul_cluster3             ansible_host=3.70.53.13             ansible_user=ubuntu
 
 [suse:children]
 opensuse15.5
 opensuse15.6
 sles15
+sles16
 
 [redhat:children]
 centos8
 centos9
 redhat8
 redhat9
+redhat10
 
 [debian:children]
 debian10
@@ -32,8 +34,8 @@ debian11
 debian12
 
 [ubuntu:children]
-ubuntu20.04
-ubuntu22.04
+; ubuntu20.04
+; ubuntu22.04
 ubuntu24.04
 
 [opensuse15.5]
@@ -43,7 +45,10 @@ opensuse15.5-instance1      ansible_host=suse155.kitezh.online
 opensuse15.6-instance1      ansible_host=suse156.kitezh.online
 
 [sles15]
-sles15-instance1            ansible_host=sles15.kitezh.online
+sles15-instance1            ansible_host=sles155.kitezh.online
+
+[sles16]
+sles16-instance1            ansible_host=sles156.kitezh.online
 
 [centos8]
 centos8-instance1           ansible_host=centos8.kitezh.online
@@ -52,25 +57,28 @@ centos8-instance1           ansible_host=centos8.kitezh.online
 centos9-instance1           ansible_host=centos9.kitezh.online
 
 [redhat8]
-redhat8-instance1           ansible_host=redhat8.kitezh.online
+redhat8-instance1           ansible_host=r8.kitezh.world        global_nginx_host_domain=r8.kitezh.world
 
 [redhat9]
-redhat9-instance1           ansible_host=redhat9.kitezh.online
+redhat9-instance1           ansible_host=r9.kitezh.world        global_nginx_host_domain=r9.kitezh.world
+
+[redhat10]
+redhat10-instance1          ansible_host=r10.kitezh.world       global_nginx_host_domain=r10.kitezh.world
 
 [ubuntu20.04]
-ubuntu20.04-instance1       ansible_host=ubuntu20.kitezh.world
+ubuntu20.04-instance1       ansible_host=63.177.230.32
 
 [ubuntu22.04]
-ubuntu22.04-instance1       ansible_host=ubuntu22.kitezh.world
+ubuntu22.04-instance1       ansible_host=35.158.126.48           global_nginx_host_domain=u22.kitezh.world
 
 [ubuntu24.04]
-ubuntu24.04-instance1       ansible_host=ubuntu24.kitezh.world
+ubuntu24.04-instance1       ansible_host=63.178.3.141           global_nginx_host_domain=u24.kitezh.world
 
 [debian10]
-debian10-instance1          ansible_host=debian10.kitezh.online
+debian10-instance1          ansible_host=3.70.231.167
 
 [debian11]
-debian11-instance1          ansible_host=debian11.kitezh.online
+debian11-instance1          ansible_host=52.29.218.159
 
 [debian12]
-debian12-instance1          ansible_host=debian12.kitezh.online
+debian12-instance1          ansible_host=3.75.193.228

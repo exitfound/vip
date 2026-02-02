@@ -1,0 +1,75 @@
+---
+# Создание нескольких директорий для последующей работы с Vault с помощью Docker:
+- name: Create Vault directories
+  file:
+    state: directory
+    path: "{{ item.path }}"
+    mode: "{{ local_vault_docker_dir_mode }}"
+    owner: "{{ local_vault_docker_user_id }}"
+    group: "{{ local_vault_docker_group_id }}"
+  loop:
+    - {path: "{{ local_vault_docker_dir_main }}"}
+    - {path: "{{ local_vault_docker_dir_data }}"}
+    - {path: "{{ local_vault_docker_dir_config }}"}
+
+# Копирование Docker файлов из директории templates в рабочую директорию Vault:
+- name: Copy Docker files to directory
+  template:
+    src: "templates/{{ item.file }}.j2"
+    dest: "{{ item.path }}/{{ item.file }}"
+    mode: "{{ local_vault_docker_file_mode }}"
+    owner: "{{ local_vault_docker_user_id }}"
+    group: "{{ local_vault_docker_group_id }}"
+  loop:
+    - {path: "{{ local_vault_docker_dir_main }}", file: "{{ local_vault_docker_file_composefile }}"}
+    - {path: "{{ local_vault_docker_dir_main }}", file: "{{ local_vault_docker_file_dockerfile }}"}
+
+# Копирование конфигурационного файла Vault из директории templates в рабочую директорию Vault:
+- name: Copy Vault config file to directory
+  template:
+    src: "templates/{{ local_vault_docker_file_config }}.j2"
+    dest: "{{ local_vault_docker_dir_config }}/{{ local_vault_docker_file_config }}"
+    mode: "{{ local_vault_docker_file_mode }}"
+    owner: "{{ local_vault_docker_user_id }}"
+    group: "{{ local_vault_docker_group_id }}"
+  notify: Restart Vault Docker
+
+# Запуск Vault с помощью Docker на удаленном узле:
+- name: Run Vault via Docker Compose
+  community.docker.docker_compose_v2:
+    project_src: "{{ local_vault_docker_dir_main }}"
+    files: "{{ local_vault_docker_file_composefile }}"
+    build: "policy"
+    recreate: "auto"
+    state: "present"
+  register: docker_compose_output
+
+# Проверка состояния контейнера Vault после его запуска с помощью Docker на удаленном узле:
+- name: Verify that Vault service is running
+  ansible.builtin.assert:
+    that:
+      - vault_container | length > 0
+      - vault_container.State | default('') == 'running'
+    fail_msg: >-
+      Vault container is not running! Current state: {{
+        docker_compose_output.containers
+        | selectattr("Name", "equalto", vault_container_name)
+        | first
+        | default({})
+        | dict2items
+        | selectattr('key', 'equalto', 'State')
+        | map(attribute='value')
+        | first
+        | default('unknown')
+      }}
+    success_msg: >-
+      Vault container is running and healthy
+  vars:
+    vault_container_name: >-
+      {{ "vault-transit" if global_vault_transit_backend_enable | default(false) else "vault" }}
+    vault_container: >-
+      {{ docker_compose_output.containers
+        | selectattr("Name", "equalto", vault_container_name)
+        | selectattr("State", "equalto", "running")
+        | first
+        | default({}) }}

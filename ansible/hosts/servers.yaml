@@ -1,0 +1,121 @@
+---
+all:
+  vars: {}
+
+  children:
+    # Vault Cluster
+    vault_cluster:
+      hosts:
+        vault_cluster1:
+          ansible_host: 35.159.175.77
+          global_haproxy_host_domain: u24.kitezh.world
+        vault_cluster2:
+          ansible_host: 18.159.215.90
+          global_haproxy_host_domain: u22.kitezh.world
+        vault_cluster3:
+          ansible_host: 54.93.102.209
+          global_haproxy_host_domain: u20.kitezh.world
+
+    # Consul Cluster
+    consul_cluster:
+      hosts:
+        consul_cluster1:
+          ansible_host: 63.177.249.151
+          ansible_user: ubuntu
+        consul_cluster2:
+          ansible_host: 18.197.73.242
+          ansible_user: ubuntu
+        consul_cluster3:
+          ansible_host: 3.70.53.13
+          ansible_user: ubuntu
+
+    # Consul Agents
+    consul_agent:
+      hosts:
+        consul_agent1:
+          ansible_host: 35.159.175.77
+        consul_agent2:
+          ansible_host: 18.159.215.90
+        consul_agent3:
+          ansible_host: 54.93.102.209
+
+    # SUSE семейство
+    suse:
+      children:
+        opensuse15.5:
+          hosts:
+            opensuse15.5-instance1:
+              ansible_host: suse155.kitezh.online
+        opensuse15.6:
+          hosts:
+            opensuse15.6-instance1:
+              ansible_host: suse156.kitezh.online
+        sles15:
+          hosts:
+            sles15-instance1:
+              ansible_host: sles155.kitezh.online
+        sles16:
+          hosts:
+            sles16-instance1:
+              ansible_host: sles156.kitezh.online
+
+    # RedHat семейство
+    redhat:
+      children:
+        centos8:
+          hosts:
+            centos8-instance1:
+              ansible_host: centos8.kitezh.online
+        centos9:
+          hosts:
+            centos9-instance1:
+              ansible_host: centos9.kitezh.online
+        redhat8:
+          hosts:
+            redhat8-instance1:
+              ansible_host: r8.kitezh.world
+              global_nginx_host_domain: r8.kitezh.world
+        redhat9:
+          hosts:
+            redhat9-instance1:
+              ansible_host: r9.kitezh.world
+              global_nginx_host_domain: r9.kitezh.world
+        redhat10:
+          hosts:
+            redhat10-instance1:
+              ansible_host: r10.kitezh.world
+              global_nginx_host_domain: r10.kitezh.world
+
+    # Debian семейство
+    debian:
+      children:
+        debian10:
+          hosts:
+            debian10-instance1:
+              ansible_host: 3.70.231.167
+        debian11:
+          hosts:
+            debian11-instance1:
+              ansible_host: 52.29.218.159
+        debian12:
+          hosts:
+            debian12-instance1:
+              ansible_host: 3.75.193.228
+
+    # Ubuntu семейство
+    ubuntu:
+      children:
+        ubuntu20.04:
+          hosts:
+            ubuntu20.04-instance1:
+              ansible_host: 63.177.230.32
+        ubuntu22.04:
+          hosts:
+            ubuntu22.04-instance1:
+              ansible_host: 35.158.126.48
+              global_nginx_host_domain: u22.kitezh.world
+        ubuntu24.04:
+          hosts:
+            ubuntu24.04-instance1:
+              ansible_host: 63.178.3.141
+              global_nginx_host_domain: u24.kitezh.world

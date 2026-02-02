@@ -12,6 +12,7 @@ local_consul_manual_cluster_file_config: "config.hcl"
 local_consul_manual_cluster_file_systemd: "consul.service"
 local_consul_manual_cluster_path_binary: "/usr/local/bin"
 local_consul_manual_cluster_user: "consul"
+local_consul_manual_cluster_user_id: 451
 local_consul_manual_cluster_group: "consul"
 local_consul_manual_cluster_group_id: 451
 

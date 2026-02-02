@@ -26,7 +26,60 @@
   debug:
     msg: "Current status code is {{ vault_status }} for Vault on {{ hostvars[inventory_hostname].ansible_host | default(inventory_hostname) }}"
 
-# Вызов блока для первоначальной инициализации и последюущего распечатывания Vault:
+# Вызов блока для инициализации Vault с Transit Auto-Unseal:
+- block:
+    # Запуск процесса инициализации Vault с Transit (Recovery Keys вместо Unseal Keys):
+    - name: Start the Vault initialization process with Transit Auto-Unseal
+      uri:
+        url: "{{ global_vault_unseal_tls_disable | ternary('http', 'https') }}://{{ hostvars[inventory_hostname].ansible_host | default(inventory_hostname) }}:{{ global_vault_host_listening_port }}/v1/sys/init"
+        validate_certs: "{{ not global_vault_unseal_tls_skip_verify }}"
+        body:
+          recovery_shares: "{{ global_vault_unseal_secret_shares }}"
+          recovery_threshold: "{{ global_vault_unseal_secret_threshold }}"
+        body_format: json
+        method: PUT
+      register: vault_init_transit_response
+
+    # Сохранение Recovery Keys во временный файл в ОЗУ:
+    - name: Create temporary JSON file with Vault recovery keys in RAM
+      copy:
+        content: "{{ vault_init_transit_response.json | to_nice_json }}"
+        dest: "{{ local_vault_single_unseal_json_file }}"
+        mode: "0600"
+      no_log: true
+
+    # Передача Recovery Keys на локальную систему:
+    - name: Transfer Recovery Keys to executable host
+      fetch:
+        src: "{{ local_vault_single_unseal_json_file }}"
+        dest: "./{{ local_vault_single_unseal_output_keys }}/{{ hostvars[inventory_hostname].ansible_host | default(inventory_hostname) }}/vault_recovery_keys.json"
+        flat: true
+      no_log: true
+
+    # Ожидание автоматического распечатывания через Transit:
+    - name: Wait for Vault to auto-unseal via Transit
+      uri:
+        url: "{{ global_vault_unseal_tls_disable | ternary('http', 'https') }}://{{ hostvars[inventory_hostname].ansible_host | default(inventory_hostname) }}:{{ global_vault_host_listening_port }}/v1/sys/health"
+        validate_certs: "{{ not global_vault_unseal_tls_skip_verify }}"
+        status_code: 200
+      register: vault_transit_unseal_status
+      until: vault_transit_unseal_status.status == 200
+      retries: 10
+      delay: 3
+
+    # Вывод результата распечатывания через Transit:
+    - name: Output Transit Auto-Unseal result
+      debug:
+        msg: "Vault auto-unsealed via Transit: {{ vault_transit_unseal_status.json.sealed == false }} for {{ hostvars[inventory_hostname].ansible_host | default(inventory_hostname) }}"
+
+    # Удаление временного файла из ОЗУ:
+    - name: Delete temporary JSON file with recovery keys from RAM
+      file:
+        path: "{{ local_vault_single_unseal_json_file }}"
+        state: absent
+  when: vault_status | string == "501" and global_vault_transit_backend_enable | bool
+
+# Вызов блока для первоначальной инициализации и последующего распечатывания Vault (без Transit):
 - block:
     # Запуск процесса инициализации Vault в случае соблюдения входящего условия:
     - name: Start the Vault initialization process
@@ -89,7 +142,7 @@
     # Проверка на предмет того, был ли распечатан Vault после его инициализации:
     - name: Verify that Vault is unsealed
       uri:
-        url: "{{ global_vault_unseal_tls_disable | ternary('http', 'https') }}://{{ hostvars[inventory_hostname].ansible_host | default(inventory_hostname) }}:8200/v1/sys/health"
+        url: "{{ global_vault_unseal_tls_disable | ternary('http', 'https') }}://{{ hostvars[inventory_hostname].ansible_host | default(inventory_hostname) }}:{{ global_vault_host_listening_port }}/v1/sys/health"
         validate_certs: "{{ not global_vault_unseal_tls_skip_verify }}"
         status_code: 200
       register: vault_final_status
@@ -107,9 +160,9 @@
       file:
         path: "{{ local_vault_single_unseal_json_file }}"
         state: absent
-  when: vault_status | string == "501"
+  when: vault_status | string == "501" and not (global_vault_transit_backend_enable | bool)
 
-# Вызов блока для повторного распечатывания Vault посредством сохраненных ранее ключей:
+# Вызов блока для повторного распечатывания Vault посредством сохраненных ранее ключей (без Transit):
 - block:
     # Считывание ключей из файла, который ранее был создан на исполняемой системе:
     - name: Read Unseal Keys from the file that was created during Vault initialization
@@ -136,7 +189,7 @@
       loop: "{{ vault_keys_from_file }}"
       no_log: true
       when: vault_keys_from_file is defined
-  when: vault_status | string == "503"
+  when: vault_status | string == "503" and not (global_vault_transit_backend_enable | bool)
 
 # Прекращение исполнения роли в случае обнаружения уже проинициализированного и распечатонного Vault:
 - name: End the playbook if Vault already has been initialized and unsealed

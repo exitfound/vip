@@ -6,7 +6,7 @@
     tasks_from: main
 
 # Вызов предварительной роли system-internal-certificates для полноценного запуска текущей роли:
-- name: Import system-internal-certificates role for running current role on Debian family distro
+- name: Import system-internal-certificates role for running current role on RedHat family distro
   import_role:
     name: system-internal-certificates
     tasks_from: main
@@ -24,7 +24,7 @@
   user:
     name: "{{ local_consul_manual_cluster_user }}"
     groups: "{{ local_consul_manual_cluster_group }}"
-    uid: "{{ local_consul_manual_cluster_group_id }}"
+    uid: "{{ local_consul_manual_cluster_user_id }}"
     home: "{{ local_consul_manual_cluster_dir_data }}"
     shell: /sbin/nologin
     append: true
@@ -47,13 +47,20 @@
     url: "{{ local_consul_manual_cluster_file_archive_link }}"
     mode: "{{ local_consul_manual_cluster_file_mode }}"
     dest: "/tmp/{{ local_consul_manual_cluster_file_archive_name }}"
+    checksum: "{{ global_consul_file_archive_checksum }}"
     force: false
+  retries: 3
+  delay: 5
+  register: consul_download
+  until: consul_download is succeeded
 
 # Извлечение архива и перемещение бинарного файла в соответствующую директорию:
 - name: Unpack the Consul Cluster archive and move the binary file on RedHat family distro
   unarchive:
     src: "/tmp/{{ local_consul_manual_cluster_file_archive_name }}"
     dest: "{{ local_consul_manual_cluster_path_binary }}"
+    creates: "{{ local_consul_manual_cluster_path_binary }}/consul"
+    mode: "0755"
     remote_src: true
 
 # Копирование всех конфигурационных файлов Consul и их последующая отправка в соответствующие директории:
@@ -84,7 +91,7 @@
 
 # Запуск и добавление в автозагрузку сервиса Consul с помощью Systemd:
 - name: Start Consul Cluster service on RedHat family distro
-  service:
+  systemd:
     name: consul
     state: started
     enabled: true
@@ -92,7 +99,7 @@
 
 # Проверка того, что сертификат был создан на запущенном узле:
 - name: Check that the certificate has been added on RedHat family distro
-  shell: |
+  command: |
     openssl s_client -connect 127.0.0.1:{{ global_consul_host_listening_https_port }} -CAfile {{ global_system_internal_dir_node_certificates }}/{{ global_system_internal_file_ca_certificate }} < /dev/null 2>/dev/null
   register: openssl_status_check
   until: "'Verification: OK' in openssl_status_check.stdout"

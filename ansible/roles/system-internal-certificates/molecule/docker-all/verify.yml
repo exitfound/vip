@@ -2,6 +2,7 @@
 # Данный файл знаменует об успешном завершении запускаемых ранее тестов в Molecule:
 - name: Verify our tests in Molecule
   hosts: all
+  gather_facts: false
   tasks:
     # Чтение CA сертификата на делегированном узле:
     - name: Read CA certificate on Delegate Host

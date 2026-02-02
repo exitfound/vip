@@ -1,10 +1,10 @@
 cluster_name                = "{{ global_vault_cluster_name }}"
 api_addr                    = "https://{{ ansible_default_ipv4.address }}:{{ global_vault_host_listening_port }}"
 cluster_addr                = "https://{{ ansible_default_ipv4.address }}:{{ global_vault_cluster_port }}"
-max_lease_ttl               = "768h"
-default_lease_ttl           = "24h"
+default_lease_ttl           = "{{ global_vault_lease_default_value }}"
+max_lease_ttl               = "{{ global_vault_lease_max_value }}"
 ui                          = true
-disable_mlock               = true
+disable_mlock               = false
 raw_storage_endpoint        = true
 disable_sealwrap            = true
 disable_printable_check     = true
@@ -23,7 +23,7 @@ storage "raft" {
   path                      = "{{ local_vault_manual_cluster_dir_data }}"
   node_id                   = "{{ inventory_hostname }}-node"
 
-{% for host in groups[vault_cluster_inventory_group | default("vault_cluster")] %}
+{% for host in groups[global_vault_cluster_inventory_group | default("vault_cluster")] %}
 {% if host != inventory_hostname %}
   retry_join {
     leader_api_addr         = "https://{{ hostvars[host]['ansible_default_ipv4']['address'] }}:{{ global_vault_host_listening_port }}"

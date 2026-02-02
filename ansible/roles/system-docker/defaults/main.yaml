@@ -12,7 +12,7 @@ local_system_suse_docker_packages_install:
   - docker-bash-completion
 
 # Переменные, необходимые для установки и настройки Docker на дистрибутиве семейства RedHat:
-local_system_redhat_centos_docker_repository_baseurl: "https://download.docker.com/linux/centos/8/x86_64/stable/"
+local_system_redhat_centos_docker_repository_baseurl: "https://download.docker.com/linux/centos/{{ ansible_distribution_major_version }}/x86_64/stable/"
 local_system_redhat_centos_docker_repository_gpgkey: "https://download.docker.com/linux/centos/gpg"
 local_system_redhat_centos_docker_repository_name: "docker"
 local_system_redhat_docker_libcgroup: "https://kojihub.stream.centos.org/kojifiles/packages/libcgroup/0.41/19.el8/x86_64/libcgroup-0.41-19.el8.x86_64.rpm"
@@ -22,8 +22,8 @@ local_system_redhat_docker_packages_install:
   - docker-ce
 
 # Переменные, необходимые для установки и настройки Docker на дистрибутиве семейства Debian:
-local_system_debian_docker_apt_repository: "https://download.docker.com/linux/{{ ansible_distribution | lower}}"
-local_system_debian_docker_apt_key: "https://download.docker.com/linux/{{ ansible_distribution | lower}}/gpg"
+local_system_debian_docker_apt_repository: "https://download.docker.com/linux/{{ ansible_distribution | lower }}"
+local_system_debian_docker_apt_key: "https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg"
 local_system_debian_docker_destination_key: "/etc/apt/trusted.gpg.d/docker.asc"
 local_system_debian_docker_file_mode: "0644"
 local_system_debian_docker_packages_install:

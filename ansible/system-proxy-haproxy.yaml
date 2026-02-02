@@ -1,0 +1,19 @@
+---
+# Вызов роли для последующей установки и настройки HAProxy в мануальном режиме на удаленных узлах:
+- name: Install and configure HAProxy on remote hosts
+  gather_facts: true
+  become: true
+  become_method: sudo
+  hosts:
+    - all
+
+  # Вызов непосредственно самой роли HAProxy в мануальном режиме для последующего взаимодействия с Vault в системе:
+  roles:
+    - system-proxy-haproxy
+
+  # Информирование о том, что HAProxy в мануальном режиме был успешно установлен в системе:
+  post_tasks:
+    - name: Information about the successful completion of the playbook
+      debug:
+        msg:
+          - "Your HAProxy like a Proxy for Vault has been successfully installed on the system"

@@ -12,7 +12,9 @@ local_vault_manual_file_config: "config.hcl"
 local_vault_manual_file_systemd: "vault.service"
 local_vault_manual_path_binary: "/usr/local/bin"
 local_vault_manual_group: "vault"
+local_vault_manual_group_id: 452
 local_vault_manual_user: "vault"
+local_vault_manual_user_id: 452
 
 # Переменные, необходимые для установки и настройки Single Vault в мануальном режиме на дистрибутиве семейства SUSE:
 

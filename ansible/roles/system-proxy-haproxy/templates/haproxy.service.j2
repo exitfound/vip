@@ -1,0 +1,23 @@
+[Unit]
+Description=HAProxy Load Balancer
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/sbin/haproxy -Ws -f /etc/haproxy/haproxy.cfg -f /etc/haproxy/conf.d/ -p /run/haproxy/pid -S /run/haproxy/master.sock
+{% if ansible_distribution == 'Debian' and ansible_distribution_major_version | int >= 12 %}
+ExecReload=/usr/sbin/haproxy -f /etc/haproxy/haproxy.cfg -f /etc/haproxy/conf.d/ -c -q
+ExecReload=/usr/bin/kill -USR2 $MAINPID
+{% else %}
+ExecReload=/usr/sbin/haproxy -f /etc/haproxy/haproxy.cfg -f /etc/haproxy/conf.d/ -c -q
+ExecReload=/bin/kill -USR2 $MAINPID
+{% endif %}
+KillMode=mixed
+Restart=on-failure
+Type=notify
+SuccessExitStatus=143
+RuntimeDirectory=haproxy
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

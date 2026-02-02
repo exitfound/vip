@@ -1,0 +1,18 @@
+---
+# Обновление центра сертификации в системе для дистрибутивов семейства Debian:
+- name: Update Debian CA store
+  command: update-ca-certificates
+  environment:
+    PATH: "{{ local_system_internal_bin_path }}"
+
+# Обновление центра сертификации в системе для дистрибутивов семейства RedHat:
+- name: Update RedHat CA store
+  command: update-ca-trust
+  environment:
+    PATH: "{{ local_system_internal_bin_path }}"
+
+# Обновление центра сертификации в системе для дистрибутивов семейства SUSE:
+- name: Update SUSE CA store
+  command: c_rehash
+  environment:
+    PATH: "{{ local_system_internal_bin_path }}"

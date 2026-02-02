@@ -1,0 +1,7 @@
+---
+# Перезапуск HAProxy при любом изменении конфигурации:
+- name: Restart HAProxy
+  systemd:
+    name: haproxy
+    state: restarted
+    daemon_reload: true

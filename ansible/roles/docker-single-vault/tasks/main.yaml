@@ -1,4 +1,16 @@
 ---
+# Проверка на наличие установленного Docker на целевом хосте:
+- name: Check if Docker is already installed
+  command: docker --version
+  register: docker_check
+  changed_when: false
+  failed_when: false
+
+# Запись результата по факту проверки Docker:
+- name: Set Docker installation status fact
+  set_fact:
+    docker_already_installed: "{{ docker_check.rc == 0 }}"
+
 # Вызов файла suse.yaml для установки необходимых компонентов на дистрибутивах семейства SUSE:
 - name: Invocation of the suse.yaml task
   include_tasks: suse.yaml

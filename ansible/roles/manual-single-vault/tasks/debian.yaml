@@ -9,8 +9,8 @@
 - name: Create Vault group on Debian family distro
   group:
     name: "{{ local_vault_manual_group }}"
+    gid: "{{ local_vault_manual_group_id }}"
     state: present
-    gid: 452
 
 # Создание пользователя с именем Vault:
 - name: Create Vault user on Debian family distro
@@ -18,10 +18,10 @@
     name: "{{ local_vault_manual_user }}"
     groups: "{{ local_vault_manual_group }}"
     home: "{{ local_vault_manual_dir_data }}"
+    uid: "{{ local_vault_manual_user_id }}"
     shell: /sbin/nologin
     create_home: true
     append: true
-    uid: 452
 
 # Создание нескольких директорий для последующей работы с Vault:
 - name: Create Vault directories on Debian family distro
@@ -41,13 +41,20 @@
     url: "{{ local_vault_manual_file_archive_link }}"
     mode: "{{ local_vault_manual_file_mode }}"
     dest: "/tmp/{{ local_vault_manual_file_archive_name }}"
+    checksum: "{{ global_vault_file_archive_checksum }}"
     force: false
+  register: vault_download_result
+  retries: 3
+  delay: 5
+  until: vault_download_result is success
 
 # Извлечение архива и перемещение бинарного файла в соответствующую директорию:
 - name: Unpack the Vault archive and move the binary file on Debian family distro
   unarchive:
     src: "/tmp/{{ local_vault_manual_file_archive_name }}"
     dest: "{{ local_vault_manual_path_binary }}"
+    creates: "{{ local_vault_manual_path_binary }}/vault"
+    mode: "0755"
     remote_src: true
 
 # Копирование всех конфигурационных файлов Vault и их последующая отправка в соответствующие директории:
@@ -79,7 +86,7 @@
     mode: "{{ local_vault_manual_file_mode }}"
     owner: "0"
     group: "0"
-  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian' and ansible_distribution_major_version | int == 12
+  when: ansible_distribution == 'Ubuntu' or (ansible_distribution == 'Debian' and ansible_distribution_major_version | int >= 12)
   notify: Restart Single Vault
 
 # Копирование Systemd файла из директории templates и его последующая передача в соответствующую директорию:
@@ -90,12 +97,12 @@
     mode: "{{ local_vault_manual_file_mode }}"
     owner: "0"
     group: "0"
-  when: ansible_distribution == 'Debian' and ansible_distribution_major_version | int != 12
+  when: ansible_distribution == 'Debian' and ansible_distribution_major_version | int < 12
   notify: Restart Single Vault
 
 # Запуск и добавление в автозагрузку сервиса Vault с помощью Systemd:
 - name: Start Vault service on Debian family distro
-  service:
+  systemd:
     name: vault
     state: started
     enabled: true

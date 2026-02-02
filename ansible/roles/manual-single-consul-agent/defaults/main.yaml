@@ -21,6 +21,7 @@ local_consul_manual_agent_file_config: "config.hcl"
 local_consul_manual_agent_file_systemd: "consul.service"
 local_consul_manual_agent_path_binary: "/usr/local/bin"
 local_consul_manual_agent_user: "consul"
+local_consul_manual_agent_user_id: 451
 local_consul_manual_agent_group: "consul"
 local_consul_manual_agent_group_id: 451
 

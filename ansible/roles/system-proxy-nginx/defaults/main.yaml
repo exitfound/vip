@@ -3,8 +3,9 @@
 local_system_nginx_file_mode: "0640"
 local_system_nginx_file_owner: "0"
 local_system_nginx_file_group: "0"
-local_system_nginx_single_vault_config: "single_vault_http_scheme.conf.j2"
-local_system_nginx_cluster_vault_config: "cluster_vault_http_scheme.conf.j2"
+local_system_nginx_single_vault_config: "nginx_single_vault_http_scheme.conf.j2"
+local_system_nginx_cluster_vault_config: "nginx_cluster_vault_http_scheme.conf.j2"
+local_system_nginx_certbot_dir_path: "/etc/letsencrypt/live"
 local_system_nginx_main_package_list:
   - nginx
 local_system_nginx_additional_package_list:
@@ -20,6 +21,9 @@ local_system_nginx_suse_package_list:
 # Переменные, необходимые для конфигурирования Nginx, применимые к дистрибутиву семейства Redhat:
 local_system_nginx_redhat_default_config: "/etc/nginx/nginx.conf"
 local_system_nginx_redhat_default_path: "/etc/nginx/conf.d"
+local_system_nginx_redhat_package_list: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm"
+local_system_nginx_redhat_family_package_list:
+  - epel-release
 
 # Переменные, необходимые для конфигурирования Nginx, применимые к дистрибутиву семейства Debian:
 local_system_nginx_debian_available_dir: "/etc/nginx/sites-available"

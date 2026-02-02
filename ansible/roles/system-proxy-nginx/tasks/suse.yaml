@@ -21,8 +21,24 @@
     state: present
     update_cache: true
 
-# Устранение проблемы из-за которой SUSE не воспринимает конфигурационный файл, лежащий в conf.d:
-- name: Replace 'localhost' with '_' in server_name directive
+# Проверка на наличие сертификата (только если Certbot включен):
+- name: Check if certificate exists on SUSE family distro
+  stat:
+    path: "{{ local_system_nginx_certbot_dir_path }}/{{ global_nginx_host_domain }}/cert.pem"
+  register: cert_exists
+  when: global_nginx_enable_certbot_certificates | default(false) | bool
+
+# Определение схемы для конфигурации (HTTP если сертификата нет, иначе заданная схема):
+- name: Set nginx scheme for config on SUSE family distro
+  set_fact:
+    nginx_config_scheme: >-
+      {{
+        (global_nginx_enable_certbot_certificates | default(false) | bool and not cert_exists.stat.exists | default(false))
+        | ternary('http', global_nginx_set_http_scheme)
+      }}
+
+# Устранение проблемы из-за которой дистрибутив семейства SUSE не воспринимает конфигурационный файл, лежащий в conf.d:
+- name: Replace 'localhost' with '_' in server_name directive on SUSE family distro
   replace:
     path: "{{ local_system_nginx_suse_default_config }}"
     regexp: 'server_name\s+localhost;'
@@ -33,16 +49,39 @@
 - name: Copy Nginx config for Vault on SUSE family distro
   template:
     src: "templates/{{ lookup('vars', global_nginx_set_cluster_vault_config | ternary('local_system_nginx_cluster_vault_config', 'local_system_nginx_single_vault_config')) }}"
-    dest: "{{ local_system_nginx_redhat_default_path }}/{{ global_nginx_host_domain }}.conf"
+    dest: "{{ local_system_nginx_suse_default_path }}/{{ global_nginx_host_domain }}.conf"
     mode: "{{ local_system_nginx_file_mode }}"
     owner: "{{ local_system_nginx_file_owner }}"
     group: "{{ local_system_nginx_file_group }}"
   notify: Restart Nginx
 
-# Вызов задачи по усозданию и установке внешнего сертификата для указанного домена:
+# Вызов задачи по созданию и установке внешнего сертификата для указанного домена:
 - name: Invocation of the certificate.yaml task on SUSE family distro
   include_tasks: certificate.yaml
-  when: global_nginx_enable_certbot_certificates | default(false) | bool
+  when:
+    - global_nginx_enable_certbot_certificates | default(false) | bool
+    - not cert_exists.stat.exists | default(false)
+
+# Обновление схемы на HTTPS после получения сертификата:
+- name: Set nginx scheme to HTTPS after certificate generation on SUSE family distro
+  set_fact:
+    nginx_config_scheme: "{{ global_nginx_set_http_scheme }}"
+  when:
+    - global_nginx_enable_certbot_certificates | default(false) | bool
+    - not cert_exists.stat.exists | default(false)
+
+# Повторный вызов конфигурации с HTTPS после получения сертификата:
+- name: Re-deploy Nginx config with HTTPS after certificate generation on SUSE family distro
+  template:
+    src: "templates/{{ lookup('vars', global_nginx_set_cluster_vault_config | ternary('local_system_nginx_cluster_vault_config', 'local_system_nginx_single_vault_config')) }}"
+    dest: "{{ local_system_nginx_suse_default_path }}/{{ global_nginx_host_domain }}.conf"
+    mode: "{{ local_system_nginx_file_mode }}"
+    owner: "{{ local_system_nginx_file_owner }}"
+    group: "{{ local_system_nginx_file_group }}"
+  when:
+    - global_nginx_enable_certbot_certificates | default(false) | bool
+    - not cert_exists.stat.exists | default(false)
+  notify: Restart Nginx
 
 # Регистрация проверки конфигурации Nginx в переменную:
 - name: Register the output of command nginx -t after changes on SUSE family distro
@@ -55,8 +94,9 @@
 - name: The output result of our variable on SUSE family distro
   debug:
     var: nginx_validate.stderr
+  when: nginx_validate.rc != 0
 
-# Запуск сервиса Nginx через systemd:
+# Запуск сервиса Nginx с помощью Systemd:
 - name: Start Nginx service on SUSE family distro
   systemd:
     name: nginx
