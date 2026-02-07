@@ -5,7 +5,6 @@ LABEL maintainer="Ivan Medaev"
 RUN export DEBIAN_FRONTEND=noninteractive \
     && apt-get update \
     && apt-get -y install --no-install-recommends \
-    ansible \
     apt-utils \
     bash-completion \
     build-essential \
@@ -19,11 +18,12 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     software-properties-common \
     sudo \
     systemd \
+    && pip3 install 'ansible-core>=2.17,<2.18' 'ansible>=10,<11' \
     && apt-get clean \
     && apt-get autoremove -y \
-    && rm -rf /tmp/* /var/tmp/* \
     && locale-gen en_US.UTF-8 \
     && mkdir /etc/bash_completion.d/ \
+    && rm -rf /tmp/* /var/tmp/* \
     && rm -f /lib/systemd/system/systemd*udev* \
     && rm -f /lib/systemd/system/getty.target
 

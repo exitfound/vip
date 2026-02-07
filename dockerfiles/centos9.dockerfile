@@ -2,10 +2,6 @@ FROM dokken/centos-stream-9:main AS molecule-image
 
 LABEL maintainer="Ivan Medaev"
 
-WORKDIR /app
-
-COPY requirements.txt .
-
 RUN yum install -y dnf-plugins-core \
     && dnf config-manager --set-enabled crb \
     && dnf update -y \
@@ -20,7 +16,7 @@ RUN yum install -y dnf-plugins-core \
         systemd \
     && dnf clean all \
     && pip3 install --no-cache-dir --upgrade pip \
-    && pip3 install --no-cache-dir --user -r requirements.txt \
+    && pip3 install --no-cache-dir 'ansible-core>=2.15,<2.16' 'ansible>=8,<9' \
     && rm -rf /usr/share/doc \
     && rm -rf /usr/share/man
 

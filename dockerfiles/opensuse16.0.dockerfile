@@ -1,4 +1,4 @@
-FROM opensuse/leap:15.6 AS molecule-image
+FROM opensuse/leap:16.0 AS molecule-image
 
 LABEL maintainer="Ivan Medaev"
 
