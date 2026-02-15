@@ -18,3 +18,25 @@
     - name: "Include system-unseal-single-vault role for testing"
       include_role:
         name: "system-unseal-single-vault"
+
+# Тестирование повторного распечатывания Vault после его перезапуска (re-unseal сценарий):
+- name: Re-unseal Vault after restart
+  hosts: all
+  gather_facts: false
+  tasks:
+    # Перезапуск сервиса Vault для перевода его в sealed состояние (503):
+    - name: "Restart Vault service to simulate sealed state"
+      systemd:
+        name: vault
+        state: restarted
+      changed_when: false
+
+    # Добавление интервала по времени для загрузки Vault:
+    - name: "Wait 10 second for Vault to start in sealed state"
+      wait_for:
+        timeout: 10
+
+    # Повторный вызов роли system-unseal-single-vault для проверки re-unseal сценария:
+    - name: "Include system-unseal-single-vault role for re-unseal testing"
+      include_role:
+        name: "system-unseal-single-vault"

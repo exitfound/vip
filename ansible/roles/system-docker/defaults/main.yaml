@@ -4,11 +4,10 @@ local_system_docker_group_name: "docker"
 local_system_docker_systemd_service: "docker"
 
 # Переменные, необходимые для установки и настройки Docker на дистрибутиве семейства SUSE:
-local_system_suse_docker_compose_dir: "/usr/local/lib/docker/cli-plugins"
 local_system_suse_docker_compose_mode: "0755"
-local_system_suse_docker_compose_url: "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64"
 local_system_suse_docker_packages_install:
   - docker
+  - docker-compose
   - docker-bash-completion
 
 # Переменные, необходимые для установки и настройки Docker на дистрибутиве семейства RedHat:

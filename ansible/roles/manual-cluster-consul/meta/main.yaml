@@ -1,0 +1,92 @@
+---
+galaxy_info:
+  role_name: manual_cluster_consul
+  namespace: mdd13
+  author: Ivan Medaev
+  company: Kitezh
+  min_ansible_version: "2.11"
+  description: |
+    Install and configure HashiCorp Consul as a cluster using manual binary installation.
+    Supports HTTP/HTTPS modes with internal TLS certificates.
+
+  # Supported platforms:
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal       # 20.04
+        - jammy       # 22.04
+        - noble       # 24.04
+    - name: Debian
+      versions:
+        - bullseye    # 11
+        - bookworm    # 12
+        - trixie      # 13
+    - name: EL
+      versions:
+        - "8"         # RHEL 8 / CentOS 8
+        - "9"         # RHEL 9 / CentOS 9
+        - "10"        # RHEL 10
+    - name: OpenSUSE Leap
+      versions:
+        - "15.6"      # Leap 15.6
+        - "16.0"      # Leap 16.0
+    - name: SLES
+      versions:
+        - "15.6"      # SLES 15.6
+        - "16.0"      # SLES 16.0
+
+  # Tags for Ansible Galaxy search:
+  galaxy_tags:
+    - consul
+    - hashicorp
+    - service-mesh
+    - service-discovery
+    - cluster
+
+  # Issue tracker and repository:
+  issue_tracker_url: https://github.com/exitfound/vip/issues
+  repository: https://github.com/exitfound/vip
+
+# Dependent roles will be executed before manual-cluster-consul:
+dependencies:
+  - role: system-prepare
+
+# Defines required global variables with validation:
+argument_specs:
+  main:
+    options:
+      global_consul_current_version:
+        type: str
+        required: true
+        description: Consul version to install (e.g., "1.22.1")
+
+      global_consul_file_archive_checksum:
+        type: str
+        required: true
+        description: SHA256 checksum for Consul archive (e.g., "sha256:abc123...")
+
+      global_consul_host_listening_address:
+        type: str
+        required: true
+        description: Address Consul listens on (e.g., "0.0.0.0")
+
+      global_consul_host_listening_dns_port:
+        type: int
+        required: true
+        description: Port Consul DNS listens on (e.g., 8600)
+
+      global_consul_host_listening_http_port:
+        type: int
+        required: true
+        description: Port Consul HTTP API listens on (e.g., 8500)
+
+      global_consul_host_listening_https_port:
+        type: int
+        required: true
+        description: Port Consul HTTPS API listens on (e.g., 8443)
+
+      global_consul_cluster_enable_https:
+        type: bool
+        required: false
+        default: false
+        description: Enable HTTPS for Consul cluster communication

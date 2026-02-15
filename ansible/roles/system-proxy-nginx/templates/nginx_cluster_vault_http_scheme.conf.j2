@@ -31,7 +31,8 @@ server {
     listen [::]:80 ipv6only=on;
     server_name {{ global_nginx_host_domain }};
 
-{% endif %}    access_log /var/log/nginx/vault_access.log;
+{% endif %}
+    access_log /var/log/nginx/vault_access.log;
     error_log /var/log/nginx/vault_error.log;
 
     location / {
@@ -57,5 +58,4 @@ server {
     server_name {{ global_nginx_host_domain }} www.{{ global_nginx_host_domain }};
     return 301 {{ nginx_config_scheme | default(global_nginx_set_http_scheme) }}://{{ global_nginx_host_domain }}$request_uri;
 }
-{% else %}
 {% endif %}

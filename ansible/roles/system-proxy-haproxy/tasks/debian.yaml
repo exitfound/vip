@@ -11,7 +11,7 @@
     local_system_haproxy_package_list: >-
       {{
         local_system_haproxy_main_package_list +
-        (global_haproxy_enable_certbot_certificates | bool | ternary(local_system_haproxy_additional_package_list, []))
+        (global_haproxy_enable_certbot_certificates | default(false) | bool | ternary(local_system_haproxy_additional_package_list, []))
       }}
 
 # Установка всех необходимых пакетов с помощью пакетного менеджера:
@@ -33,7 +33,7 @@
 # Определение пути для Systemd Unit файла в зависимости от версии дистрибутива для Debian:
 - name: Set Systemd Unit path based on Debian version
   set_fact:
-    _haproxy_systemd_path: "{{ (ansible_distribution == 'Debian' and ansible_distribution_major_version | int <= 11) | ternary('/etc/systemd/system/', '/usr/lib/systemd/system/') }}"
+    _haproxy_systemd_path: "{{ ((ansible_distribution == 'Debian' and ansible_distribution_major_version | int <= 11) or (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int <= 20)) | ternary('/etc/systemd/system/', '/usr/lib/systemd/system/') }}"
 
 # Определение используемой конфигурации для Vault:
 - name: Set Vault config template name on Debian version
@@ -91,23 +91,38 @@
     group: "{{ local_system_haproxy_file_group }}"
   loop: "{{ error_dir_files.files }}"
 
+# Установка специфического пакета, который необходим для корректной работы Certbot (только Ubuntu 20.04):
+- name: Install required packages for pip on Debian family distro
+  pip:
+    name: "{{ local_system_haproxy_debian_pip_package_list }}"
+    state: present
+    executable: pip3
+  when:
+    - global_haproxy_enable_certbot_certificates | default(false) | bool
+    - ansible_distribution == 'Ubuntu'
+    - ansible_distribution_version == '20.04'
+
 # Вызов задачи по созданию и установке внешнего сертификата для указанного домена:
 - name: Invocation of the certificate.yaml task on Debian family distro
   include_tasks: certificate.yaml
   when: global_haproxy_enable_certbot_certificates | default(false) | bool
 
-# Регистрация проверки конфигурации HAProxy в переменную:
-- name: Register the output of command haproxy -c -f /etc/haproxy/haproxy.cfg after changes on Debian family distro
+# Запуск сервиса Certbot для отслеживания состояния сертификата:
+- name: Start Certbot.timer on Debian family distro
+  systemd:
+    name: certbot.timer
+    state: started
+    enabled: true
+  when: global_haproxy_enable_certbot_certificates | default(false) | bool
+
+# Валидация конфигурации HAProxy перед запуском сервиса:
+- name: Validate HAProxy configuration on Debian family distro
   command: haproxy -c -f {{ local_system_haproxy_debian_default_config }} -f {{ local_system_haproxy_debian_dir_config }}
-  register: haproxy_validate
-  failed_when: false
   changed_when: false
 
-# Результат вывода переменной на экран:
-- name: The output result of our variable for HAProxy on Debian family distro
-  debug:
-    var: haproxy_validate.stderr
-  when: haproxy_validate.rc != 0
+# Принудительный вызов всех ожидающих обработчиков перед запуском сервиса:
+- name: Flush handlers before starting HAProxy on Debian family distro
+  meta: flush_handlers
 
 # Запуск сервиса HAProxy через Systemd:
 - name: Start HAProxy service on Debian family distro

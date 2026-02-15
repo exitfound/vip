@@ -25,7 +25,7 @@ platforms:
   #   key_name: "{{ aws_custom_key_name }}"
   #   private_key_path: "{{ aws_local_private_key }}"
   #   public_key_path: "{{ aws_local_public_key }}"
-  #   security_group_name: "{{ aws_secruity_group_name }}"
+  #   security_group_name: "{{ aws_security_group_name }}"
   #   groups:
   #     - consul_agent
 
@@ -48,7 +48,7 @@ platforms:
   #   key_name: "{{ aws_custom_key_name }}"
   #   private_key_path: "{{ aws_local_private_key }}"
   #   public_key_path: "{{ aws_local_public_key }}"
-  #   security_group_name: "{{ aws_secruity_group_name }}"
+  #   security_group_name: "{{ aws_security_group_name }}"
   #   groups:
   #     - consul_agent
 
@@ -70,7 +70,7 @@ platforms:
     key_name: "{{ aws_custom_key_name }}"
     private_key_path: "{{ aws_local_private_key }}"
     public_key_path: "{{ aws_local_public_key }}"
-    security_group_name: "{{ aws_secruity_group_name }}"
+    security_group_name: "{{ aws_security_group_name }}"
     groups:
       - consul_agent
 
@@ -92,7 +92,7 @@ platforms:
     key_name: "{{ aws_custom_key_name }}"
     private_key_path: "{{ aws_local_private_key }}"
     public_key_path: "{{ aws_local_public_key }}"
-    security_group_name: "{{ aws_secruity_group_name }}"
+    security_group_name: "{{ aws_security_group_name }}"
     groups:
       - consul_agent
 
@@ -114,7 +114,7 @@ platforms:
     key_name: "{{ aws_custom_key_name }}"
     private_key_path: "{{ aws_local_private_key }}"
     public_key_path: "{{ aws_local_public_key }}"
-    security_group_name: "{{ aws_secruity_group_name }}"
+    security_group_name: "{{ aws_security_group_name }}"
     groups:
       - consul_agent
 

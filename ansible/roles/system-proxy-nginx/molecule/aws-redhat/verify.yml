@@ -4,9 +4,24 @@
   hosts: all
   gather_facts: false
   tasks:
-    # Добавление интервала по времени для загрузки Nginx:
-    - name: Wait 10 second for checking Nginx
+    # Проверка того, что сервис Nginx запущен и активен:
+    - name: Check that Nginx service is running
+      command: systemctl is-active nginx
+      register: nginx_service
+      changed_when: false
+      failed_when: nginx_service.rc != 0
+
+    # Проверка валидности конфигурации Nginx:
+    - name: Validate Nginx configuration
+      command: nginx -t
+      register: nginx_config
+      changed_when: false
+      failed_when: nginx_config.rc != 0
+
+    # Проверка того, что Nginx слушает на порту 80:
+    - name: Check that Nginx is listening on port 80
       wait_for:
+        port: 80
         timeout: 10
 
     # Проверка доступности Nginx после установки:

@@ -1,10 +1,4 @@
 ---
-# Вызов предварительной роли system-prepare для полноценного запуска текущей роли:
-- name: Import system-prepare role for running current role on RedHat family distro
-  import_role:
-    name: system-prepare
-    tasks_from: main
-
 # Включение HTTPS трафика на сервере, если SELinux был предварительно включен:
 - name: Enable httpd trafic via SELinux on RedHat family distro
   seboolean:
@@ -61,19 +55,25 @@
   set_fact:
     nginx_config_scheme: >-
       {{
-        (global_nginx_enable_certbot_certificates | default(false) | bool and not cert_exists.stat.exists | default(false))
+        (global_nginx_enable_certbot_certificates | default(false) | bool and not (cert_exists.stat.exists | default(false)))
         | ternary('http', global_nginx_set_http_scheme)
       }}
+
+# Определение имени шаблона Nginx в зависимости от типа конфигурации (single/cluster):
+- name: Set nginx template name on RedHat family distro
+  set_fact:
+    local_system_nginx_template: >-
+      {{ global_nginx_set_cluster_vault_config | ternary(local_system_nginx_cluster_vault_config, local_system_nginx_single_vault_config) }}
 
 # Передача конфигурационного файла Nginx для проксирования запросов при обращении к Vault:
 - name: Copy Nginx config for Vault on RedHat family distro
   template:
-    src: "templates/{{ lookup('vars', global_nginx_set_cluster_vault_config | ternary('local_system_nginx_cluster_vault_config', 'local_system_nginx_single_vault_config')) }}"
+    src: "templates/{{ local_system_nginx_template }}"
     dest: "{{ local_system_nginx_redhat_default_path }}/{{ global_nginx_host_domain }}.conf"
     mode: "{{ local_system_nginx_file_mode }}"
     owner: "{{ local_system_nginx_file_owner }}"
     group: "{{ local_system_nginx_file_group }}"
-  notify: Restart Nginx
+  notify: Reload Nginx
 
 # Устранение проблемы из-за которой Centos 8 и RedHat 8 не воспринимают конфигурационный файл, лежащий в conf.d:
 - name: Remove 'default_server' from listen directives in nginx.conf on RedHat family distro
@@ -82,14 +82,14 @@
     regexp: '^(?P<listen>\s*listen\s+[^\n;]*?)\s+default_server(?P<ending>\s*;)'
     replace: '\g<listen>\g<ending>'
   when: (ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat') and ansible_distribution_major_version == '8'
-  notify: Restart Nginx
+  notify: Reload Nginx
 
 # Вызов задачи по созданию и установке внешнего сертификата для указанного домена:
 - name: Invocation of the certificate.yaml task on RedHat family distro
   include_tasks: certificate.yaml
   when:
     - global_nginx_enable_certbot_certificates | default(false) | bool
-    - not cert_exists.stat.exists | default(false)
+    - not (cert_exists.stat.exists | default(false))
 
 # Обновление схемы на HTTPS после получения сертификата:
 - name: Set nginx scheme to HTTPS after certificate generation on RedHat family distro
@@ -97,20 +97,28 @@
     nginx_config_scheme: "{{ global_nginx_set_http_scheme }}"
   when:
     - global_nginx_enable_certbot_certificates | default(false) | bool
-    - not cert_exists.stat.exists | default(false)
+    - not (cert_exists.stat.exists | default(false))
 
 # Повторный вызов конфигурации с HTTPS после получения сертификата:
 - name: Re-deploy Nginx config with HTTPS after certificate generation on RedHat family distro
   template:
-    src: "templates/{{ lookup('vars', global_nginx_set_cluster_vault_config | ternary('local_system_nginx_cluster_vault_config', 'local_system_nginx_single_vault_config')) }}"
+    src: "templates/{{ local_system_nginx_template }}"
     dest: "{{ local_system_nginx_redhat_default_path }}/{{ global_nginx_host_domain }}.conf"
     mode: "{{ local_system_nginx_file_mode }}"
     owner: "{{ local_system_nginx_file_owner }}"
     group: "{{ local_system_nginx_file_group }}"
   when:
     - global_nginx_enable_certbot_certificates | default(false) | bool
-    - not cert_exists.stat.exists | default(false)
-  notify: Restart Nginx
+    - not (cert_exists.stat.exists | default(false))
+  notify: Reload Nginx
+
+# Запуск сервиса Certbot-renew для отслеживания состояния сертификата:
+- name: Start Certbot-renew.timer on RedHat family distro
+  systemd:
+    name: certbot-renew.timer
+    state: started
+    enabled: true
+  when: global_nginx_enable_certbot_certificates | default(false) | bool
 
 # Регистрация проверки конфигурации Nginx в переменную:
 - name: Output of command nginx -t after changes on RedHat family distro
@@ -123,6 +131,12 @@
 - name: The output result of our variable on RedHat family distro
   debug:
     var: nginx_validate.stderr
+  when: nginx_validate.rc != 0
+
+# Прерывание выполнения роли при невалидной конфигурации Nginx:
+- name: Fail if Nginx configuration is invalid on RedHat family distro
+  fail:
+    msg: "Nginx configuration test failed: {{ nginx_validate.stderr }}"
   when: nginx_validate.rc != 0
 
 # Запуск сервиса Nginx с помощью Systemd:

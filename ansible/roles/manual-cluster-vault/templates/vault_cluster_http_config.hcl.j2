@@ -13,7 +13,6 @@ disable_printable_check = true
 # Local Listener
 listener "tcp" {
   address               = "{{ global_vault_host_listening_address }}:{{ global_vault_host_listening_port }}"
-  cluster_addr          = "{{ global_vault_host_listening_address }}:{{ global_vault_cluster_port }}"
   tls_disable           = "true"
 }
 

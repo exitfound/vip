@@ -4,10 +4,25 @@
   hosts: all
   gather_facts: false
   tasks:
-    # Добавление интервала по времени для загрузки HAProxy:
-    - name: Wait 10 second for checking HAProxy
+    # Проверка того, что сервис HAProxy запущен и активен:
+    - name: Check that HAProxy service is running
+      command: systemctl is-active haproxy
+      register: haproxy_service
+      changed_when: false
+      failed_when: haproxy_service.rc != 0
+
+    # Валидация конфигурации HAProxy:
+    - name: Validate HAProxy configuration
+      command: haproxy -c -f /etc/haproxy/haproxy.cfg -f /etc/haproxy/conf.d
+      register: haproxy_config
+      changed_when: false
+      failed_when: haproxy_config.rc != 0
+
+    # Проверка того, что HAProxy слушает на порту 80:
+    - name: Check that HAProxy is listening on port 80
       wait_for:
-        timeout: 10
+        port: 80
+        timeout: 30
 
     # Проверка доступности HAProxy после установки:
     - name: Check HAProxy for Availability

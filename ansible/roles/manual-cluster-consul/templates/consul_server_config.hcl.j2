@@ -38,7 +38,6 @@ tls {
     verify_server_hostname = {{ global_consul_cluster_enable_tls_server_hostname | lower }}
   }
 }
-{% else %}
 {% endif %}
 
 dns_config {

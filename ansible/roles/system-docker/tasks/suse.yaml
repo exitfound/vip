@@ -26,23 +26,10 @@
     name: "{{ local_system_docker_systemd_service }}"
   register: docker_service_status
 
-# Результат выполненной ранее проверки:
-- name: The result of our check status on SUSE family distro
-  debug:
-    var: docker_service_status.status.ActiveState
-
-# Создание директории для установки дополнительного плагина Compose в Docker:
-- name: Create Docker Compose directories on SUSE family distro
-  file:
-    state: directory
-    path: "{{ local_system_suse_docker_compose_dir }}"
-    mode: "{{ local_system_suse_docker_compose_mode }}"
-    owner: "0"
-    group: "0"
-
-# Загрузка дополнительного плагина Compose для работы с Docker:
-- name: Download Docker Compose plugin on SUSE family distro
-  get_url:
-    url: "{{ local_system_suse_docker_compose_url }}"
-    dest: "{{ local_system_suse_docker_compose_dir }}/docker-compose"
-    mode: "{{ local_system_suse_docker_compose_mode }}"
+# Проверка результата запуска Docker:
+- name: Verify Docker service is running on SUSE family distro
+  assert:
+    that:
+      - docker_service_status.status.ActiveState == 'active'
+    fail_msg: "Docker service is not running!"
+    success_msg: "Docker service is running"

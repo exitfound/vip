@@ -1,27 +1,4 @@
 ---
-# Проверка на наличие установленного Docker на целевом хосте:
-- name: Check if Docker is already installed
-  command: docker --version
-  register: docker_check
-  changed_when: false
-  failed_when: false
-
-# Запись результата по факту проверки Docker:
-- name: Set Docker installation status fact
-  set_fact:
-    docker_already_installed: "{{ docker_check.rc == 0 }}"
-
-# Вызов файла suse.yaml для установки необходимых компонентов на дистрибутивах семейства SUSE:
-- name: Invocation of the suse.yaml task
-  include_tasks: suse.yaml
-  when: ansible_os_family == 'Suse'
-
-# Вызов файла redhat.yaml для установки необходимых компонентов на дистрибутивах семейства RedHat:
-- name: Invocation of the redhat.yaml task
-  include_tasks: redhat.yaml
-  when: ansible_os_family == 'RedHat'
-
-# Вызов файла debian.yaml для установки необходимых компонентов на дистрибутивах семейства Debian:
-- name: Invocation of the debian.yaml task
-  include_tasks: debian.yaml
-  when: ansible_os_family == 'Debian'
+# Вызов файла install.yaml для установки Vault с помощью Docker согласно общей логике работы:
+- name: Include common installation tasks
+  include_tasks: install.yaml

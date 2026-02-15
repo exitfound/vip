@@ -1,0 +1,103 @@
+---
+galaxy_info:
+  role_name: system_proxy_nginx
+  namespace: mdd13
+  author: Ivan Medaev
+  company: Kitezh
+  min_ansible_version: "2.11"
+  description: |
+    Install and configure Nginx as a reverse proxy for HashiCorp Vault with optional Certbot SSL certificates.
+
+  # Supported platforms:
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal       # 20.04
+        - jammy       # 22.04
+        - noble       # 24.04
+    - name: Debian
+      versions:
+        - bullseye    # 11
+        - bookworm    # 12
+        - trixie      # 13
+    - name: EL
+      versions:
+        - "8"         # RHEL 8 / CentOS 8
+        - "9"         # RHEL 9 / CentOS 9
+        - "10"        # RHEL 10
+    - name: OpenSUSE Leap
+      versions:
+        - "15.6"      # Leap 15.6
+        - "16.0"      # Leap 16.0
+    - name: SLES
+      versions:
+        - "15.6"      # SLES 15.6
+        - "16.0"      # SLES 16.0
+
+  # Tags for Ansible Galaxy search:
+  galaxy_tags:
+    - nginx
+    - proxy
+    - vault
+    - hashicorp
+    - certbot
+    - ssl
+
+  # Issue tracker and repository:
+  issue_tracker_url: https://github.com/exitfound/vip/issues
+  repository: https://github.com/exitfound/vip
+
+# Dependent roles will be executed before system-proxy-nginx:
+dependencies:
+  - role: system-prepare
+
+# Defines required global variables with validation:
+argument_specs:
+  main:
+    options:
+      global_nginx_host_domain:
+        type: str
+        required: true
+        description: Domain name for Nginx server (e.g., "vault.example.com")
+
+      global_nginx_set_http_scheme:
+        type: str
+        required: true
+        description: HTTP scheme for Nginx configuration (e.g., "http" or "https")
+
+      global_nginx_set_proxy_pass_scheme:
+        type: str
+        required: false
+        description: Scheme used for proxy_pass to backend Vault (e.g., "http" or "https")
+
+      global_nginx_enable_certbot_certificates:
+        type: bool
+        required: true
+        description: Enable Certbot SSL certificate generation and management
+
+      global_nginx_enable_certbot_certificates_command:
+        type: str
+        required: false
+        description: Certbot command to generate SSL certificate (required when certbot is enabled)
+
+      global_nginx_set_cluster_vault_config:
+        type: bool
+        required: true
+        description: Use cluster Vault configuration template instead of single-node
+
+      global_nginx_set_cluster_vault_addresses:
+        type: list
+        elements: str
+        required: false
+        description: List of Vault cluster node addresses (required when cluster config is enabled)
+
+      global_nginx_set_cluster_vault_weight:
+        type: list
+        elements: int
+        required: false
+        description: List of weights for Vault cluster nodes (required when cluster config is enabled)
+
+      global_vault_host_listening_port:
+        type: int
+        required: true
+        description: Port Vault listens on (e.g., 8200)

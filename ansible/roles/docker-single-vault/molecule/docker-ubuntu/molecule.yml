@@ -8,48 +8,27 @@ driver:
 platforms:
   - name: ubuntu20.04
     image: mdd13/ansible-docker-ubuntu:ubuntu20.04
-    pre_build_image: true
-    privileged: true
-    cgroup_parent: docker.slice
-    cgroupns_mode: host
-    override_command: false
-    tmpfs:
-      - /var/lib/containerd
-      - /var/lib/docker
-      - /run
-      - /tmp
-    security_opts:
-      - seccomp=unconfined
+    <<: &platform_defaults
+      pre_build_image: true
+      privileged: true
+      override_command: false
+      cgroup_parent: docker.slice
+      cgroupns_mode: host
+      tmpfs:
+        - /var/lib/containerd
+        - /var/lib/docker
+        - /run
+        - /tmp
+      security_opts:
+        - seccomp=unconfined
 
   - name: ubuntu22.04
     image: mdd13/ansible-docker-ubuntu:ubuntu22.04
-    pre_build_image: true
-    privileged: true
-    cgroup_parent: docker.slice
-    cgroupns_mode: host
-    override_command: false
-    tmpfs:
-      - /var/lib/containerd
-      - /var/lib/docker
-      - /run
-      - /tmp
-    security_opts:
-      - seccomp=unconfined
+    <<: *platform_defaults
 
   - name: ubuntu24.04
     image: mdd13/ansible-docker-ubuntu:ubuntu24.04
-    pre_build_image: true
-    privileged: true
-    cgroup_parent: docker.slice
-    cgroupns_mode: host
-    override_command: false
-    tmpfs:
-      - /var/lib/containerd
-      - /var/lib/docker
-      - /run
-      - /tmp
-    security_opts:
-      - seccomp=unconfined
+    <<: *platform_defaults
 
 provisioner:
   name: ansible

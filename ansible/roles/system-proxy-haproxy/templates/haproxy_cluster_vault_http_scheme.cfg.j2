@@ -4,6 +4,14 @@ frontend f_cluster_vault
     acl acl_cluster_vault hdr(host) -i {{ global_haproxy_host_domain }}
     use_backend b_cluster_vault if acl_cluster_vault
 
+backend b_cluster_vault
+    balance first
+    option httpchk GET /v1/sys/health
+    http-check expect status 200
+{% for ip in global_haproxy_set_cluster_vault_addresses %}
+    server vault{{ loop.index }} {{ ip }}:{{ global_vault_host_listening_port }} check
+{% endfor %}
+
 {% elif global_haproxy_set_http_scheme == 'https' %}
 frontend f_cluster_vault_redirect
     bind *:80
@@ -17,6 +25,14 @@ frontend f_cluster_vault_https
     http-request set-header X-Real-IP %[src]
     use_backend b_cluster_vault if acl_cluster_vault
 
+backend b_cluster_vault
+    balance first
+    option httpchk GET /v1/sys/health
+    http-check expect status 200
+{% for ip in global_haproxy_set_cluster_vault_addresses %}
+    server vault{{ loop.index }} {{ ip }}:{{ global_vault_host_listening_port }} check
+{% endfor %}
+
 {% else %}
 # Fallback: default to http
 frontend http_front
@@ -27,11 +43,3 @@ backend http_back
     server vault 127.0.0.1:{{ global_vault_host_listening_port }} check
 
 {% endif %}
-backend b_cluster_vault
-    balance first
-    option httpchk GET /v1/sys/health
-    http-check expect status 200
-    # http-response add-header X-Backend-Server %[srv_name]
-{% for ip in global_haproxy_set_cluster_vault_addresses %}
-    server vault{{ loop.index }} {{ ip }}:{{ global_vault_host_listening_port }} check
-{% endfor %}

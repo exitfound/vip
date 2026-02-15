@@ -1,8 +1,36 @@
 ---
-# Данный файл знаменует об успешном завершении запускаемых ранее тестов в Molecule:
-- name: Verify our tests in Molecule
+# Проверка корректности установки Docker после выполнения роли:
+- name: Verify Docker installation
   hosts: all
+  gather_facts: false
+  vars_files:
+    - ../../defaults/main.yaml
   tasks:
-    - name: Output the final result
-      assert:
-        that: true
+    # Проверка наличия бинарного файла Docker:
+    - name: Check Docker binary exists
+      stat:
+        path: /usr/bin/docker
+      register: docker_binary
+      failed_when: not docker_binary.stat.exists
+
+    # Проверка того что сервис Docker запущен:
+    - name: Check Docker service is running
+      systemd:
+        name: "{{ local_system_docker_systemd_service }}"
+      register: docker_service
+      failed_when: docker_service.status.ActiveState != 'active'
+
+    # Проверка того что Docker отвечает на команды:
+    - name: Check Docker is responding
+      command: docker version
+      register: docker_version
+      changed_when: false
+      failed_when: docker_version.rc != 0
+
+    # Проверка наличия группы docker в системе:
+    - name: Check Docker group exists
+      getent:
+        database: group
+        key: "{{ local_system_docker_group_name }}"
+      register: docker_group
+      failed_when: docker_group is failed

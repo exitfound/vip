@@ -72,6 +72,7 @@
       debug:
         msg: "Vault auto-unsealed via Transit: {{ vault_transit_unseal_status.json.sealed == false }} for {{ hostvars[inventory_hostname].ansible_host | default(inventory_hostname) }}"
 
+  always:
     # Удаление временного файла из ОЗУ:
     - name: Delete temporary JSON file with recovery keys from RAM
       file:
@@ -117,7 +118,7 @@
       no_log: true
 
     # Запуск процесса распечатывания Vault в случае соблюдения входящего условия:
-    - name: Start the Vault unseal process
+    - name: Wait for Vault to transition to sealed state after initialization
       uri:
         url: "{{ global_vault_unseal_tls_disable | ternary('http', 'https') }}://{{ hostvars[inventory_hostname].ansible_host | default(inventory_hostname) }}:{{ global_vault_host_listening_port }}/v1/sys/health"
         validate_certs: "{{ not global_vault_unseal_tls_skip_verify }}"
@@ -155,6 +156,7 @@
       debug:
         msg: "Unseal Vault status: is {{ vault_final_status.json.sealed == false }} for {{ hostvars[inventory_hostname].ansible_host | default(inventory_hostname) }}"
 
+  always:
     # Удаление из ОЗУ временнного JSON-файла с ключами для распечатывания:
     - name: Delete temporary JSON file with Vault keys from RAM
       file:
@@ -186,12 +188,12 @@
           key: "{{ item }}"
         body_format: json
         method: PUT
-      loop: "{{ vault_keys_from_file }}"
+      loop: "{{ vault_keys_from_file[0:global_vault_unseal_secret_threshold] }}"
       no_log: true
       when: vault_keys_from_file is defined
   when: vault_status | string == "503" and not (global_vault_transit_backend_enable | bool)
 
 # Прекращение исполнения роли в случае обнаружения уже проинициализированного и распечатонного Vault:
-- name: End the playbook if Vault already has been initialized and unsealed
-  meta: end_play
+- name: End the host if Vault already has been initialized and unsealed
+  meta: end_host
   when: vault_status | string == "200"

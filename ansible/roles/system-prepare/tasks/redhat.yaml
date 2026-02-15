@@ -1,17 +1,15 @@
 ---
-# # Обновление всех пакетов для указанного семейства дистрибутивов:
-# - name: Update all packages on RedHat family distro
-#   yum:
-#     name: '*'
-#     state: latest
-#     update_cache: true
-#   tags:
-#     - update
+# Обновление всех пакетов для указанного семейства дистрибутивов:
+- name: Update all packages on RedHat family distro
+  yum:
+    name: '*'
+    state: latest
+    update_cache: true
+  when: global_system_prepare_update_packages | bool
 
 # Установка пакетов RPM из списка необходимых, которые определены в виде переменной, в директории defaults:
 - name: Install general packages on RedHat family distro
   yum:
     name: "{{ local_system_redhat_packages_list }}"
     state: present
-    skip_broken: true
     update_cache: true

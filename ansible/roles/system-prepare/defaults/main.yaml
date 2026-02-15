@@ -4,26 +4,26 @@
 # Переменные, необходимые для установки пакетов на дистрибутиве семейства SUSE:
 local_system_suse_packages_list:
   - bash-completion
+  - ca-certificates
   - curl
   - unzip
 
 # Переменные, необходимые для установки пакетов на дистрибутиве семейства RedHat:
 local_system_redhat_packages_list:
   - bash-completion
-  - curl
   - python3-cryptography
   - python3-libselinux
   - python3-libsemanage
   - unzip
 
 # Переменные, необходимые для установки пакетов на дистрибутиве семейства Debian:
+local_system_debian_directory_path_auto: "/etc/bash_completion.d/"
+local_system_debian_directory_mode_auto: "0755"
 local_system_debian_packages_list:
-  - apt-transport-https
   - bash-completion
   - ca-certificates
   - curl
   - gnupg
-  - gpg
   - procps
   - python3-pip
   - unzip

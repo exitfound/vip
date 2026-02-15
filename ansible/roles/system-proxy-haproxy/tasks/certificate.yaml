@@ -1,31 +1,9 @@
 ---
-# Установка специфического пакета, который необходим для корректной работы Certbot (только SUSE):
-- name: Install systemd package for Certbot on SUSE family distro
-  package:
-    name: "{{ local_system_haproxy_suse_package_list }}"
-    state: present
-  when: ansible_os_family == 'Suse'
-
-# Установка специфического пакета, который необходим для корректной работы Certbot (только Ubuntu 20.04):
-- name: Install required packages for pip on DEB family distro
-  pip:
-    name: "{{ local_system_haproxy_debian_pip_package_list }}"
-    state: present
-    executable: pip3
-  when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '20.04'
-
-# Проверка того, был ли создан SSL-сертификат для запрашиваемого домена:
-- name: Check if certificate already exists on any distro
-  stat:
-    path: /etc/letsencrypt/live/{{ global_haproxy_host_domain }}/cert.pem
-  register: letsencrypt_cert
-
 # Создание сертификата для указанного домена, если таковой не был обнаружен:
 - name: Generate new certificate if one doesn't exist on any distro
   command: "{{ global_haproxy_enable_certbot_certificates_command }}"
   args:
     creates: "/etc/letsencrypt/live/{{ global_haproxy_host_domain }}/cert.pem"
-  changed_when: false
 
 # Проверка того, что директория для хранения сертификатов существует:
 - name: Ensure certificate directory is exists on any distro
@@ -45,19 +23,4 @@
     mode: "{{ local_system_haproxy_file_mode }}"
     owner: "{{ local_system_haproxy_file_owner }}"
     group: "{{ local_system_haproxy_file_group }}"
-
-# Запуск сервиса Certbot-renew для отслеживания состояния сертификата:
-- name: Start Certbot-renew.timer on RPM family distro
-  systemd:
-    name: certbot-renew.timer
-    state: started
-    enabled: true
-  when: ansible_os_family in ['RedHat', 'Suse']
-
-# Запуск сервиса Certbot для отслеживания состояния сертификата:
-- name: Start Certbot.timer on DEB family distro
-  systemd:
-    name: certbot.timer
-    state: started
-    enabled: true
-  when: ansible_os_family == 'Debian'
+  notify: Restart HAProxy

@@ -1,10 +1,4 @@
 ---
-# Вызов предварительной роли system-prepare для полноценного запуска текущей роли:
-- name: Import system-prepare role for running current role on SUSE family distro
-  import_role:
-    name: system-prepare
-    tasks_from: main
-
 # Определение конечного списка пакетов для установки в зависимости от используемой схемы HTTP:
 - name: Set final package list for this role on SUSE family distro
   set_fact:
@@ -33,7 +27,7 @@
   set_fact:
     nginx_config_scheme: >-
       {{
-        (global_nginx_enable_certbot_certificates | default(false) | bool and not cert_exists.stat.exists | default(false))
+        (global_nginx_enable_certbot_certificates | default(false) | bool and not (cert_exists.stat.exists | default(false)))
         | ternary('http', global_nginx_set_http_scheme)
       }}
 
@@ -43,24 +37,37 @@
     path: "{{ local_system_nginx_suse_default_config }}"
     regexp: 'server_name\s+localhost;'
     replace: 'server_name _;'
-  notify: Restart Nginx
+  notify: Reload Nginx
+
+# Определение имени шаблона Nginx в зависимости от типа конфигурации (single/cluster):
+- name: Set nginx template name on SUSE family distro
+  set_fact:
+    local_system_nginx_template: >-
+      {{ global_nginx_set_cluster_vault_config | ternary(local_system_nginx_cluster_vault_config, local_system_nginx_single_vault_config) }}
 
 # Передача конфигурационного файла Nginx для проксирования запросов при обращении к Vault:
 - name: Copy Nginx config for Vault on SUSE family distro
   template:
-    src: "templates/{{ lookup('vars', global_nginx_set_cluster_vault_config | ternary('local_system_nginx_cluster_vault_config', 'local_system_nginx_single_vault_config')) }}"
+    src: "templates/{{ local_system_nginx_template }}"
     dest: "{{ local_system_nginx_suse_default_path }}/{{ global_nginx_host_domain }}.conf"
     mode: "{{ local_system_nginx_file_mode }}"
     owner: "{{ local_system_nginx_file_owner }}"
     group: "{{ local_system_nginx_file_group }}"
-  notify: Restart Nginx
+  notify: Reload Nginx
+
+# Установка специфического пакета, который необходим для корректной работы Certbot (только SUSE):
+- name: Install systemd package for Certbot on SUSE family distro
+  zypper:
+    name: "{{ local_system_nginx_suse_package_list }}"
+    state: present
+  when: global_nginx_enable_certbot_certificates | default(false) | bool
 
 # Вызов задачи по созданию и установке внешнего сертификата для указанного домена:
 - name: Invocation of the certificate.yaml task on SUSE family distro
   include_tasks: certificate.yaml
   when:
     - global_nginx_enable_certbot_certificates | default(false) | bool
-    - not cert_exists.stat.exists | default(false)
+    - not (cert_exists.stat.exists | default(false))
 
 # Обновление схемы на HTTPS после получения сертификата:
 - name: Set nginx scheme to HTTPS after certificate generation on SUSE family distro
@@ -68,20 +75,28 @@
     nginx_config_scheme: "{{ global_nginx_set_http_scheme }}"
   when:
     - global_nginx_enable_certbot_certificates | default(false) | bool
-    - not cert_exists.stat.exists | default(false)
+    - not (cert_exists.stat.exists | default(false))
 
 # Повторный вызов конфигурации с HTTPS после получения сертификата:
 - name: Re-deploy Nginx config with HTTPS after certificate generation on SUSE family distro
   template:
-    src: "templates/{{ lookup('vars', global_nginx_set_cluster_vault_config | ternary('local_system_nginx_cluster_vault_config', 'local_system_nginx_single_vault_config')) }}"
+    src: "templates/{{ local_system_nginx_template }}"
     dest: "{{ local_system_nginx_suse_default_path }}/{{ global_nginx_host_domain }}.conf"
     mode: "{{ local_system_nginx_file_mode }}"
     owner: "{{ local_system_nginx_file_owner }}"
     group: "{{ local_system_nginx_file_group }}"
   when:
     - global_nginx_enable_certbot_certificates | default(false) | bool
-    - not cert_exists.stat.exists | default(false)
-  notify: Restart Nginx
+    - not (cert_exists.stat.exists | default(false))
+  notify: Reload Nginx
+
+# Запуск сервиса Certbot-renew для отслеживания состояния сертификата:
+- name: Start Certbot-renew.timer on SUSE family distro
+  systemd:
+    name: certbot-renew.timer
+    state: started
+    enabled: true
+  when: global_nginx_enable_certbot_certificates | default(false) | bool
 
 # Регистрация проверки конфигурации Nginx в переменную:
 - name: Register the output of command nginx -t after changes on SUSE family distro
@@ -94,6 +109,12 @@
 - name: The output result of our variable on SUSE family distro
   debug:
     var: nginx_validate.stderr
+  when: nginx_validate.rc != 0
+
+# Прерывание выполнения роли при невалидной конфигурации Nginx:
+- name: Fail if Nginx configuration is invalid on SUSE family distro
+  fail:
+    msg: "Nginx configuration test failed: {{ nginx_validate.stderr }}"
   when: nginx_validate.rc != 0
 
 # Запуск сервиса Nginx с помощью Systemd:

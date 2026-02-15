@@ -58,8 +58,6 @@ aws ec2 describe-images --owners 099720109477 --filters "Name=name,Values=ubuntu
 
 * Для **Debian** это:
 ```
-# Для Debian 10
-aws ec2 describe-images --owners 136693071363 --filters "Name=name,Values=debian-10-amd64-*" --query "Images[*].[OwnerId,CreationDate,Name,ImageId]" --output table
 # Для Debian 11
 aws ec2 describe-images --owners 136693071363 --filters "Name=name,Values=debian-11-amd64-*" --query "Images[*].[OwnerId,CreationDate,Name,ImageId]" --output table
 # Для Debian 12
@@ -72,6 +70,8 @@ aws ec2 describe-images --owners 136693071363 --filters "Name=name,Values=debian
 ```
 # Для SLEL 15 (можно менять версии SP)
 aws ec2 describe-images --owners 013907871322 --filters "Name=name,Values=suse-sles-15-sp5-*-x86_64" --query "Images[*].[OwnerId,CreationDate,Name,ImageId]" --output table
+# Для SLEL 16
+aws ec2 describe-images --owners 013907871322 --filters "Name=name,Values=suse-sles-16-*-*-x86_64" --query "Images[*].[OwnerId,CreationDate,Name,ImageId]" --output table
 ```
 
 * Для **RedHat** это:
@@ -80,8 +80,9 @@ aws ec2 describe-images --owners 013907871322 --filters "Name=name,Values=suse-s
 aws ec2 describe-images --owners 309956199498 --filters "Name=name,Values=*RHEL-8.10*" --query "Images[*].[OwnerId,CreationDate,Name,ImageId]" --output table
 # Для RHEL 9
 aws ec2 describe-images --owners 309956199498 --filters "Name=name,Values=*RHEL-9.5*" --query "Images[*].[OwnerId,CreationDate,Name,ImageId]" --output table
+# Для RHEL 10
+aws ec2 describe-images --owners 309956199498 --filters "Name=name,Values=*RHEL-10*" --query "Images[*].[OwnerId,CreationDate,Name,ImageId]" --output table
 ```
-
 ### **Прочие команды в Molecule:**
 
 Если вы хотите только подготовить ресурсную базу, без прогона самих ролей, то для этого выполните следующую команду на выбор в зависимости от вашей платформы (в первую очередь актуально для облаков, где мы подготавливаем инфраструктуру):

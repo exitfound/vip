@@ -4,10 +4,12 @@
   hosts: all
   gather_facts: false
   tasks:
-    # Добавление интервала по времени для загрузки Consul:
-    - name: Wait 10 second for checking Consul
+    # Ожидание доступности порта Consul:
+    - name: Wait for Consul port to become available
       wait_for:
-        timeout: 10
+        host: 127.0.0.1
+        port: "{{ global_consul_cluster_enable_https | ternary(global_consul_host_listening_https_port, global_consul_host_listening_http_port) }}"
+        timeout: 30
 
     # Проверка доступности Consul после установки:
     - name: Check Consul for Availability

@@ -1,19 +1,21 @@
 ---
-# Вызов предварительной роли system-prepare для полноценного запуска текущей роли:
-- name: Import system-prepare role for running current role on SUSE family distro
-  import_role:
-    name: system-prepare
-    tasks_from: main
+# Определение пути к Systemd unit файлу в зависимости от дистрибутива:
+- name: Set systemd unit path based on distribution
+  set_fact:
+    local_vault_manual_systemd_path: >-
+      {{ '/etc/systemd/system'
+         if (ansible_distribution == 'Debian' and ansible_distribution_major_version | int < 12)
+         else '/usr/lib/systemd/system' }}
 
 # Создание группы с именем Vault:
-- name: Create Vault group on SUSE family distro
+- name: Create Vault group on Linux distro
   group:
     name: "{{ local_vault_manual_group }}"
     gid: "{{ local_vault_manual_group_id }}"
     state: present
 
 # Создание пользователя с именем Vault:
-- name: Create Vault user on SUSE family distro
+- name: Create Vault user on Linux distro
   user:
     name: "{{ local_vault_manual_user }}"
     groups: "{{ local_vault_manual_group }}"
@@ -24,7 +26,7 @@
     append: true
 
 # Создание нескольких директорий для последующей работы с Vault:
-- name: Create Vault directories on SUSE family distro
+- name: Create Vault directories on Linux distro
   file:
     state: directory
     path: "{{ item.path }}"
@@ -35,8 +37,15 @@
     - {path: "{{ local_vault_manual_dir_config }}"}
     - {path: "{{ local_vault_manual_dir_data }}"}
 
+# Проверка текущей установленной версии Vault:
+- name: Check installed Vault version on Linux distro
+  command: "{{ local_vault_manual_path_binary }}/vault version"
+  register: vault_installed_version
+  changed_when: false
+  failed_when: false
+
 # Загрузка архива с бинарным файлом Vault из Интернета по прямой ссылке:
-- name: Download Vault archive for future installation on SUSE family distro
+- name: Download Vault archive for future installation on Linux distro
   get_url:
     url: "{{ local_vault_manual_file_archive_link }}"
     mode: "{{ local_vault_manual_file_mode }}"
@@ -47,18 +56,31 @@
   retries: 3
   delay: 5
   until: vault_download_result is success
+  when: >
+    vault_installed_version.rc != 0 or
+    global_vault_current_version not in vault_installed_version.stdout
 
 # Извлечение архива и перемещение бинарного файла в соответствующую директорию:
-- name: Unpack the Vault archive and move the binary file on SUSE family distro
+- name: Unpack the Vault archive and move the binary file on Linux distro
   unarchive:
     src: "/tmp/{{ local_vault_manual_file_archive_name }}"
     dest: "{{ local_vault_manual_path_binary }}"
-    creates: "{{ local_vault_manual_path_binary }}/vault"
     mode: "0755"
     remote_src: true
+  when: >
+    vault_installed_version.rc != 0 or
+    global_vault_current_version not in vault_installed_version.stdout
+  notify: Restart Single Vault
+
+# Удаление временного архива после распаковки:
+- name: Cleanup temporary archive file on Linux distro
+  file:
+    path: "/tmp/{{ local_vault_manual_file_archive_name }}"
+    state: absent
+  when: vault_download_result is changed
 
 # Копирование всех конфигурационных файлов Vault и их последующая отправка в соответствующие директории:
-- name: Copy Vault configuration files from templates on SUSE family distro
+- name: Copy Vault configuration files from templates on Linux distro
   template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
@@ -77,14 +99,14 @@
       owner: "{{ local_vault_manual_user }}"
       group: "{{ local_vault_manual_group }}"
     - src: "templates/{{ local_vault_manual_file_systemd }}.j2"
-      dest: "/usr/lib/systemd/system/{{ local_vault_manual_file_systemd }}"
+      dest: "{{ local_vault_manual_systemd_path }}/{{ local_vault_manual_file_systemd }}"
       mode: "{{ local_vault_manual_file_mode }}"
       owner: "0"
       group: "0"
   notify: Restart Single Vault
 
 # Запуск и добавление в автозагрузку сервиса Vault с помощью Systemd:
-- name: Start Vault service on SUSE family distro
+- name: Start Vault service on Linux distro
   systemd:
     name: vault
     state: started

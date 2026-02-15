@@ -14,8 +14,8 @@ services:
     user: vault
     environment:
       VAULT_ADDR: http://localhost:{{ global_vault_host_listening_port }}
-      SKIP_SETCAP: "true"
-      SKIP_CHOWN: "true"
+      SKIP_SETCAP: true
+      SKIP_CHOWN: true
     ports:
       - {{ global_vault_host_listening_address }}:{{ global_vault_host_listening_port }}:{{ global_vault_host_listening_port }}
     volumes:

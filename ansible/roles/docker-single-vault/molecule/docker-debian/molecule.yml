@@ -8,48 +8,27 @@ driver:
 platforms:
   - name: debian11
     image: mdd13/ansible-docker-debian:debian11
-    pre_build_image: true
-    privileged: true
-    cgroup_parent: docker.slice
-    cgroupns_mode: host
-    override_command: false
-    tmpfs:
-      - /var/lib/containerd
-      - /var/lib/docker
-      - /run
-      - /tmp
-    security_opts:
-      - seccomp=unconfined
+    <<: &platform_defaults
+      pre_build_image: true
+      privileged: true
+      override_command: false
+      cgroup_parent: docker.slice
+      cgroupns_mode: host
+      tmpfs:
+        - /var/lib/containerd
+        - /var/lib/docker
+        - /run
+        - /tmp
+      security_opts:
+        - seccomp=unconfined
 
   - name: debian12
     image: mdd13/ansible-docker-debian:debian12
-    pre_build_image: true
-    privileged: true
-    cgroup_parent: docker.slice
-    cgroupns_mode: host
-    override_command: false
-    tmpfs:
-      - /var/lib/containerd
-      - /var/lib/docker
-      - /run
-      - /tmp
-    security_opts:
-      - seccomp=unconfined
+    <<: *platform_defaults
 
   - name: debian13
     image: mdd13/ansible-docker-debian:debian13
-    pre_build_image: true
-    privileged: true
-    cgroup_parent: docker.slice
-    cgroupns_mode: host
-    override_command: false
-    tmpfs:
-      - /var/lib/containerd
-      - /var/lib/docker
-      - /run
-      - /tmp
-    security_opts:
-      - seccomp=unconfined
+    <<: *platform_defaults
 
 provisioner:
   name: ansible

@@ -13,6 +13,6 @@
 
 # Обновление центра сертификации в системе для дистрибутивов семейства SUSE:
 - name: Update SUSE CA store
-  command: c_rehash
+  command: update-ca-certificates
   environment:
     PATH: "{{ local_system_internal_bin_path }}"

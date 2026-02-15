@@ -21,7 +21,7 @@
     local_system_haproxy_package_list: >-
       {{
         local_system_haproxy_main_package_list +
-        (global_haproxy_enable_certbot_certificates | bool | ternary(local_system_haproxy_additional_package_list, []))
+        (global_haproxy_enable_certbot_certificates | default(false) | bool | ternary(local_system_haproxy_additional_package_list, []))
       }}
 
 # Установка всех необходимых пакетов с помощью пакетного менеджера:
@@ -76,18 +76,22 @@
   include_tasks: certificate.yaml
   when: global_haproxy_enable_certbot_certificates | default(false) | bool
 
-# Регистрация проверки конфигурации HAProxy в переменную:
-- name: Register the output of command haproxy -c -f /etc/haproxy/haproxy.cfg after changes on RedHat family distro
+# Запуск сервиса Certbot-renew для отслеживания состояния сертификата:
+- name: Start Certbot-renew.timer on RedHat family distro
+  systemd:
+    name: certbot-renew.timer
+    state: started
+    enabled: true
+  when: global_haproxy_enable_certbot_certificates | default(false) | bool
+
+# Валидация конфигурации HAProxy перед запуском сервиса:
+- name: Validate HAProxy configuration on RedHat family distro
   command: haproxy -c -f {{ local_system_haproxy_redhat_default_config }} -f {{ local_system_haproxy_redhat_dir_config }}
-  register: haproxy_validate
-  failed_when: false
   changed_when: false
 
-# Результат вывода переменной на экран:
-- name: The output result of our variable for HAProxy on RedHat family distro
-  debug:
-    var: haproxy_validate.stderr
-  when: haproxy_validate.rc != 0
+# Принудительный вызов всех ожидающих обработчиков перед запуском сервиса:
+- name: Flush handlers before starting HAProxy on RedHat family distro
+  meta: flush_handlers
 
 # Запуск сервиса HAProxy через Systemd:
 - name: Start HAProxy service on RedHat family distro

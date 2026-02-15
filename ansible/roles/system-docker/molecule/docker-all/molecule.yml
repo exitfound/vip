@@ -6,190 +6,73 @@ driver:
   name: docker
 
 platforms:
-  - name: opensuse15.5
-    image: mdd13/ansible-docker-suse:opensuse15.5
-    pre_build_image: true
-    privileged: true
-    override_command: false
-    cgroup_parent: docker.slice
-    cgroupns_mode: host
-    tmpfs:
-      - /var/lib/containerd
-      - /var/lib/docker
-      - /run
-      - /tmp
-    security_opts:
-      - seccomp=unconfined
-
   - name: opensuse15.6
     image: mdd13/ansible-docker-suse:opensuse15.6
-    pre_build_image: true
-    privileged: true
-    override_command: false
-    cgroup_parent: docker.slice
-    cgroupns_mode: host
-    tmpfs:
-      - /var/lib/containerd
-      - /var/lib/docker
-      - /run
-      - /tmp
-    security_opts:
-      - seccomp=unconfined
+    <<: &platform_defaults
+      pre_build_image: true
+      privileged: true
+      override_command: false
+      cgroup_parent: docker.slice
+      cgroupns_mode: host
+      tmpfs:
+        - /var/lib/containerd
+        - /var/lib/docker
+        - /run
+        - /tmp
+      security_opts:
+        - seccomp=unconfined
+
+  - name: opensuse16.0
+    image: mdd13/ansible-docker-suse:opensuse16.0
+    <<: *platform_defaults
 
   - name: centos8
     image: mdd13/ansible-docker-redhat:centos8
-    pre_build_image: true
-    privileged: true
-    override_command: false
-    cgroup_parent: docker.slice
-    cgroupns_mode: host
-    tmpfs:
-      - /var/lib/containerd
-      - /var/lib/docker
-      - /run
-      - /tmp
-    security_opts:
-      - seccomp=unconfined
+    <<: *platform_defaults
 
   - name: centos9
     image: mdd13/ansible-docker-redhat:centos9
-    pre_build_image: true
-    privileged: true
-    override_command: false
-    cgroup_parent: docker.slice
-    cgroupns_mode: host
-    tmpfs:
-      - /var/lib/containerd
-      - /var/lib/docker
-      - /run
-      - /tmp
-    security_opts:
-      - seccomp=unconfined
+    <<: *platform_defaults
 
   - name: redhat8
     image: mdd13/ansible-docker-redhat:redhat8
-    pre_build_image: true
-    privileged: true
-    override_command: false
-    cgroup_parent: docker.slice
-    cgroupns_mode: host
-    tmpfs:
-      - /var/lib/containerd
-      - /var/lib/docker
-      - /run
-      - /tmp
-    security_opts:
-      - seccomp=unconfined
+    <<: *platform_defaults
 
   - name: redhat9
     image: mdd13/ansible-docker-redhat:redhat9
-    pre_build_image: true
-    privileged: true
-    override_command: false
-    cgroup_parent: docker.slice
-    cgroupns_mode: host
-    tmpfs:
-      - /var/lib/containerd
-      - /var/lib/docker
-      - /run
-      - /tmp
-    security_opts:
-      - seccomp=unconfined
+    <<: *platform_defaults
 
   - name: debian11
     image: mdd13/ansible-docker-debian:debian11
-    pre_build_image: true
-    privileged: true
-    override_command: false
-    cgroup_parent: docker.slice
-    cgroupns_mode: host
-    tmpfs:
-      - /var/lib/containerd
-      - /var/lib/docker
-      - /run
-      - /tmp
-    security_opts:
-      - seccomp=unconfined
+    <<: *platform_defaults
 
   - name: debian12
     image: mdd13/ansible-docker-debian:debian12
-    pre_build_image: true
-    privileged: true
-    override_command: false
-    cgroup_parent: docker.slice
-    cgroupns_mode: host
-    tmpfs:
-      - /var/lib/containerd
-      - /var/lib/docker
-      - /run
-      - /tmp
-    security_opts:
-      - seccomp=unconfined
+    <<: *platform_defaults
 
   - name: debian13
     image: mdd13/ansible-docker-debian:debian13
-    pre_build_image: true
-    privileged: true
-    override_command: false
-    cgroup_parent: docker.slice
-    cgroupns_mode: host
-    tmpfs:
-      - /var/lib/containerd
-      - /var/lib/docker
-      - /run
-      - /tmp
-    security_opts:
-      - seccomp=unconfined
+    <<: *platform_defaults
 
   - name: ubuntu20.04
     image: mdd13/ansible-docker-ubuntu:ubuntu20.04
-    pre_build_image: true
-    privileged: true
-    override_command: false
-    cgroup_parent: docker.slice
-    cgroupns_mode: host
-    tmpfs:
-      - /var/lib/containerd
-      - /var/lib/docker
-      - /run
-      - /tmp
-    security_opts:
-      - seccomp=unconfined
+    <<: *platform_defaults
 
   - name: ubuntu22.04
     image: mdd13/ansible-docker-ubuntu:ubuntu22.04
-    pre_build_image: true
-    privileged: true
-    override_command: false
-    cgroup_parent: docker.slice
-    cgroupns_mode: host
-    tmpfs:
-      - /var/lib/containerd
-      - /var/lib/docker
-      - /run
-      - /tmp
-    security_opts:
-      - seccomp=unconfined
+    <<: *platform_defaults
 
   - name: ubuntu24.04
     image: mdd13/ansible-docker-ubuntu:ubuntu24.04
-    pre_build_image: true
-    privileged: true
-    override_command: false
-    cgroup_parent: docker.slice
-    cgroupns_mode: host
-    tmpfs:
-      - /var/lib/containerd
-      - /var/lib/docker
-      - /run
-      - /tmp
-    security_opts:
-      - seccomp=unconfined
+    <<: *platform_defaults
 
 provisioner:
   name: ansible
   env:
     ANSIBLE_STDOUT_CALLBACK: yaml
+  inventory:
+    links:
+      group_vars: ../../../../group_vars/
 
 verifier:
   name: ansible

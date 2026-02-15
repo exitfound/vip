@@ -4,18 +4,28 @@
   hosts: all
   gather_facts: false
   tasks:
-    # Добавление интервала по времени для загрузки Vault:
-    - name: Wait 10 second for checking Vault
+    # Ожидание доступности порта Vault:
+    - name: Wait for Vault port to become available
       wait_for:
-        timeout: 10
+        host: 127.0.0.1
+        port: "{{ global_vault_host_listening_port }}"
+        timeout: 30
 
-    # Проверка доступности Vault после установки:
-    - name: Check Vault for Availability
+    # Проверка состояния Vault через Health API:
+    - name: Check Vault Health API
       uri:
-        url: "http://127.0.0.1:{{ global_vault_host_listening_port }}"
+        url: "http://127.0.0.1:{{ global_vault_host_listening_port }}/v1/sys/health"
         method: GET
         timeout: 10
-        return_content: false
         validate_certs: false
-        status_code: [200]
-      when: not global_vault_transit_backend_enable | default(false)
+        status_code: [200, 429, 472, 473, 501, 503]
+      register: vault_health
+
+    # Подтверждение того, что Vault отвечает корректно:
+    - name: Assert that Vault Health API responds correctly
+      assert:
+        that:
+          - vault_health.json is defined
+          - vault_health.json.initialized is defined
+        fail_msg: "Vault Health API did not return a valid response"
+        success_msg: "Vault is responding correctly (initialized: {{ vault_health.json.initialized }}, sealed: {{ vault_health.json.sealed | default('unknown') }})"

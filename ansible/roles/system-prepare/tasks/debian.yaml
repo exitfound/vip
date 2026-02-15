@@ -1,12 +1,11 @@
 ---
-# # Обновление всех пакетов для указанного семейства дистрибутивов:
-# - name: Update all packages on Debian family distro
-#   apt:
-#     name: '*'
-#     state: latest
-#     update_cache: true
-#   tags:
-#     - update
+# Обновление всех пакетов для указанного семейства дистрибутивов:
+- name: Update all packages on Debian family distro
+  apt:
+    name: '*'
+    state: latest
+    update_cache: true
+  when: global_system_prepare_update_packages | bool
 
 # Установка пакетов DEB из списка необходимых, которые определены в виде переменной, в директории defaults:
 - name: Install general packages on Debian family distro
@@ -19,7 +18,7 @@
 - name: Create Bash Autocomplete directory on Debian family distro
   file:
     state: directory
-    path: "/etc/bash_completion.d/"
-    mode: "0755"
+    path: "{{ local_system_debian_directory_path_auto }}"
+    mode: "{{ local_system_debian_directory_mode_auto }}"
     owner: "0"
     group: "0"

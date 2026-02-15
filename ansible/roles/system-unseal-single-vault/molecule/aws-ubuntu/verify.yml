@@ -4,6 +4,11 @@
   hosts: all
   gather_facts: false
   tasks:
+    # Подключение переменных из defaults роли system-unseal-single-vault:
+    - name: Load role default variables
+      include_vars:
+        file: ../../defaults/main.yaml
+
     # Добавление интервала по времени для загрузки Vault:
     - name: Wait 10 second for checking Vault
       wait_for:
@@ -18,3 +23,34 @@
         return_content: false
         validate_certs: false
         status_code: [200]
+
+    # Проверка того, что Vault проинициализирован и распечатан:
+    - name: Verify that Vault is initialized and unsealed
+      uri:
+        url: "http://127.0.0.1:{{ global_vault_host_listening_port }}/v1/sys/health"
+        method: GET
+        timeout: 10
+        validate_certs: false
+        status_code: [200]
+      register: vault_health
+
+    # Подтверждение того, что Vault распечатан и проинициализирован:
+    - name: Assert that Vault is not sealed
+      assert:
+        that:
+          - vault_health.json.sealed == false
+          - vault_health.json.initialized == true
+        fail_msg: "Vault is still sealed or not initialized"
+
+    # Проверка того, что временный файл с ключами удалён из ОЗУ:
+    - name: Check that temporary key file has been removed from RAM
+      stat:
+        path: "{{ local_vault_single_unseal_json_file }}"
+      register: temp_key_file
+
+    # Подтверждение того, что временный файл с ключами отсутствует:
+    - name: Assert that temporary key file does not exist
+      assert:
+        that:
+          - not temp_key_file.stat.exists
+        fail_msg: "Temporary key file {{ local_vault_single_unseal_json_file }} was not cleaned up"

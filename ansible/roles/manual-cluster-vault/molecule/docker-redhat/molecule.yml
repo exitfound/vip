@@ -8,55 +8,29 @@ driver:
 platforms:
   - name: centos8
     image: mdd13/ansible-docker-redhat:centos8
-    pre_build_image: true
-    privileged: true
-    override_command: false
-    cgroup_parent: docker.slice
-    cgroupns_mode: host
-    security_opts:
-      - seccomp=unconfined
-    groups:
-      - vault_cluster
-      - consul_cluster
+    <<: &platform_defaults
+      pre_build_image: true
+      privileged: true
+      override_command: false
+      cgroup_parent: docker.slice
+      cgroupns_mode: host
+      security_opts:
+        - seccomp=unconfined
+      groups:
+        - vault_cluster
+        - consul_cluster
 
   - name: centos9
     image: mdd13/ansible-docker-redhat:centos9
-    pre_build_image: true
-    privileged: true
-    override_command: false
-    cgroup_parent: docker.slice
-    cgroupns_mode: host
-    security_opts:
-      - seccomp=unconfined
-    groups:
-      - vault_cluster
-      - consul_cluster
+    <<: *platform_defaults
 
   - name: redhat8
     image: mdd13/ansible-docker-redhat:redhat8
-    pre_build_image: true
-    privileged: true
-    override_command: false
-    cgroup_parent: docker.slice
-    cgroupns_mode: host
-    security_opts:
-      - seccomp=unconfined
-    groups:
-      - vault_cluster
-      - consul_cluster
+    <<: *platform_defaults
 
   - name: redhat9
     image: mdd13/ansible-docker-redhat:redhat9
-    pre_build_image: true
-    privileged: true
-    override_command: false
-    cgroup_parent: docker.slice
-    cgroupns_mode: host
-    security_opts:
-      - seccomp=unconfined
-    groups:
-      - vault_cluster
-      - consul_cluster
+    <<: *platform_defaults
 
 provisioner:
   name: ansible

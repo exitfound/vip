@@ -25,7 +25,7 @@ platforms:
   #   key_name: "{{ aws_custom_key_name }}"
   #   private_key_path: "{{ aws_local_private_key }}"
   #   public_key_path: "{{ aws_local_public_key }}"
-  #   security_group_name: "{{ aws_secruity_group_name }}"
+  #   security_group_name: "{{ aws_security_group_name }}"
 
   # # Для запуска данного образа может понадобится подписка в AWS Marketplace.
   # - name: "CentOS 9"
@@ -46,7 +46,7 @@ platforms:
   #   key_name: "{{ aws_custom_key_name }}"
   #   private_key_path: "{{ aws_local_private_key }}"
   #   public_key_path: "{{ aws_local_public_key }}"
-  #   security_group_name: "{{ aws_secruity_group_name }}"
+  #   security_group_name: "{{ aws_security_group_name }}"
 
   - name: "RedHat 8"
     aws_profile: "{{ aws_profile }}"
@@ -66,7 +66,7 @@ platforms:
     key_name: "{{ aws_custom_key_name }}"
     private_key_path: "{{ aws_local_private_key }}"
     public_key_path: "{{ aws_local_public_key }}"
-    security_group_name: "{{ aws_secruity_group_name }}"
+    security_group_name: "{{ aws_security_group_name }}"
 
   - name: "RedHat 9"
     aws_profile: "{{ aws_profile }}"
@@ -86,7 +86,7 @@ platforms:
     key_name: "{{ aws_custom_key_name }}"
     private_key_path: "{{ aws_local_private_key }}"
     public_key_path: "{{ aws_local_public_key }}"
-    security_group_name: "{{ aws_secruity_group_name }}"
+    security_group_name: "{{ aws_security_group_name }}"
 
   - name: "RedHat 10"
     aws_profile: "{{ aws_profile }}"
@@ -106,7 +106,7 @@ platforms:
     key_name: "{{ aws_custom_key_name }}"
     private_key_path: "{{ aws_local_private_key }}"
     public_key_path: "{{ aws_local_public_key }}"
-    security_group_name: "{{ aws_secruity_group_name }}"
+    security_group_name: "{{ aws_security_group_name }}"
 
 provisioner:
   name: ansible

@@ -221,7 +221,7 @@
             - item.vpc_id is defined and item.vpc_id | length > 0
             - idx == 0
 
-    - name: Destroy ephemeral EC Key Pair (if Key Pair early was created)
+    - name: Destroy ephemeral EC2 Key Pair (if Key Pair early was created)
       amazon.aws.ec2_key:
         profile: "{{ item.aws_profile | default(omit) }}"
         region: "{{ item.region | default(omit) }}"

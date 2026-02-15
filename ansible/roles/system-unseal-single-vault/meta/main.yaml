@@ -1,0 +1,84 @@
+---
+galaxy_info:
+  role_name: system_unseal_single_vault
+  namespace: mdd13
+  author: Ivan Medaev
+  company: Kitezh
+  min_ansible_version: "2.11"
+  description: |
+    Initialize and unseal a single-node HashiCorp Vault instance.
+    Supports both manual Shamir unseal and Transit Auto-Unseal modes.
+
+  # Supported platforms:
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal       # 20.04
+        - jammy       # 22.04
+        - noble       # 24.04
+    - name: Debian
+      versions:
+        - bullseye    # 11
+        - bookworm    # 12
+        - trixie      # 13
+    - name: EL
+      versions:
+        - "8"         # RHEL 8 / CentOS 8
+        - "9"         # RHEL 9 / CentOS 9
+        - "10"        # RHEL 10
+    - name: OpenSUSE Leap
+      versions:
+        - "15.6"      # Leap 15.6
+        - "16.0"      # Leap 16.0
+    - name: SLES
+      versions:
+        - "15.6"      # SLES 15.6
+        - "16.0"      # SLES 16.0
+
+  # Tags for Ansible Galaxy search:
+  galaxy_tags:
+    - vault
+    - hashicorp
+    - security
+    - unseal
+
+  # Issue tracker and repository:
+  issue_tracker_url: https://github.com/exitfound/vip/issues
+  repository: https://github.com/exitfound/vip
+
+# No dependent roles:
+dependencies: []
+
+# Defines required global variables with validation:
+argument_specs:
+  main:
+    options:
+      global_vault_host_listening_port:
+        type: int
+        required: true
+        description: Port Vault listens on (e.g., 8200)
+
+      global_vault_unseal_tls_disable:
+        type: bool
+        required: true
+        description: Whether TLS is disabled for Vault API calls
+
+      global_vault_unseal_tls_skip_verify:
+        type: bool
+        required: true
+        description: Whether to skip TLS certificate verification
+
+      global_vault_unseal_secret_shares:
+        type: int
+        required: true
+        description: Number of key shares to split the master key into (e.g., 5)
+
+      global_vault_unseal_secret_threshold:
+        type: int
+        required: true
+        description: Number of key shares required to unseal Vault (e.g., 3)
+
+      global_vault_transit_backend_enable:
+        type: bool
+        required: true
+        description: Whether Transit Auto-Unseal is enabled instead of manual Shamir unseal
