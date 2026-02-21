@@ -10,6 +10,17 @@
   - [Структура репозитория](#структура-репозитория)
   - [Мануальное развертывание](#мануальное-развертывание-vault)
   - [Автоматизированное развертывание с помощью Ansible](#автоматизированное-развертывание-vault-с-помощью-ansible)
+    - [Подготовка](#подготовка)
+    - [manual-single-vault.yaml](#запуск-плейбука-manual-single-vaultyaml)
+    - [docker-single-vault.yaml](#запуск-плейбука-docker-single-vaultyaml)
+    - [manual-cluster-vault.yaml](#запуск-плейбука-manual-cluster-vaultyaml)
+    - [manual-cluster-consul.yaml](#запуск-плейбука-manual-cluster-consulyaml)
+    - [manual-single-consul-agent.yaml](#запуск-плейбука-manual-single-consul-agentyaml)
+    - [system-unseal-single-vault.yaml](#запуск-плейбука-system-unseal-single-vaultyaml)
+    - [system-unseal-cluster-vault.yaml](#запуск-плейбука-system-unseal-cluster-vaultyaml)
+    - [system-proxy-nginx.yaml](#запуск-плейбука-system-proxy-nginxyaml)
+    - [system-proxy-haproxy.yaml](#запуск-плейбука-system-proxy-haproxyyaml)
+  - [Автоматизированное конфигурирование Vault с помощью Terraform](#автоматизированное-конфигурирование-vault-с-помощью-terraform)
 
 ## **Мотивация:**
 
@@ -61,7 +72,7 @@
 
 - **Директория roles:** Содержит в себе весь список ролей, которые отвечают за автоматизированное развертывание Vault в том или ином режиме работы, в зависимости от установленной глобальной переменной.
 
-Все ключевые переменные уже заполнены валидными данными, поэтому каждая роль работает из коробки, однако для задействования дополнительных режимов работы (некоторые роли содержат в себе два и более режима) понадобится изменение ключевых глобальных переменных. Об этом будет подробно рассказано в каждой из ролей. Параметр `-i` во время запуска плейбука можно не указывать, поскольку путь прописан в `ansible.cfg` (при условии что вами будет использован файл `servers.yaml`). Подробнее про Inventory-файл и каждую глобальную переменную можно почитать тут. 
+Все ключевые переменные уже заполнены валидными данными, поэтому каждая роль работает из коробки, однако для задействования дополнительных режимов работы (некоторые роли содержат в себе два и более режима) понадобится изменение ключевых глобальных переменных. Об этом будет подробно рассказано в каждой из ролей. Параметр `-i` во время запуска плейбука можно не указывать, поскольку путь прописан в `ansible.cfg` (при условии что вами будет использован файл `servers.yaml`). Подробнее про Inventory-файл и каждую глобальную переменную можно почитать [тут](https://github.com/exitfound/vip/tree/main/ansible/inventory).
 
 ---
 
@@ -98,7 +109,7 @@ ansible-playbook -i <inventory> -l <group> -u <user> --private-key=<ssh-key> pla
 ansible-playbook -i <inventory> -l <group> -u <user> -e global_vault_transit_backend_enable=true -e ... --private-key=<ssh-key> playbooks/manual-single-vault.yaml
 ```
 
-Примечание: Подробнее о том, за что отвечает каждая из переменных можно посмотреть тут.
+Примечание: Подробнее о том, за что отвечает каждая из переменных можно посмотреть [тут](https://github.com/exitfound/vip/tree/main/ansible/inventory).
 
 ---
 
@@ -135,7 +146,7 @@ ansible-playbook -i <inventory> -l <group> -u <user> --private-key=<ssh-key> pla
 ansible-playbook -i <inventory> -l <group> -u <user> -e global_vault_transit_backend_enable=true -e ... --private-key=<ssh-key> playbooks/docker-single-vault.yaml
 ```
 
-Примечание: Подробнее о том, за что отвечает каждая из переменных можно посмотреть тут.
+Примечание: Подробнее о том, за что отвечает каждая из переменных можно посмотреть [тут](https://github.com/exitfound/vip/tree/main/ansible/inventory).
 
 ---
 
@@ -265,7 +276,7 @@ ansible-playbook -i <inventory> -l vault_cluster -u <user> --private-key=<ssh-ke
 ansible-playbook -i <inventory> -l vault_cluster -u <user> -e global_vault_cluster_enable_raft=true -e global_vault_cluster_enable_https=true -e ... --private-key=<ssh-key> playbooks/manual-cluster-vault.yaml
 ```
 
-Примечание: Подробнее о том, за что отвечает каждая из переменных можно посмотреть тут.
+Примечание: Подробнее о том, за что отвечает каждая из переменных можно посмотреть [тут](https://github.com/exitfound/vip/tree/main/ansible/inventory).
 
 ---
 
@@ -325,7 +336,7 @@ ansible-playbook -i <inventory> -l consul_cluster -u <user> --private-key=<ssh-k
 ansible-playbook -i <inventory> -l consul_cluster -u <user> -e global_consul_cluster_enable_https=true -e ... --private-key=<ssh-key> playbooks/manual-cluster-consul.yaml
 ```
 
-Примечание: Подробнее о том, за что отвечает каждая из переменных можно посмотреть тут.
+Примечание: Подробнее о том, за что отвечает каждая из переменных можно посмотреть [тут](https://github.com/exitfound/vip/tree/main/ansible/inventory).
 
 ---
 
@@ -406,7 +417,7 @@ ansible-playbook -i <inventory> -l vault_cluster -u <user> --private-key=<ssh-ke
 ansible-playbook -i <inventory> -l vault_cluster -u <user> --private-key=<ssh-key> playbooks/manual-cluster-vault.yaml
 ```
 
-Примечание: Подробнее о том, за что отвечает каждая из переменных можно посмотреть тут.
+Примечание: Подробнее о том, за что отвечает каждая из переменных можно посмотреть [тут](https://github.com/exitfound/vip/tree/main/ansible/inventory).
 
 ---
 
@@ -447,7 +458,7 @@ ansible-playbook -i <inventory> -l <group> -u <user> --private-key=<ssh-key> pla
 ansible-playbook -i <inventory> -l <group> -u <user> -e global_vault_unseal_secret_shares=5 -e global_vault_unseal_secret_threshold=3 -e ... --private-key=<ssh-key> playbooks/system-unseal-single-vault.yaml
 ```
 
-Примечание: Подробнее о том, за что отвечает каждая из переменных можно посмотреть тут.
+Примечание: Подробнее о том, за что отвечает каждая из переменных можно посмотреть [тут](https://github.com/exitfound/vip/tree/main/ansible/inventory).
 
 ---
 
@@ -488,7 +499,7 @@ ansible-playbook -i <inventory> -l vault_cluster -u <user> --private-key=<ssh-ke
 ansible-playbook -i <inventory> -l vault_cluster -u <user> -e global_vault_unseal_secret_shares=5 -e global_vault_unseal_secret_threshold=3 -e ... --private-key=<ssh-key> playbooks/system-unseal-cluster-vault.yaml
 ```
 
-Примечание: Подробнее о том, за что отвечает каждая из переменных можно посмотреть тут.
+Примечание: Подробнее о том, за что отвечает каждая из переменных можно посмотреть [тут](https://github.com/exitfound/vip/tree/main/ansible/inventory).
 
 ---
 
@@ -586,7 +597,7 @@ ansible-playbook -i <inventory> -l <group> -u <user> --private-key=<ssh-key> pla
 ansible-playbook -i <inventory> -l <group> -u <user> -e global_nginx_host_domain=vault.example.com -e global_nginx_set_http_scheme=https -e ... --private-key=<ssh-key> playbooks/system-proxy-nginx.yaml
 ```
 
-Примечание: Подробнее о том, за что отвечает каждая из переменных можно посмотреть тут.
+Примечание: Подробнее о том, за что отвечает каждая из переменных можно посмотреть [тут](https://github.com/exitfound/vip/tree/main/ansible/inventory).
 
 ---
 
@@ -680,6 +691,12 @@ ansible-playbook -i <inventory> -l <group> -u <user> --private-key=<ssh-key> pla
 ansible-playbook -i <inventory> -l <group> -u <user> -e global_haproxy_host_domain=vault.example.com -e global_haproxy_set_http_scheme=https -e ... --private-key=<ssh-key> playbooks/system-proxy-haproxy.yaml
 ```
 
-Примечание: Подробнее о том, за что отвечает каждая из переменных можно посмотреть тут.
+Примечание: Подробнее о том, за что отвечает каждая из переменных можно посмотреть [тут](https://github.com/exitfound/vip/tree/main/ansible/inventory).
+
+---
+
+## **Автоматизированное конфигурирование Vault с помощью Terraform:**
+
+...
 
 ---
