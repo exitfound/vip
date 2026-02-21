@@ -1,0 +1,140 @@
+---
+all:
+  vars: {}
+
+  children:
+    # Vault Cluster
+    vault_cluster:
+      hosts:
+        vault_cluster1:
+          ansible_host: 54.93.186.195
+        vault_cluster2:
+          ansible_host: 18.199.167.120
+        vault_cluster3:
+          ansible_host: 18.159.45.173
+
+    # Consul Cluster
+    consul_cluster:
+      # vars:
+      #   ansible_user: admin
+      hosts:
+        consul_cluster1:
+          ansible_host: 54.93.186.195
+        consul_cluster2:
+          ansible_host: 18.199.167.120
+        consul_cluster3:
+          ansible_host: 18.159.45.173
+
+    # Consul Agents
+    consul_agent:
+      hosts:
+        consul_agent1:
+          ansible_host: 18.193.116.87
+        consul_agent2:
+          ansible_host: 63.178.24.18
+        consul_agent3:
+          ansible_host: 3.71.87.44
+
+    # SUSE Family
+    suse:
+      children:
+        opensuse15.6:
+          hosts:
+            opensuse15.6-instance1:
+              ansible_host: 111.214.251.99
+              global_nginx_host_domain: vault.kitezh.world
+              global_haproxy_host_domain: vault.kitezh.world
+        opensuse16.0:
+          hosts:
+            opensuse16.0-instance1:
+              ansible_host: 111.214.251.99
+              global_nginx_host_domain: vault.kitezh.world
+              global_haproxy_host_domain: vault.kitezh.world
+        sles15.6:
+          hosts:
+            sles156-instance1:
+              ansible_host: 111.214.251.99
+              global_nginx_host_domain: vault.kitezh.world
+              global_haproxy_host_domain: vault.kitezh.world
+        sles16.0:
+          hosts:
+            sles160-instance1:
+              ansible_host: 111.214.251.99
+              global_nginx_host_domain: vault.kitezh.world
+              global_haproxy_host_domain: vault.kitezh.world
+    # RedHat Family
+    redhat:
+      children:
+        centos8:
+          hosts:
+            centos8-instance1:
+              ansible_host: 73.55.111.214
+              global_nginx_host_domain: vault.kitezh.world
+              global_haproxy_host_domain: vault.kitezh.world
+        centos9:
+          hosts:
+            centos9-instance1:
+              ansible_host: 73.55.111.214
+              global_nginx_host_domain: vault.kitezh.world
+              global_haproxy_host_domain: vault.kitezh.world
+        redhat8:
+          hosts:
+            redhat8-instance1:
+              ansible_host: 73.55.111.214
+              global_nginx_host_domain: vault.kitezh.world
+              global_haproxy_host_domain: vault.kitezh.world
+        redhat9:
+          hosts:
+            redhat9-instance1:
+              ansible_host: 73.55.111.214
+              global_nginx_host_domain: vault.kitezh.world
+              global_haproxy_host_domain: vault.kitezh.world
+        redhat10:
+          hosts:
+            redhat10-instance1:
+              ansible_host: 73.55.111.214
+              global_nginx_host_domain: vault.kitezh.world
+              global_haproxy_host_domain: vault.kitezh.world
+
+    # Debian Family
+    debian:
+      children:
+        debian11:
+          hosts:
+            debian11-instance1:
+              ansible_host: 3.75.193.228
+              global_nginx_host_domain: vault.kitezh.world
+              global_haproxy_host_domain: vault.kitezh.world
+        debian12:
+          hosts:
+            debian12-instance1:
+              ansible_host: 3.72.50.173
+              global_nginx_host_domain: vault.kitezh.world
+              global_haproxy_host_domain: vault.kitezh.world
+        debian13:
+          hosts:
+            debian13-instance1:
+              ansible_host: 3.70.158.4
+              global_nginx_host_domain: vault.kitezh.world
+              global_haproxy_host_domain: vault.kitezh.world
+
+    ubuntu:
+      children:
+        ubuntu20.04:
+          hosts:
+            ubuntu20.04-instance1:
+              ansible_host: 18.159.210.106
+              global_nginx_host_domain: vault.kitezh.world
+              global_haproxy_host_domain: vault.kitezh.world
+        ubuntu22.04:
+          hosts:
+            ubuntu22.04-instance1:
+              ansible_host: 63.180.174.105
+              global_nginx_host_domain: vault.kitezh.world
+              global_haproxy_host_domain: vault.kitezh.world
+        ubuntu24.04:
+          hosts:
+            ubuntu24.04-instance1:
+              ansible_host: 3.75.88.70
+              global_nginx_host_domain: vault.kitezh.world
+              global_haproxy_host_domain: vault.kitezh.world

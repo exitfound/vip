@@ -185,6 +185,7 @@
     mode: "{{ local_system_internal_file_ca_cert_mode }}"
     owner: "{{ local_system_internal_ca_key_owner }}"
     group: "{{ global_system_internal_ca_key_group }}"
+  register: local_system_internal_node_cert_changed
 
 # Считывание CA сертификата на делегированном узле для его последующего копирования:
 - name: Slurp CA certificate from CA Delegate Host
@@ -202,6 +203,7 @@
     mode: "{{ local_system_internal_file_ca_cert_mode }}"
     owner: "{{ local_system_internal_ca_key_owner }}"
     group: "{{ global_system_internal_ca_key_group }}"
+  register: local_system_internal_ca_cert_changed
 
 # Вызов файла debian.yaml для настройки необходимых компонентов на дистрибутиве семейства Debian:
 - name: Invocation of the debian.yaml task

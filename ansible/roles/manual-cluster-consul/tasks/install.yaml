@@ -11,8 +11,8 @@
   set_fact:
     local_consul_manual_cluster_systemd_path: >-
       {{ '/etc/systemd/system'
-         if (ansible_distribution == 'Debian' and ansible_distribution_major_version | int < 12)
-         else '/usr/lib/systemd/system' }}
+          if (ansible_distribution == 'Debian' and ansible_distribution_major_version | int < 12)
+          else '/usr/lib/systemd/system' }}
 
 # Создание группы с именем Consul:
 - name: Create Consul Cluster group on Linux distro
@@ -111,6 +111,29 @@
     state: started
     enabled: true
     daemon_reload: true
+
+# Проверка того, что Consul Cluster слушает HTTPS порт на Linux дистрибутиве:
+- name: Check if Consul Cluster is listening on HTTPS port on Linux distro
+  shell: ss -tlnp | grep ':{{ global_consul_host_listening_https_port }}'
+  register: consul_https_port_check
+  failed_when: false
+  changed_when: false
+  when: global_consul_cluster_enable_https | bool
+
+# Перезапуск Consul Cluster если сертификаты были обновлены или HTTPS порт не открыт на Linux дистрибутиве:
+- name: Restart Consul Cluster if TLS certificates were updated or HTTPS port is not open on Linux distro
+  systemd:
+    name: consul
+    state: restarted
+  when:
+    - global_consul_cluster_enable_https | bool
+    - >-
+      local_system_internal_node_cert_changed is changed or
+      local_system_internal_ca_cert_changed is changed or
+      consul_https_port_check.rc != 0
+
+# Применение всех накопленных хендлеров до выполнения проверки сертификата:
+- meta: flush_handlers
 
 # Проверка того, что сертификат был создан на запущенном узле:
 - name: Check that the certificate has been added on Linux distro

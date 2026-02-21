@@ -1,39 +1,40 @@
+{% set _domain_id = global_haproxy_host_domain | replace('.', '_') | replace('-', '_') %}
 {% if global_haproxy_set_http_scheme == 'http' %}
-frontend f_standalone_vault
+frontend f_{{ _domain_id }}
     bind *:80
-    acl acl_standalone_vault hdr(host) -i {{ global_haproxy_host_domain }}
-    use_backend b_standalone_vault if acl_standalone_vault
+    acl acl_{{ _domain_id }} hdr(host) -i {{ global_haproxy_host_domain }}
+    use_backend b_{{ _domain_id }} if acl_{{ _domain_id }}
 
-backend b_standalone_vault
+backend b_{{ _domain_id }}
     option httpchk GET /v1/sys/health
     http-check expect rstatus (200|429|472|473)
     server vault1 127.0.0.1:{{ global_vault_host_listening_port }} check
 
 {% elif global_haproxy_set_http_scheme == 'https' %}
-frontend f_standalone_vault_redirect
+frontend f_{{ _domain_id }}_redirect
     bind *:80
     mode http
     http-request redirect scheme https code 301
 
-frontend f_standalone_vault_https
+frontend f_{{ _domain_id }}_https
     bind *:443 ssl crt {{ local_system_haproxy_dir_ssl }}/{{ global_haproxy_host_domain }}.pem alpn h2,http/1.1
-    acl acl_standalone_vault hdr(host) -i {{ global_haproxy_host_domain }}
+    acl acl_{{ _domain_id }} hdr(host) -i {{ global_haproxy_host_domain }}
     http-request set-header X-Forwarded-Proto https
     http-request set-header X-Real-IP %[src]
-    use_backend b_standalone_vault if acl_standalone_vault
+    use_backend b_{{ _domain_id }} if acl_{{ _domain_id }}
 
-backend b_standalone_vault
+backend b_{{ _domain_id }}
     option httpchk GET /v1/sys/health
     http-check expect rstatus (200|429|472|473)
     server vault1 127.0.0.1:{{ global_vault_host_listening_port }} check
 
 {% else %}
 # Fallback: default to http
-frontend http_front
+frontend f_{{ _domain_id }}_fallback
     bind *:80
-    default_backend http_back
+    default_backend b_{{ _domain_id }}_fallback
 
-backend http_back
-    server vault 127.0.0.1:{{ global_vault_host_listening_port }} check
+backend b_{{ _domain_id }}_fallback
+    server vault1 127.0.0.1:{{ global_vault_host_listening_port }} check
 
 {% endif %}

@@ -1,0 +1,40 @@
+---
+# Вызов роли для последующей установки и настройки Manual Vault Cluster для группы серверов на удаленных узлах:
+- name: Install and configure Manual Vault Cluster on remote hosts
+  gather_facts: true
+  become: true
+  any_errors_fatal: true
+  hosts:
+    - all
+
+  # Вызов непосредственно самой роли Manual Vault Cluster для последующего развертывания кластера Vault в системе:
+  roles:
+    - manual-cluster-vault
+
+  # Информирование о том, что Manual Vault Cluster был успешно установлен в системе:
+  post_tasks:
+    - name: Wait for Vault port to become available
+      wait_for:
+        host: 127.0.0.1
+        port: "{{ global_vault_host_listening_port }}"
+        timeout: 30
+      become: false
+
+    - name: Check Vault Health API
+      uri:
+        url: "{{ (global_vault_cluster_enable_https | bool) | ternary('https', 'http') }}://127.0.0.1:{{ global_vault_host_listening_port }}/v1/sys/health"
+        method: GET
+        timeout: 10
+        validate_certs: false
+        status_code: [200, 429, 472, 473, 501, 503]
+      register: vault_health
+      become: false
+
+    - name: Assert that Vault Health API responds correctly
+      assert:
+        that:
+          - vault_health.json is defined
+          - vault_health.json.initialized is defined
+        fail_msg: "Vault Health API did not return a valid response"
+        success_msg: "Vault is responding correctly (initialized: {{ vault_health.json.initialized }}, sealed: {{ vault_health.json.sealed | default('unknown') }})"
+      become: false

@@ -65,7 +65,20 @@
     group: "{{ local_vault_manual_cluster_group }}"
     owner: "{{ external_consul_manual_cluster_file_ca_node_value_owner }}"
 
-# Получения CA приватного ключа из узла группы Consul Cluster:
+# Проверка существования сертификата на каждом узле Vault Cluster:
+- name: Check if Vault Cluster node certificate already exists on Linux distro
+  stat:
+    path: "{{ external_consul_manual_cluster_vault_tls_dir }}/{{ external_consul_manual_cluster_file_ca_node_value }}.crt.pem"
+  register: vault_consul_node_cert_stat
+
+# Определение необходимости подписания сертификата хотя бы для одного узла (для задач с run_once):
+- name: Set fact whether any Vault Cluster node needs certificate signing
+  set_fact:
+    vault_consul_any_node_needs_signing: >-
+      {{ ansible_play_hosts | map('extract', hostvars, ['vault_consul_node_cert_stat', 'stat', 'exists']) | select('equalto', false) | list | length > 0 }}
+  run_once: true
+
+# Получения CA приватного ключа из узла группы Consul Cluster (только если хотя бы одному узлу нужна подпись):
 - name: Get CA Private Key from specific Node in Consul Cluster
   fetch:
     src: "{{ consul_server_source_ca_privatekey }}"
@@ -73,8 +86,9 @@
     flat: true
   delegate_to: "{{ consul_ca_server_node }}"
   run_once: true
+  when: vault_consul_any_node_needs_signing
 
-# Передача CA приватного ключа с узла группы Consul Cluster на узлы группы Vault Cluster:
+# Передача CA приватного ключа с узла группы Consul Cluster на узлы группы Vault Cluster (только если сертификат отсутствует):
 - name: Distribute Consul CA Private Key from Consul Cluster to Vault Cluster
   copy:
     src: "/tmp/{{ external_consul_manual_cluster_file_ca_private_key }}"
@@ -82,6 +96,7 @@
     mode: "{{ external_consul_manual_cluster_file_ca_node_value_file_mode }}"
     group: "{{ local_vault_manual_cluster_group }}"
     owner: "{{ external_consul_manual_cluster_file_ca_node_value_owner }}"
+  when: not vault_consul_node_cert_stat.stat.exists
 
 # Установка фактов для получения нужных параметров с целью создания новых сертификатов и ключей:
 - name: Set fact with Consul CA values from Consul Cluster for new Certificates and Keys on Vault Cluster
@@ -132,7 +147,7 @@
     use_common_name_for_san: false
     create_subject_key_identifier: true
 
-# Выпуск сертификатов для Vault Cluster на базе CA Consul Cluster, который был получен ранее:
+# Выпуск сертификатов для Vault Cluster на базе CA Consul Cluster, который был получен ранее (только если сертификат отсутствует):
 - name: Sign certificate file for each Vault Cluster Node
   community.crypto.x509_certificate:
     group: "{{ local_vault_manual_cluster_group }}"
@@ -145,10 +160,12 @@
     ownca_not_after: "+730d"
     ownca_create_authority_key_identifier: true
     ownca_create_subject_key_identifier: "create_if_not_provided"
+  when: not vault_consul_node_cert_stat.stat.exists
 
-# Удаление CA приватного ключа с узлов Vault Cluster после всех шагов:
+# Удаление CA приватного ключа с узлов Vault Cluster после всех шагов (только если он был скопирован):
 - name: Remove CA Private Key from Vault Cluster Nodes
   file:
     path: "{{ external_consul_manual_cluster_vault_tls_dir }}/{{ external_consul_manual_cluster_file_ca_private_key }}"
     state: absent
   changed_when: false
+  when: not vault_consul_node_cert_stat.stat.exists

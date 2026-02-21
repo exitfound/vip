@@ -3,7 +3,7 @@
 - name: Init and Unseal Cluster Vault on remote hosts
   gather_facts: true
   become: true
-  become_method: sudo
+  any_errors_fatal: true
   hosts:
     - all
 

@@ -1,0 +1,41 @@
+---
+# Вызов роли для последующей установки и настройки HAProxy в мануальном режиме на удаленных узлах:
+- name: Install and configure HAProxy on remote hosts
+  gather_facts: true
+  become: true
+  hosts:
+    - all
+
+  # Вызов непосредственно самой роли HAProxy в мануальном режиме для последующего взаимодействия с Vault в системе:
+  roles:
+    - system-proxy-haproxy
+
+  # Информирование о том, что HAProxy в мануальном режиме был успешно установлен в системе:
+  post_tasks:
+    - name: Check that HAProxy service is running
+      command: systemctl is-active haproxy
+      register: haproxy_service
+      changed_when: false
+      failed_when: haproxy_service.rc != 0
+
+    - name: Validate HAProxy configuration
+      command: haproxy -c -f /etc/haproxy/haproxy.cfg -f /etc/haproxy/conf.d
+      register: haproxy_config
+      changed_when: false
+      failed_when: haproxy_config.rc != 0
+
+    - name: Check that HAProxy is listening on port 80
+      wait_for:
+        port: 80
+        timeout: 30
+      become: false
+
+    - name: Check HAProxy for Availability
+      uri:
+        url: "http://127.0.0.1"
+        method: GET
+        timeout: 10
+        return_content: false
+        validate_certs: false
+        status_code: [503]
+      become: false

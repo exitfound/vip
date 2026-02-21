@@ -1,4 +1,28 @@
 ---
+# Проверка наличия сертификата перед любыми действиями:
+- name: Check if certificate already exists on any distro
+  stat:
+    path: "/etc/letsencrypt/live/{{ global_haproxy_host_domain }}/cert.pem"
+  register: haproxy_cert_exists
+
+# Проверка текущего состояния сервиса HAProxy (только если сертификата ещё нет):
+- name: Check if HAProxy service is currently running on any distro
+  systemd:
+    name: haproxy
+  register: haproxy_service_status
+  ignore_errors: true
+  when: not haproxy_cert_exists.stat.exists
+
+# Остановка HAProxy только если он уже запущен и сертификата ещё нет:
+- name: Stop HAProxy before certificate generation if it is already running on any distro
+  systemd:
+    name: haproxy
+    state: stopped
+  when:
+    - not haproxy_cert_exists.stat.exists
+    - haproxy_service_status.status is defined
+    - haproxy_service_status.status.ActiveState == 'active'
+
 # Создание сертификата для указанного домена, если таковой не был обнаружен:
 - name: Generate new certificate if one doesn't exist on any distro
   command: "{{ global_haproxy_enable_certbot_certificates_command }}"

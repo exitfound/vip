@@ -3,7 +3,6 @@
 - name: Init and Unseal Single Vault on remote hosts
   gather_facts: true
   become: true
-  become_method: sudo
   hosts:
     - all
 

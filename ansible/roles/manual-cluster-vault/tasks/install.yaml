@@ -1,4 +1,15 @@
 ---
+# Проверка корректности комбинации storage backend переменных:
+- name: Validate storage backend configuration on Linux distro
+  assert:
+    that:
+      - global_vault_cluster_enable_raft != global_vault_cluster_enable_consul
+    fail_msg: >-
+      Invalid storage backend configuration:
+      global_vault_cluster_enable_raft={{ global_vault_cluster_enable_raft }},
+      global_vault_cluster_enable_consul={{ global_vault_cluster_enable_consul }}.
+      Exactly one must be true.
+
 # Вызов предварительной роли system-internal-certificates для полноценного запуска текущей роли в рамках заданных условий:
 - name: Import system-internal-certificates role for running current role on Linux distro
   import_role:
@@ -116,6 +127,29 @@
     state: started
     enabled: true
     daemon_reload: true
+
+# Проверка того, что Vault Cluster отдаёт TLS-рукопожатие на Linux дистрибутиве:
+- name: Check if Vault Cluster is serving TLS on Linux distro
+  shell: openssl s_client -connect 127.0.0.1:{{ global_vault_host_listening_port }} < /dev/null 2>/dev/null
+  register: vault_tls_check
+  failed_when: false
+  changed_when: false
+  when: global_vault_cluster_enable_https | bool
+
+# Перезапуск Vault Cluster если сертификаты были обновлены или TLS ещё не активен на Linux дистрибутиве:
+- name: Restart Vault Cluster if TLS certificates were updated or TLS is not yet active on Linux distro
+  systemd:
+    name: vault
+    state: restarted
+  when:
+    - global_vault_cluster_enable_https | bool
+    - >-
+      local_system_internal_node_cert_changed is changed or
+      local_system_internal_ca_cert_changed is changed or
+      vault_tls_check.rc != 0
+
+# Применение всех накопленных хендлеров до выполнения проверки сертификата:
+- meta: flush_handlers
 
 # Проверка того, что сертификат был создан на запущенном узле:
 - name: Check that the certificate has been added on Linux distro

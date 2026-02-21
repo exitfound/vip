@@ -1,12 +1,12 @@
 server {
 {% if nginx_config_scheme | default(global_nginx_set_http_scheme) == 'http' %}
     listen 80;
-    listen [::]:80 ipv6only=on;
+    listen [::]:80;
     server_name {{ global_nginx_host_domain }};
 
 {% elif nginx_config_scheme | default(global_nginx_set_http_scheme) == 'https' %}
     listen 443 ssl;
-    listen [::]:443 ipv6only=on;
+    listen [::]:443;
     server_name {{ global_nginx_host_domain }};
 
     include /etc/letsencrypt/options-ssl-nginx.conf;
@@ -21,7 +21,7 @@ server {
 {% else %}
     # Fallback: default to http
     listen 80;
-    listen [::]:80 ipv6only=on;
+    listen [::]:80;
     server_name {{ global_nginx_host_domain }};
 
 {% endif %}

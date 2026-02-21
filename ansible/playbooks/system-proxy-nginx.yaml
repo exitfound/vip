@@ -3,7 +3,6 @@
 - name: Install and configure Proxy Nginx on remote hosts
   gather_facts: true
   become: true
-  become_method: sudo
   hosts:
     - all
 
@@ -13,7 +12,30 @@
 
   # Информирование о том, что Proxy Nginx в мануальном режиме был успешно установлен в системе:
   post_tasks:
-    - name: Information about the successful completion of the playbook
-      debug:
-        msg:
-          - "Your Nginx like a Proxy for Vault has been successfully installed on the system"
+    - name: Check that Nginx service is running
+      command: systemctl is-active nginx
+      register: nginx_service
+      changed_when: false
+      failed_when: nginx_service.rc != 0
+
+    - name: Validate Nginx configuration
+      command: nginx -t
+      register: nginx_config
+      changed_when: false
+      failed_when: nginx_config.rc != 0
+
+    - name: Check that Nginx is listening on port 80
+      wait_for:
+        port: 80
+        timeout: 10
+      become: false
+
+    - name: Check Nginx for Availability
+      uri:
+        url: "http://127.0.0.1"
+        method: GET
+        timeout: 10
+        return_content: false
+        validate_certs: false
+        status_code: [200]
+      become: false
