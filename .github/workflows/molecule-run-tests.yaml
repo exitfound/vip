@@ -108,9 +108,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: "pip"
 
-      - name: Install molecule
-        run: pip3 install molecule molecule-plugins[docker]
+      - name: Install dependencies
+        run: pip3 install -r requirements.txt
 
       - name: Run molecule tests
         env:
@@ -153,9 +154,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: "pip"
 
-      - name: Install molecule
-        run: pip3 install molecule molecule-plugins[docker]
+      - name: Install dependencies
+        run: pip3 install -r requirements.txt
 
       - name: Run molecule tests
         env:
@@ -198,9 +200,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: "pip"
 
-      - name: Install molecule
-        run: pip3 install molecule molecule-plugins[docker]
+      - name: Install dependencies
+        run: pip3 install -r requirements.txt
 
       - name: Run molecule tests
         env:
@@ -243,9 +246,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: "pip"
 
-      - name: Install molecule
-        run: pip3 install molecule molecule-plugins[docker]
+      - name: Install dependencies
+        run: pip3 install -r requirements.txt
 
       - name: Run molecule tests
         env:
@@ -288,9 +292,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: "pip"
 
-      - name: Install molecule
-        run: pip3 install molecule molecule-plugins[docker]
+      - name: Install dependencies
+        run: pip3 install -r requirements.txt
 
       - name: Run molecule tests
         env:
@@ -333,9 +338,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: "pip"
 
-      - name: Install molecule
-        run: pip3 install molecule molecule-plugins[docker]
+      - name: Install dependencies
+        run: pip3 install -r requirements.txt
 
       - name: Run molecule tests
         env:
@@ -378,9 +384,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: "pip"
 
-      - name: Install molecule
-        run: pip3 install molecule molecule-plugins[docker]
+      - name: Install dependencies
+        run: pip3 install -r requirements.txt
 
       - name: Run molecule tests
         env:
@@ -423,9 +430,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: "pip"
 
-      - name: Install molecule
-        run: pip3 install molecule molecule-plugins[docker]
+      - name: Install dependencies
+        run: pip3 install -r requirements.txt
 
       - name: Run molecule tests
         env:
@@ -468,9 +476,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: "pip"
 
-      - name: Install molecule
-        run: pip3 install molecule molecule-plugins[docker]
+      - name: Install dependencies
+        run: pip3 install -r requirements.txt
 
       - name: Run molecule tests
         env:
@@ -501,9 +510,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: "pip"
 
-      - name: Install molecule
-        run: pip3 install molecule molecule-plugins[docker]
+      - name: Install dependencies
+        run: pip3 install -r requirements.txt
 
       - name: Run molecule tests
         run: |
@@ -532,9 +542,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: "pip"
 
-      - name: Install molecule
-        run: pip3 install molecule molecule-plugins[docker]
+      - name: Install dependencies
+        run: pip3 install -r requirements.txt
 
       - name: Run molecule tests
         run: |
@@ -563,9 +574,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: "pip"
 
-      - name: Install molecule
-        run: pip3 install molecule molecule-plugins[docker]
+      - name: Install dependencies
+        run: pip3 install -r requirements.txt
 
       - name: Run molecule tests
         run: |
