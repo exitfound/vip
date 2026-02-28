@@ -96,7 +96,8 @@ jobs:
     env:
       PY_COLORS: 1
       ANSIBLE_FORCE_COLOR: 1
-      ANSIBLE_STDOUT_CALLBACK: yaml
+      ANSIBLE_STDOUT_CALLBACK: default
+      ANSIBLE_RESULT_FORMAT: yaml
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -142,7 +143,8 @@ jobs:
     env:
       PY_COLORS: 1
       ANSIBLE_FORCE_COLOR: 1
-      ANSIBLE_STDOUT_CALLBACK: yaml
+      ANSIBLE_STDOUT_CALLBACK: default
+      ANSIBLE_RESULT_FORMAT: yaml
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -188,7 +190,8 @@ jobs:
     env:
       PY_COLORS: 1
       ANSIBLE_FORCE_COLOR: 1
-      ANSIBLE_STDOUT_CALLBACK: yaml
+      ANSIBLE_STDOUT_CALLBACK: default
+      ANSIBLE_RESULT_FORMAT: yaml
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -234,7 +237,8 @@ jobs:
     env:
       PY_COLORS: 1
       ANSIBLE_FORCE_COLOR: 1
-      ANSIBLE_STDOUT_CALLBACK: yaml
+      ANSIBLE_STDOUT_CALLBACK: default
+      ANSIBLE_RESULT_FORMAT: yaml
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -280,7 +284,8 @@ jobs:
     env:
       PY_COLORS: 1
       ANSIBLE_FORCE_COLOR: 1
-      ANSIBLE_STDOUT_CALLBACK: yaml
+      ANSIBLE_STDOUT_CALLBACK: default
+      ANSIBLE_RESULT_FORMAT: yaml
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -326,7 +331,8 @@ jobs:
     env:
       PY_COLORS: 1
       ANSIBLE_FORCE_COLOR: 1
-      ANSIBLE_STDOUT_CALLBACK: yaml
+      ANSIBLE_STDOUT_CALLBACK: default
+      ANSIBLE_RESULT_FORMAT: yaml
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -372,7 +378,8 @@ jobs:
     env:
       PY_COLORS: 1
       ANSIBLE_FORCE_COLOR: 1
-      ANSIBLE_STDOUT_CALLBACK: yaml
+      ANSIBLE_STDOUT_CALLBACK: default
+      ANSIBLE_RESULT_FORMAT: yaml
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -418,7 +425,8 @@ jobs:
     env:
       PY_COLORS: 1
       ANSIBLE_FORCE_COLOR: 1
-      ANSIBLE_STDOUT_CALLBACK: yaml
+      ANSIBLE_STDOUT_CALLBACK: default
+      ANSIBLE_RESULT_FORMAT: yaml
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -464,7 +472,8 @@ jobs:
     env:
       PY_COLORS: 1
       ANSIBLE_FORCE_COLOR: 1
-      ANSIBLE_STDOUT_CALLBACK: yaml
+      ANSIBLE_STDOUT_CALLBACK: default
+      ANSIBLE_RESULT_FORMAT: yaml
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -498,7 +507,8 @@ jobs:
     env:
       PY_COLORS: 1
       ANSIBLE_FORCE_COLOR: 1
-      ANSIBLE_STDOUT_CALLBACK: yaml
+      ANSIBLE_STDOUT_CALLBACK: default
+      ANSIBLE_RESULT_FORMAT: yaml
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -530,7 +540,8 @@ jobs:
     env:
       PY_COLORS: 1
       ANSIBLE_FORCE_COLOR: 1
-      ANSIBLE_STDOUT_CALLBACK: yaml
+      ANSIBLE_STDOUT_CALLBACK: default
+      ANSIBLE_RESULT_FORMAT: yaml
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -562,7 +573,8 @@ jobs:
     env:
       PY_COLORS: 1
       ANSIBLE_FORCE_COLOR: 1
-      ANSIBLE_STDOUT_CALLBACK: yaml
+      ANSIBLE_STDOUT_CALLBACK: default
+      ANSIBLE_RESULT_FORMAT: yaml
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
