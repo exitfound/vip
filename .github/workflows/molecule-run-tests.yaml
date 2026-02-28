@@ -104,6 +104,15 @@ jobs:
       - name: Pre-cleaning system before molecule tests
         uses: jlumbroso/free-disk-space@v1.3.1
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install molecule
+        run: pip3 install molecule molecule-plugins[docker]
+
       - name: Run molecule tests
         env:
           MOLECULE_PROFILE: ${{ matrix.OS_FAMILY }}
@@ -140,6 +149,15 @@ jobs:
 
       - name: Pre-cleaning system before molecule tests
         uses: jlumbroso/free-disk-space@v1.3.1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install molecule
+        run: pip3 install molecule molecule-plugins[docker]
 
       - name: Run molecule tests
         env:
@@ -178,6 +196,15 @@ jobs:
       - name: Pre-cleaning system before molecule tests
         uses: jlumbroso/free-disk-space@v1.3.1
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install molecule
+        run: pip3 install molecule molecule-plugins[docker]
+
       - name: Run molecule tests
         env:
           MOLECULE_PROFILE: ${{ matrix.OS_FAMILY }}
@@ -214,6 +241,15 @@ jobs:
 
       - name: Pre-cleaning system before molecule tests
         uses: jlumbroso/free-disk-space@v1.3.1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install molecule
+        run: pip3 install molecule molecule-plugins[docker]
 
       - name: Run molecule tests
         env:
@@ -252,6 +288,15 @@ jobs:
       - name: Pre-cleaning system before molecule tests
         uses: jlumbroso/free-disk-space@v1.3.1
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install molecule
+        run: pip3 install molecule molecule-plugins[docker]
+
       - name: Run molecule tests
         env:
           MOLECULE_PROFILE: ${{ matrix.OS_FAMILY }}
@@ -288,6 +333,15 @@ jobs:
 
       - name: Pre-cleaning system before molecule tests
         uses: jlumbroso/free-disk-space@v1.3.1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install molecule
+        run: pip3 install molecule molecule-plugins[docker]
 
       - name: Run molecule tests
         env:
@@ -326,6 +380,15 @@ jobs:
       - name: Pre-cleaning system before molecule tests
         uses: jlumbroso/free-disk-space@v1.3.1
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install molecule
+        run: pip3 install molecule molecule-plugins[docker]
+
       - name: Run molecule tests
         env:
           MOLECULE_PROFILE: ${{ matrix.OS_FAMILY }}
@@ -362,6 +425,15 @@ jobs:
 
       - name: Pre-cleaning system before molecule tests
         uses: jlumbroso/free-disk-space@v1.3.1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install molecule
+        run: pip3 install molecule molecule-plugins[docker]
 
       - name: Run molecule tests
         env:
@@ -400,6 +472,15 @@ jobs:
       - name: Pre-cleaning system before molecule tests
         uses: jlumbroso/free-disk-space@v1.3.1
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install molecule
+        run: pip3 install molecule molecule-plugins[docker]
+
       - name: Run molecule tests
         env:
           MOLECULE_PROFILE: ${{ matrix.OS_FAMILY }}
@@ -425,6 +506,15 @@ jobs:
       - name: Pre-cleaning system before molecule tests
         uses: jlumbroso/free-disk-space@v1.3.1
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install molecule
+        run: pip3 install molecule molecule-plugins[docker]
+
       - name: Run molecule tests
         run: |
           molecule --version
@@ -448,6 +538,15 @@ jobs:
       - name: Pre-cleaning system before molecule tests
         uses: jlumbroso/free-disk-space@v1.3.1
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install molecule
+        run: pip3 install molecule molecule-plugins[docker]
+
       - name: Run molecule tests
         run: |
           molecule --version
@@ -470,6 +569,15 @@ jobs:
 
       - name: Pre-cleaning system before molecule tests
         uses: jlumbroso/free-disk-space@v1.3.1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install molecule
+        run: pip3 install molecule molecule-plugins[docker]
 
       - name: Run molecule tests
         run: |
