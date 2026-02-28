@@ -24,7 +24,7 @@ jobs:
         with:
           recursive: true
           dockerfile: Dockerfile
-          ignore: "DL3008"
+          ignore: "DL3018"
 
   molecule:
     runs-on: ubuntu-latest
