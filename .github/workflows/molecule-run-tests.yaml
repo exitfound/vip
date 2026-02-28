@@ -102,7 +102,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Pre-cleaning system before molecule tests
-        uses: jlumbroso/free-disk-space@v1.0.0
+        uses: jlumbroso/free-disk-space@v1.3.1
 
       - name: Run molecule tests
         env:
@@ -139,7 +139,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Pre-cleaning system before molecule tests
-        uses: jlumbroso/free-disk-space@v1.0.0
+        uses: jlumbroso/free-disk-space@v1.3.1
 
       - name: Run molecule tests
         env:
@@ -176,7 +176,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Pre-cleaning system before molecule tests
-        uses: jlumbroso/free-disk-space@v1.0.0
+        uses: jlumbroso/free-disk-space@v1.3.1
 
       - name: Run molecule tests
         env:
@@ -213,7 +213,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Pre-cleaning system before molecule tests
-        uses: jlumbroso/free-disk-space@v1.0.0
+        uses: jlumbroso/free-disk-space@v1.3.1
 
       - name: Run molecule tests
         env:
@@ -250,7 +250,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Pre-cleaning system before molecule tests
-        uses: jlumbroso/free-disk-space@v1.0.0
+        uses: jlumbroso/free-disk-space@v1.3.1
 
       - name: Run molecule tests
         env:
@@ -287,7 +287,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Pre-cleaning system before molecule tests
-        uses: jlumbroso/free-disk-space@v1.0.0
+        uses: jlumbroso/free-disk-space@v1.3.1
 
       - name: Run molecule tests
         env:
@@ -324,7 +324,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Pre-cleaning system before molecule tests
-        uses: jlumbroso/free-disk-space@v1.0.0
+        uses: jlumbroso/free-disk-space@v1.3.1
 
       - name: Run molecule tests
         env:
@@ -361,7 +361,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Pre-cleaning system before molecule tests
-        uses: jlumbroso/free-disk-space@v1.0.0
+        uses: jlumbroso/free-disk-space@v1.3.1
 
       - name: Run molecule tests
         env:
@@ -398,7 +398,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Pre-cleaning system before molecule tests
-        uses: jlumbroso/free-disk-space@v1.0.0
+        uses: jlumbroso/free-disk-space@v1.3.1
 
       - name: Run molecule tests
         env:
@@ -423,7 +423,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Pre-cleaning system before molecule tests
-        uses: jlumbroso/free-disk-space@v1.0.0
+        uses: jlumbroso/free-disk-space@v1.3.1
 
       - name: Run molecule tests
         run: |
@@ -446,7 +446,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Pre-cleaning system before molecule tests
-        uses: jlumbroso/free-disk-space@v1.0.0
+        uses: jlumbroso/free-disk-space@v1.3.1
 
       - name: Run molecule tests
         run: |
@@ -469,7 +469,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Pre-cleaning system before molecule tests
-        uses: jlumbroso/free-disk-space@v1.0.0
+        uses: jlumbroso/free-disk-space@v1.3.1
 
       - name: Run molecule tests
         run: |
