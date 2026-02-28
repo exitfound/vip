@@ -17,7 +17,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
         python3-wheel \
         sudo \
         systemd \
-    && pip3 install --break-system-packages 'ansible-core>=2.19,<2.20' 'ansible>=12,<13' \
+    && pip3 install --no-cache-dir --break-system-packages 'ansible-core>=2.19,<2.20' 'ansible>=12,<13' \
     && apt-get clean \
     && apt-get autoremove -y \
     && mkdir /etc/bash_completion.d/ \

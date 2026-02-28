@@ -18,7 +18,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     software-properties-common \
     sudo \
     systemd \
-    && pip3 install 'ansible-core>=2.13,<2.14' 'ansible>=6,<7' \
+    && pip3 install --no-cache-dir 'ansible-core>=2.13,<2.14' 'ansible>=6,<7' \
     && apt-get clean \
     && apt-get autoremove -y \
     && locale-gen en_US.UTF-8 \

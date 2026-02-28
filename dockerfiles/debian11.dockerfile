@@ -17,8 +17,8 @@ RUN export DEBIAN_FRONTEND=noninteractive \
         python3-wheel \
         sudo \
         systemd \
-    && pip3 install --upgrade pip \
-    && pip3 install 'ansible-core>=2.15,<2.16' 'ansible>=8,<9' \
+    && pip3 install --no-cache-dir --upgrade pip \
+    && pip3 install --no-cache-dir 'ansible-core>=2.15,<2.16' 'ansible>=8,<9' \
     && apt-get clean \
     && apt-get autoremove -y \
     && mkdir /etc/bash_completion.d/ \
