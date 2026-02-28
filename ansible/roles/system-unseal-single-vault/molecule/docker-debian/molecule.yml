@@ -8,7 +8,7 @@ driver:
 platforms:
   - name: debian11
     image: mdd13/ansible-docker-debian:debian11
-    <<: &docker_platform
+    <<: &platform_defaults
       pre_build_image: true
       tmpfs:
         - /run
@@ -22,11 +22,11 @@ platforms:
 
   - name: debian12
     image: mdd13/ansible-docker-debian:debian12
-    <<: *docker_platform
+    <<: *platform_defaults
 
   - name: debian13
     image: mdd13/ansible-docker-debian:debian13
-    <<: *docker_platform
+    <<: *platform_defaults
 
 provisioner:
   name: ansible

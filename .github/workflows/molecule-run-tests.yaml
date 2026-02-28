@@ -1,0 +1,478 @@
+---
+name: Molecule Run Tests
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  hadolint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Linting main Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          recursive: true
+          dockerfile: Dockerfile
+          ignore: "DL3008"
+
+  molecule:
+    runs-on: ubuntu-latest
+    needs: hadolint
+    outputs:
+      manual-single-vault: ${{ steps.molecule.outputs.manual-single-vault }}
+      manual-cluster-vault: ${{ steps.molecule.outputs.manual-cluster-vault }}
+      manual-cluster-consul: ${{ steps.molecule.outputs.manual-cluster-consul }}
+      manual-single-consul-agent: ${{ steps.molecule.outputs.manual-single-consul-agent }}
+      docker-single-vault: ${{ steps.molecule.outputs.docker-single-vault }}
+      system-prepare: ${{ steps.molecule.outputs.system-prepare }}
+      system-internal-certificates: ${{ steps.molecule.outputs.system-internal-certificates }}
+      system-proxy-nginx: ${{ steps.molecule.outputs.system-proxy-nginx }}
+      system-proxy-haproxy: ${{ steps.molecule.outputs.system-proxy-haproxy }}
+      system-unseal-single-vault: ${{ steps.molecule.outputs.system-unseal-single-vault }}
+      system-unseal-cluster-vault: ${{ steps.molecule.outputs.system-unseal-cluster-vault }}
+      system-docker: ${{ steps.molecule.outputs.system-docker }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: molecule
+        with:
+          filters: |
+            manual-single-vault:
+              - 'ansible/roles/manual-single-vault/**'
+            manual-cluster-vault:
+              - 'ansible/roles/manual-cluster-vault/**'
+            manual-cluster-consul:
+              - 'ansible/roles/manual-cluster-consul/**'
+            manual-single-consul-agent:
+              - 'ansible/roles/manual-single-consul-agent/**'
+            docker-single-vault:
+              - 'ansible/roles/docker-single-vault/**'
+            system-prepare:
+              - 'ansible/roles/system-prepare/**'
+            system-internal-certificates:
+              - 'ansible/roles/system-internal-certificates/**'
+            system-proxy-nginx:
+              - 'ansible/roles/system-proxy-nginx/**'
+            system-proxy-haproxy:
+              - 'ansible/roles/system-proxy-haproxy/**'
+            system-unseal-single-vault:
+              - 'ansible/roles/system-unseal-single-vault/**'
+            system-unseal-cluster-vault:
+              - 'ansible/roles/system-unseal-cluster-vault/**'
+            system-docker:
+              - 'ansible/roles/system-docker/**'
+
+  # ---- manual-single-vault ----
+
+  manual-single-vault:
+    needs: molecule
+    if: ${{ needs.molecule.outputs.manual-single-vault == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+  manual-single-vault-matrix:
+    needs: manual-single-vault
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        OS_FAMILY: [docker-debian, docker-ubuntu, docker-redhat, docker-suse]
+    env:
+      PY_COLORS: 1
+      ANSIBLE_FORCE_COLOR: 1
+      ANSIBLE_STDOUT_CALLBACK: yaml
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Pre-cleaning system before molecule tests
+        uses: jlumbroso/free-disk-space@v1.0.0
+
+      - name: Run molecule tests
+        env:
+          MOLECULE_PROFILE: ${{ matrix.OS_FAMILY }}
+        run: |
+          molecule --version
+          molecule test -s $MOLECULE_PROFILE
+        working-directory: ansible/roles/manual-single-vault
+
+  # ---- manual-cluster-vault ----
+
+  manual-cluster-vault:
+    needs: molecule
+    if: ${{ needs.molecule.outputs.manual-cluster-vault == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+  manual-cluster-vault-matrix:
+    needs: manual-cluster-vault
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        OS_FAMILY: [docker-debian, docker-ubuntu, docker-redhat, docker-suse]
+    env:
+      PY_COLORS: 1
+      ANSIBLE_FORCE_COLOR: 1
+      ANSIBLE_STDOUT_CALLBACK: yaml
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Pre-cleaning system before molecule tests
+        uses: jlumbroso/free-disk-space@v1.0.0
+
+      - name: Run molecule tests
+        env:
+          MOLECULE_PROFILE: ${{ matrix.OS_FAMILY }}
+        run: |
+          molecule --version
+          molecule test -s $MOLECULE_PROFILE
+        working-directory: ansible/roles/manual-cluster-vault
+
+  # ---- manual-cluster-consul ----
+
+  manual-cluster-consul:
+    needs: molecule
+    if: ${{ needs.molecule.outputs.manual-cluster-consul == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+  manual-cluster-consul-matrix:
+    needs: manual-cluster-consul
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        OS_FAMILY: [docker-debian, docker-ubuntu, docker-redhat, docker-suse]
+    env:
+      PY_COLORS: 1
+      ANSIBLE_FORCE_COLOR: 1
+      ANSIBLE_STDOUT_CALLBACK: yaml
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Pre-cleaning system before molecule tests
+        uses: jlumbroso/free-disk-space@v1.0.0
+
+      - name: Run molecule tests
+        env:
+          MOLECULE_PROFILE: ${{ matrix.OS_FAMILY }}
+        run: |
+          molecule --version
+          molecule test -s $MOLECULE_PROFILE
+        working-directory: ansible/roles/manual-cluster-consul
+
+  # ---- manual-single-consul-agent ----
+
+  manual-single-consul-agent:
+    needs: molecule
+    if: ${{ needs.molecule.outputs.manual-single-consul-agent == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+  manual-single-consul-agent-matrix:
+    needs: manual-single-consul-agent
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        OS_FAMILY: [docker-debian, docker-ubuntu, docker-redhat, docker-suse]
+    env:
+      PY_COLORS: 1
+      ANSIBLE_FORCE_COLOR: 1
+      ANSIBLE_STDOUT_CALLBACK: yaml
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Pre-cleaning system before molecule tests
+        uses: jlumbroso/free-disk-space@v1.0.0
+
+      - name: Run molecule tests
+        env:
+          MOLECULE_PROFILE: ${{ matrix.OS_FAMILY }}
+        run: |
+          molecule --version
+          molecule test -s $MOLECULE_PROFILE
+        working-directory: ansible/roles/manual-single-consul-agent
+
+  # ---- docker-single-vault ----
+
+  docker-single-vault:
+    needs: molecule
+    if: ${{ needs.molecule.outputs.docker-single-vault == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+  docker-single-vault-matrix:
+    needs: docker-single-vault
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        OS_FAMILY: [docker-debian, docker-ubuntu, docker-redhat, docker-suse]
+    env:
+      PY_COLORS: 1
+      ANSIBLE_FORCE_COLOR: 1
+      ANSIBLE_STDOUT_CALLBACK: yaml
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Pre-cleaning system before molecule tests
+        uses: jlumbroso/free-disk-space@v1.0.0
+
+      - name: Run molecule tests
+        env:
+          MOLECULE_PROFILE: ${{ matrix.OS_FAMILY }}
+        run: |
+          molecule --version
+          molecule test -s $MOLECULE_PROFILE
+        working-directory: ansible/roles/docker-single-vault
+
+  # ---- system-proxy-nginx ----
+
+  system-proxy-nginx:
+    needs: molecule
+    if: ${{ needs.molecule.outputs.system-proxy-nginx == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+  system-proxy-nginx-matrix:
+    needs: system-proxy-nginx
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        OS_FAMILY: [docker-debian, docker-ubuntu, docker-redhat, docker-suse]
+    env:
+      PY_COLORS: 1
+      ANSIBLE_FORCE_COLOR: 1
+      ANSIBLE_STDOUT_CALLBACK: yaml
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Pre-cleaning system before molecule tests
+        uses: jlumbroso/free-disk-space@v1.0.0
+
+      - name: Run molecule tests
+        env:
+          MOLECULE_PROFILE: ${{ matrix.OS_FAMILY }}
+        run: |
+          molecule --version
+          molecule test -s $MOLECULE_PROFILE
+        working-directory: ansible/roles/system-proxy-nginx
+
+  # ---- system-proxy-haproxy ----
+
+  system-proxy-haproxy:
+    needs: molecule
+    if: ${{ needs.molecule.outputs.system-proxy-haproxy == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+  system-proxy-haproxy-matrix:
+    needs: system-proxy-haproxy
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        OS_FAMILY: [docker-debian, docker-ubuntu, docker-redhat, docker-suse]
+    env:
+      PY_COLORS: 1
+      ANSIBLE_FORCE_COLOR: 1
+      ANSIBLE_STDOUT_CALLBACK: yaml
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Pre-cleaning system before molecule tests
+        uses: jlumbroso/free-disk-space@v1.0.0
+
+      - name: Run molecule tests
+        env:
+          MOLECULE_PROFILE: ${{ matrix.OS_FAMILY }}
+        run: |
+          molecule --version
+          molecule test -s $MOLECULE_PROFILE
+        working-directory: ansible/roles/system-proxy-haproxy
+
+  # ---- system-unseal-single-vault ----
+
+  system-unseal-single-vault:
+    needs: molecule
+    if: ${{ needs.molecule.outputs.system-unseal-single-vault == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+  system-unseal-single-vault-matrix:
+    needs: system-unseal-single-vault
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        OS_FAMILY: [docker-debian, docker-ubuntu, docker-redhat, docker-suse]
+    env:
+      PY_COLORS: 1
+      ANSIBLE_FORCE_COLOR: 1
+      ANSIBLE_STDOUT_CALLBACK: yaml
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Pre-cleaning system before molecule tests
+        uses: jlumbroso/free-disk-space@v1.0.0
+
+      - name: Run molecule tests
+        env:
+          MOLECULE_PROFILE: ${{ matrix.OS_FAMILY }}
+        run: |
+          molecule --version
+          molecule test -s $MOLECULE_PROFILE
+        working-directory: ansible/roles/system-unseal-single-vault
+
+  # ---- system-unseal-cluster-vault ----
+
+  system-unseal-cluster-vault:
+    needs: molecule
+    if: ${{ needs.molecule.outputs.system-unseal-cluster-vault == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+  system-unseal-cluster-vault-matrix:
+    needs: system-unseal-cluster-vault
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        OS_FAMILY: [docker-debian, docker-ubuntu, docker-redhat, docker-suse]
+    env:
+      PY_COLORS: 1
+      ANSIBLE_FORCE_COLOR: 1
+      ANSIBLE_STDOUT_CALLBACK: yaml
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Pre-cleaning system before molecule tests
+        uses: jlumbroso/free-disk-space@v1.0.0
+
+      - name: Run molecule tests
+        env:
+          MOLECULE_PROFILE: ${{ matrix.OS_FAMILY }}
+        run: |
+          molecule --version
+          molecule test -s $MOLECULE_PROFILE
+        working-directory: ansible/roles/system-unseal-cluster-vault
+
+  # ---- system-prepare ----
+
+  system-prepare:
+    needs: molecule
+    if: ${{ needs.molecule.outputs.system-prepare == 'true' }}
+    runs-on: ubuntu-latest
+    env:
+      PY_COLORS: 1
+      ANSIBLE_FORCE_COLOR: 1
+      ANSIBLE_STDOUT_CALLBACK: yaml
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Pre-cleaning system before molecule tests
+        uses: jlumbroso/free-disk-space@v1.0.0
+
+      - name: Run molecule tests
+        run: |
+          molecule --version
+          molecule test -s docker-all
+        working-directory: ansible/roles/system-prepare
+
+  # ---- system-internal-certificates ----
+
+  system-internal-certificates:
+    needs: molecule
+    if: ${{ needs.molecule.outputs.system-internal-certificates == 'true' }}
+    runs-on: ubuntu-latest
+    env:
+      PY_COLORS: 1
+      ANSIBLE_FORCE_COLOR: 1
+      ANSIBLE_STDOUT_CALLBACK: yaml
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Pre-cleaning system before molecule tests
+        uses: jlumbroso/free-disk-space@v1.0.0
+
+      - name: Run molecule tests
+        run: |
+          molecule --version
+          molecule test -s docker-all
+        working-directory: ansible/roles/system-internal-certificates
+
+  # ---- system-docker ----
+
+  system-docker:
+    needs: molecule
+    if: ${{ needs.molecule.outputs.system-docker == 'true' }}
+    runs-on: ubuntu-latest
+    env:
+      PY_COLORS: 1
+      ANSIBLE_FORCE_COLOR: 1
+      ANSIBLE_STDOUT_CALLBACK: yaml
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Pre-cleaning system before molecule tests
+        uses: jlumbroso/free-disk-space@v1.0.0
+
+      - name: Run molecule tests
+        run: |
+          molecule --version
+          molecule test -s docker-all
+        working-directory: ansible/roles/system-docker

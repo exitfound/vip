@@ -8,7 +8,7 @@ driver:
 platforms:
   - name: opensuse15.6
     image: mdd13/ansible-docker-suse:opensuse15.6
-    <<: &docker_platform
+    <<: &platform_defaults
       pre_build_image: true
       privileged: true
       override_command: false
@@ -19,7 +19,15 @@ platforms:
 
   - name: opensuse16.0
     image: mdd13/ansible-docker-suse:opensuse16.0
-    <<: *docker_platform
+    <<: *platform_defaults
+
+  - name: sles15.6
+    image: mdd13/ansible-docker-suse:sles15.6
+    <<: *platform_defaults
+
+  - name: sles16.0
+    image: mdd13/ansible-docker-suse:sles16.0
+    <<: *platform_defaults
 
 provisioner:
   name: ansible

@@ -11,6 +11,7 @@
   - [Мануальное развертывание](#мануальное-развертывание-vault)
   - [Автоматизированное развертывание с помощью Ansible](#автоматизированное-развертывание-vault-с-помощью-ansible)
     - [Подготовка](#подготовка)
+    - [Поддерживаемые операционные системы](#поддерживаемые-операционные-системы)
     - [manual-single-vault.yaml](#запуск-плейбука-manual-single-vaultyaml)
     - [docker-single-vault.yaml](#запуск-плейбука-docker-single-vaultyaml)
     - [manual-cluster-vault.yaml](#запуск-плейбука-manual-cluster-vaultyaml)
@@ -20,7 +21,7 @@
     - [system-unseal-cluster-vault.yaml](#запуск-плейбука-system-unseal-cluster-vaultyaml)
     - [system-proxy-nginx.yaml](#запуск-плейбука-system-proxy-nginxyaml)
     - [system-proxy-haproxy.yaml](#запуск-плейбука-system-proxy-haproxyyaml)
-  - [Автоматизированное конфигурирование Vault с помощью Terraform](#автоматизированное-конфигурирование-vault-с-помощью-terraform)
+  - [Автоматизированное конфигурирование с помощью Terraform](#автоматизированное-конфигурирование-с-помощью-terraform)
 
 ## **Мотивация:**
 
@@ -73,6 +74,29 @@
 - **Директория roles:** Содержит в себе весь список ролей, которые отвечают за автоматизированное развертывание Vault в том или ином режиме работы, в зависимости от установленной глобальной переменной.
 
 Все ключевые переменные уже заполнены валидными данными, поэтому каждая роль работает из коробки, однако для задействования дополнительных режимов работы (некоторые роли содержат в себе два и более режима) понадобится изменение ключевых глобальных переменных. Об этом будет подробно рассказано в каждой из ролей. Параметр `-i` во время запуска плейбука можно не указывать, поскольку путь прописан в `ansible.cfg` (при условии что вами будет использован файл `servers.yaml`). Подробнее про Inventory-файл и каждую глобальную переменную можно почитать [тут](https://github.com/exitfound/vip/tree/main/ansible/inventory).
+
+---
+
+### Поддерживаемые операционные системы:
+
+Ниже представлен список операционных систем, на которых были протестированы все роли в рамках данного проекта:
+
+| Семейство | Дистрибутив | Версия | Поддержка |
+|---|---|---|---|
+| Debian | Debian | 11 | ✅ |
+| Debian | Debian | 12 | ✅ |
+| Debian | Debian | 13 | ✅ |
+| Debian | Ubuntu | 20.04 | ✅ |
+| Debian | Ubuntu | 22.04 | ✅ |
+| Debian | Ubuntu | 24.04 | ✅ |
+| RedHat | CentOS Stream | 8 | ✅ |
+| RedHat | CentOS Stream | 9 | ✅ |
+| RedHat | Red Hat Enterprise Linux | 8 | ✅ |
+| RedHat | Red Hat Enterprise Linux | 9 | ✅ |
+| SUSE | openSUSE Leap | 15.6 | ✅ |
+| SUSE | openSUSE Leap | 16.0 | ✅ |
+| SUSE | SUSE Linux Enterprise Server (SLES) | 15.6 | ✅ |
+| SUSE | SUSE Linux Enterprise Server (SLES) | 16.0 | ✅ |
 
 ---
 
@@ -695,7 +719,7 @@ ansible-playbook -i <inventory> -l <group> -u <user> -e global_haproxy_host_doma
 
 ---
 
-## **Автоматизированное конфигурирование Vault с помощью Terraform:**
+## **Автоматизированное конфигурирование с помощью Terraform:**
 
 ...
 

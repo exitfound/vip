@@ -23,7 +23,7 @@ global_vault_transit_backend_tls_skip_verify: true # false, если у вас S
 global_vault_unseal_secret_shares: 5
 global_vault_unseal_secret_threshold: 3
 global_vault_unseal_tls_skip_verify: true # false, если у вас SSL
-global_vault_unseal_tls_disable: false # false, если у вас SSL
+global_vault_unseal_tls_disable: true # false, если у вас SSL
 
 # Глобальные переменные, используемые в том или ином виде во всех ролях, которые относятся к установке и настройке Consul (все режимы работы):
 global_consul_cluster_inventory_group: "consul_cluster"
