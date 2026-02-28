@@ -69,7 +69,8 @@ platforms:
 provisioner:
   name: ansible
   env:
-    ANSIBLE_STDOUT_CALLBACK: yaml
+    ANSIBLE_STDOUT_CALLBACK: default
+    ANSIBLE_RESULT_FORMAT: yaml
   inventory:
     links:
       group_vars: ../../../../inventory/group_vars/
