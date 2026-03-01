@@ -20,8 +20,9 @@ local_system_redhat_docker_repository_destination: "/etc/yum.repos.d/docker-ce.r
 local_system_redhat_docker_libcgroup: "https://kojihub.stream.centos.org/kojifiles/packages/libcgroup/0.41/19.el8/x86_64/libcgroup-0.41-19.el8.x86_64.rpm"
 local_system_redhat_docker_packages_install:
   - docker-ce
-local_system_redhat_docker_iptables_nft:
-  - iptables-nft
+local_system_redhat_docker_iptables:
+  - dnf-plugins-core
+  - nftables
 
 # Переменные, необходимые для установки и настройки Docker на дистрибутиве семейства Debian:
 local_system_debian_docker_apt_repository: "https://download.docker.com/linux/{{ ansible_distribution | lower }}"

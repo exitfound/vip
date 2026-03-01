@@ -49,7 +49,7 @@
 # Загрузка дополнительного RPM-пакета из Интернета для установки Docker в системе (актуально для RedHat 10+):
 - name: Install iptables-nft package on RedHat family distro
   yum:
-    name: "{{ local_system_redhat_docker_iptables_nft }}"
+    name: "{{ local_system_redhat_docker_iptables }}"
     state: present
     disable_gpg_check: true
   when:
