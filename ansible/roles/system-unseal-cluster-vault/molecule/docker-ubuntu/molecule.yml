@@ -6,8 +6,8 @@ driver:
   name: docker
 
 platforms:
-  - name: ubuntu20.04
-    image: mdd13/ansible-docker-ubuntu:ubuntu20.04
+  - name: ubuntu22.04
+    image: mdd13/ansible-docker-ubuntu:ubuntu22.04
     <<: &platform_defaults
       pre_build_image: true
       tmpfs:
@@ -22,10 +22,6 @@ platforms:
       security_opts:
         - seccomp=unconfined
       groups: ["vault_cluster"]
-
-  - name: ubuntu22.04
-    image: mdd13/ansible-docker-ubuntu:ubuntu22.04
-    <<: *platform_defaults
 
   - name: ubuntu24.04
     image: mdd13/ansible-docker-ubuntu:ubuntu24.04

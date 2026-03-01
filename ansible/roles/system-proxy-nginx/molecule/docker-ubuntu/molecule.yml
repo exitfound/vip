@@ -6,8 +6,8 @@ driver:
   name: docker
 
 platforms:
-  - name: ubuntu20.04
-    image: mdd13/ansible-docker-ubuntu:ubuntu20.04
+  - name: ubuntu22.04
+    image: mdd13/ansible-docker-ubuntu:ubuntu22.04
     <<: &platform_defaults
       pre_build_image: true
       privileged: true
@@ -21,10 +21,6 @@ platforms:
         - /sys/fs/cgroup:/sys/fs/cgroup:rw
       security_opts:
         - seccomp=unconfined
-
-  - name: ubuntu22.04
-    image: mdd13/ansible-docker-ubuntu:ubuntu22.04
-    <<: *platform_defaults
 
   - name: ubuntu24.04
     image: mdd13/ansible-docker-ubuntu:ubuntu24.04

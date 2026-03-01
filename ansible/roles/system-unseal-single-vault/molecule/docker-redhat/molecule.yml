@@ -6,8 +6,8 @@ driver:
   name: docker
 
 platforms:
-  - name: centos8
-    image: mdd13/ansible-docker-redhat:centos8
+  - name: centos9
+    image: mdd13/ansible-docker-redhat:centos9
     <<: &platform_defaults
       pre_build_image: true
       privileged: true
@@ -16,14 +16,6 @@ platforms:
       cgroupns_mode: host
       security_opts:
         - seccomp=unconfined
-
-  - name: centos9
-    image: mdd13/ansible-docker-redhat:centos9
-    <<: *platform_defaults
-
-  - name: redhat8
-    image: mdd13/ansible-docker-redhat:redhat8
-    <<: *platform_defaults
 
   - name: redhat9
     image: mdd13/ansible-docker-redhat:redhat9

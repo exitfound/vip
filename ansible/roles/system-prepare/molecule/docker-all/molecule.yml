@@ -29,16 +29,8 @@ platforms:
     image: mdd13/ansible-docker-suse:sles16.0
     <<: *platform_defaults
 
-  - name: centos8
-    image: mdd13/ansible-docker-redhat:centos8
-    <<: *platform_defaults
-
   - name: centos9
     image: mdd13/ansible-docker-redhat:centos9
-    <<: *platform_defaults
-
-  - name: redhat8
-    image: mdd13/ansible-docker-redhat:redhat8
     <<: *platform_defaults
 
   - name: redhat9
@@ -55,10 +47,6 @@ platforms:
 
   - name: debian13
     image: mdd13/ansible-docker-debian:debian13
-    <<: *platform_defaults
-
-  - name: ubuntu20.04
-    image: mdd13/ansible-docker-ubuntu:ubuntu20.04
     <<: *platform_defaults
 
   - name: ubuntu22.04

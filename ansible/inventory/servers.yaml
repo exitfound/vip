@@ -65,21 +65,9 @@ all:
     # RedHat Family
     redhat:
       children:
-        centos8:
-          hosts:
-            centos8-instance1:
-              ansible_host: 73.55.111.214
-              global_nginx_host_domain: vault.kitezh.world
-              global_haproxy_host_domain: vault.kitezh.world
         centos9:
           hosts:
             centos9-instance1:
-              ansible_host: 73.55.111.214
-              global_nginx_host_domain: vault.kitezh.world
-              global_haproxy_host_domain: vault.kitezh.world
-        redhat8:
-          hosts:
-            redhat8-instance1:
               ansible_host: 73.55.111.214
               global_nginx_host_domain: vault.kitezh.world
               global_haproxy_host_domain: vault.kitezh.world
@@ -120,12 +108,6 @@ all:
 
     ubuntu:
       children:
-        ubuntu20.04:
-          hosts:
-            ubuntu20.04-instance1:
-              ansible_host: 18.159.210.106
-              global_nginx_host_domain: vault.kitezh.world
-              global_haproxy_host_domain: vault.kitezh.world
         ubuntu22.04:
           hosts:
             ubuntu22.04-instance1:

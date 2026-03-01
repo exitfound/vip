@@ -20,9 +20,7 @@ all
 │   ├── sles15.6
 │   └── sles16.0
 ├── redhat                     # Семейство RedHat
-│   ├── centos8
 │   ├── centos9
-│   ├── redhat8
 │   ├── redhat9
 │   └── redhat10
 ├── debian                     # Семейство Debian
@@ -30,7 +28,6 @@ all
 │   ├── debian12
 │   └── debian13
 └── ubuntu                     # Семейство Ubuntu
-    ├── ubuntu20.04
     ├── ubuntu22.04
     └── ubuntu24.04
 ```

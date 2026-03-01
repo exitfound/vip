@@ -48,8 +48,6 @@ aws_security_group_name: ""
 
 * Для **Ubuntu** это:
 ```
-# Для Ubuntu 20.04
-aws ec2 describe-images --owners 099720109477 --filters "Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server*" --query "Images[*].[OwnerId,CreationDate,Name,ImageId]" --output table
 # Для Ubuntu 22.04
 aws ec2 describe-images --owners 099720109477 --filters "Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server*" --query "Images[*].[OwnerId,CreationDate,Name,ImageId]" --output table
 # Для Ubuntu 24.04
@@ -76,8 +74,6 @@ aws ec2 describe-images --owners 013907871322 --filters "Name=name,Values=suse-s
 
 * Для **RedHat** это:
 ```
-# Для RHEL 8
-aws ec2 describe-images --owners 309956199498 --filters "Name=name,Values=*RHEL-8.10*" --query "Images[*].[OwnerId,CreationDate,Name,ImageId]" --output table
 # Для RHEL 9
 aws ec2 describe-images --owners 309956199498 --filters "Name=name,Values=*RHEL-9.5*" --query "Images[*].[OwnerId,CreationDate,Name,ImageId]" --output table
 # Для RHEL 10
