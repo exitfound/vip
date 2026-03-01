@@ -4,6 +4,7 @@ galaxy_info:
   namespace: mdd13
   author: Ivan Medaev
   company: Kitezh
+  license: MIT
   min_ansible_version: "2.11"
   description: |
     Initialize and unseal a HashiCorp Vault cluster based on Raft integrated storage.
@@ -45,7 +46,6 @@ galaxy_info:
 
   # Issue tracker and repository:
   issue_tracker_url: https://github.com/exitfound/vip/issues
-  repository: https://github.com/exitfound/vip
 
 # No dependent roles:
 dependencies: []

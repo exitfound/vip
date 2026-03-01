@@ -1,3 +1,4 @@
+---
 # Глобальные переменные, используемые для подготовки системы:
 global_system_prepare_update_packages: false
 
@@ -56,7 +57,7 @@ global_haproxy_enable_certbot_certificates: false
 global_haproxy_enable_certbot_certificates_email_address: "rurik@kitezh.slavic"
 global_haproxy_enable_certbot_certificates_command: "certbot certonly --standalone --noninteractive --agree-tos --email {{ global_haproxy_enable_certbot_certificates_email_address }} --domains {{ global_haproxy_host_domain }}"
 global_haproxy_host_domain: "molecule.local.vault"
-global_haproxy_set_http_scheme: "http"         # Client > HAProxy 
+global_haproxy_set_http_scheme: "http"         # Client > HAProxy
 global_haproxy_set_proxy_pass_scheme: "http"   # HAProxy > Vault
 global_haproxy_set_cluster_vault_config: false
 global_haproxy_set_cluster_vault_addresses:

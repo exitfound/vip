@@ -12,11 +12,12 @@
 
   # Информирование о том, что HAProxy в мануальном режиме был успешно установлен в системе:
   post_tasks:
+    - name: Gather service facts
+      ansible.builtin.service_facts:
+
     - name: Check that HAProxy service is running
-      command: systemctl is-active haproxy
-      register: haproxy_service
-      changed_when: false
-      failed_when: haproxy_service.rc != 0
+      ansible.builtin.assert:
+        that: ansible_facts.services['haproxy.service'].state == 'running'
 
     - name: Validate HAProxy configuration
       command: haproxy -c -f /etc/haproxy/haproxy.cfg -f /etc/haproxy/conf.d

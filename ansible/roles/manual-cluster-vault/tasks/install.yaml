@@ -149,7 +149,8 @@
       vault_tls_check.rc != 0
 
 # Применение всех накопленных хендлеров до выполнения проверки сертификата:
-- meta: flush_handlers
+- name: Flush all pending handlers
+  meta: flush_handlers
 
 # Проверка того, что сертификат был создан на запущенном узле:
 - name: Check that the certificate has been added on Linux distro

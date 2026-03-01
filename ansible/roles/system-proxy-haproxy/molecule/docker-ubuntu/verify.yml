@@ -5,11 +5,12 @@
   gather_facts: false
   tasks:
     # Проверка того, что сервис HAProxy запущен и активен:
+    - name: Gather service facts
+      ansible.builtin.service_facts:
+
     - name: Check that HAProxy service is running
-      command: systemctl is-active haproxy
-      register: haproxy_service
-      changed_when: false
-      failed_when: haproxy_service.rc != 0
+      ansible.builtin.assert:
+        that: ansible_facts.services['haproxy.service'].state == 'running'
 
     # Валидация конфигурации HAProxy:
     - name: Validate HAProxy configuration

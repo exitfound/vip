@@ -5,11 +5,12 @@
   gather_facts: false
   tasks:
     # Проверка того, что сервис Nginx запущен и активен:
+    - name: Gather service facts
+      ansible.builtin.service_facts:
+
     - name: Check that Nginx service is running
-      command: systemctl is-active nginx
-      register: nginx_service
-      changed_when: false
-      failed_when: nginx_service.rc != 0
+      ansible.builtin.assert:
+        that: ansible_facts.services['nginx.service'].state == 'running'
 
     # Проверка валидности конфигурации Nginx:
     - name: Validate Nginx configuration

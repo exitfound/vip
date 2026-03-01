@@ -29,6 +29,7 @@
   get_url:
     url: "{{ local_system_redhat_docker_repository_url }}"
     dest: "{{ local_system_redhat_docker_repository_destination }}"
+    mode: "{{ local_system_redhat_docker_file_mode }}"
   register: docker_repo_download
   retries: 3
   delay: 5
@@ -44,6 +45,16 @@
   when:
     - ansible_distribution in ['CentOS', 'RedHat', 'Red Hat Enterprise Linux']
     - ansible_distribution_version is version('9', '>=')
+
+# Загрузка дополнительного RPM-пакета из Интернета для установки Docker в системе (актуально для RedHat 10+):
+- name: Install iptables-nft package on RedHat family distro
+  yum:
+    name: "{{ local_system_redhat_docker_iptables_nft }}"
+    state: present
+    disable_gpg_check: true
+  when:
+    - ansible_distribution in ['CentOS', 'RedHat', 'Red Hat Enterprise Linux']
+    - ansible_distribution_major_version | int >= 10
 
 # Установка Docker с помощью пакетного менеджера:
 - name: Install Docker on RedHat family distro

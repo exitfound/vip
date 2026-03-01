@@ -4,6 +4,7 @@
   file:
     path: "./{{ local_vault_cluster_unseal_output_keys }}"
     state: directory
+    mode: "0755"
   delegate_to: localhost
   run_once: true
   become: false
@@ -37,7 +38,12 @@
   when: (hostvars[inventory_hostname]['ansible_default_ipv4']['address'] | default(inventory_hostname)) == vault_master_node
 
 # Вызов блока для инициализации Vault Master Node в режиме Manual Cluster Vault с Transit Auto-Unseal:
-- block:
+- name: Initialize Vault Master Node with Transit Auto-Unseal
+  when:
+    - (hostvars[inventory_hostname]['ansible_default_ipv4']['address'] | default(inventory_hostname)) == vault_master_node
+    - vault_global_master_health_status.status == 501
+    - global_vault_transit_backend_enable | bool
+  block:
     # Запуск процесса инициализации Vault Master Node с Transit Auto-Unseal (Recovery Keys вместо Unseal Keys):
     - name: Start the initialization process on Vault Master Node with Transit Auto-Unseal
       uri:
@@ -88,13 +94,14 @@
       file:
         path: "{{ local_vault_cluster_unseal_json_file }}"
         state: absent
+
+# Вызов блока для первоначальной инициализации и последующего распечатывания Master Node в Manual Cluster Vault на базе Raft:
+- name: Initialize and unseal Vault Master Node in Raft cluster mode
   when:
     - (hostvars[inventory_hostname]['ansible_default_ipv4']['address'] | default(inventory_hostname)) == vault_master_node
     - vault_global_master_health_status.status == 501
-    - global_vault_transit_backend_enable | bool
-
-# Вызов блока для первоначальной инициализации и последующего распечатывания Master Node в Manual Cluster Vault на базе Raft:
-- block:
+    - not (global_vault_transit_backend_enable | bool)
+  block:
     # Проверка жизненного статуса будущего Vault Master Node:
     - name: Check future Vault Master Node health status that was run in cluster
       uri:
@@ -189,13 +196,14 @@
       file:
         path: "{{ local_vault_cluster_unseal_json_file }}"
         state: absent
-  when:
-    - (hostvars[inventory_hostname]['ansible_default_ipv4']['address'] | default(inventory_hostname)) == vault_master_node
-    - vault_global_master_health_status.status == 501
-    - not (global_vault_transit_backend_enable | bool)
 
 # Вызов блока для повторного распечатывания Vault Master Node в режиме Manual Cluster Vault на базе Raft после вероятного перезапуска:
-- block:
+- name: Re-unseal Vault Master Node after restart in Raft cluster mode
+  when:
+    - (hostvars[inventory_hostname]['ansible_default_ipv4']['address'] | default(inventory_hostname)) == vault_master_node
+    - vault_global_master_health_status.status == 503
+    - not (global_vault_transit_backend_enable | bool)
+  block:
     # Считывание ключей из файла, который ранее был создан на исполняемой системе:
     - name: Read Unseal Keys for Vault Master Node from previously created file
       slurp:
@@ -212,7 +220,7 @@
     # Повторная проверка жизненного статуса Vault Master Node:
     - name: Check current Vault Master Node health status for unseal
       uri:
-        url: "{{ global_vault_unseal_tls_disable | ternary('http','https') }}://{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] | default(inventory_hostname) }}:{{ global_vault_host_listening_port }}/v1/sys/health"
+        url: "{{ global_vault_unseal_tls_disable | ternary('http', 'https') }}://{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] | default(inventory_hostname) }}:{{ global_vault_host_listening_port }}/v1/sys/health"
         validate_certs: "{{ not global_vault_unseal_tls_skip_verify }}"
         status_code: "{{ local_vault_cluster_unseal_status_code }}"
       register: vault_repeat_master_restart_status
@@ -223,7 +231,7 @@
     # Повторное распечатывание Vault Master Node с помощью полученных ранее ключей:
     - name: Unseal Vault Master Node after restart using previously obtained keys
       uri:
-        url: "{{ global_vault_unseal_tls_disable | ternary('http','https') }}://{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] | default(inventory_hostname) }}:{{ global_vault_host_listening_port }}/v1/sys/unseal"
+        url: "{{ global_vault_unseal_tls_disable | ternary('http', 'https') }}://{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] | default(inventory_hostname) }}:{{ global_vault_host_listening_port }}/v1/sys/unseal"
         validate_certs: "{{ not global_vault_unseal_tls_skip_verify }}"
         status_code: "{{ local_vault_cluster_unseal_status_code }}"
         body:
@@ -237,7 +245,7 @@
     # Проверка на предмет того, была ли фактически повторно распечатана Vault Master Node:
     - name: Verify that Vault Master Node is unsealed after restart
       uri:
-        url: "{{ global_vault_unseal_tls_disable | ternary('http','https') }}://{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] | default(inventory_hostname) }}:{{ global_vault_host_listening_port }}/v1/sys/health"
+        url: "{{ global_vault_unseal_tls_disable | ternary('http', 'https') }}://{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] | default(inventory_hostname) }}:{{ global_vault_host_listening_port }}/v1/sys/health"
         validate_certs: "{{ not global_vault_unseal_tls_skip_verify }}"
         status_code: "{{ local_vault_cluster_unseal_status_code }}"
       register: vault_repeat_master_final_restart_status
@@ -249,10 +257,6 @@
     - name: Output result for Vault Master Node after restart
       debug:
         msg: "Current status code after restart is {{ vault_master_status }} for Vault on {{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] | default(inventory_hostname) }}"
-  when:
-    - (hostvars[inventory_hostname]['ansible_default_ipv4']['address'] | default(inventory_hostname)) == vault_master_node
-    - vault_global_master_health_status.status == 503
-    - not (global_vault_transit_backend_enable | bool)
 
 # Проверка текущего статуса для определения того, вызывать блок по распечатыванию Vault Standby Nodes или игнорировать во время прогона:
 - name: Check health status on Vault Standby Nodes to call unseal Vault block
@@ -276,7 +280,12 @@
   when: (hostvars[inventory_hostname]['ansible_default_ipv4']['address'] | default(inventory_hostname)) != vault_master_node
 
 # Вызов блока для ожидания автоматического распечатывания Vault Standby Nodes через Transit Auto-Unseal:
-- block:
+- name: Wait for Vault Standby Nodes to auto-unseal via Transit
+  when:
+    - (hostvars[inventory_hostname]['ansible_default_ipv4']['address'] | default(inventory_hostname)) != vault_master_node
+    - vault_global_standby_health_status.status in [501, 503]
+    - global_vault_transit_backend_enable | bool
+  block:
     # Ожидание автоматического распечатывания Vault Standby Nodes через Transit Auto-Unseal:
     - name: Wait for Vault Standby Nodes to auto-unseal via Transit Auto-Unseal
       uri:
@@ -292,13 +301,14 @@
     - name: Output Transit Auto-Unseal result for Vault Standby Nodes
       debug:
         msg: "Vault Standby Node auto-unsealed via Transit: {{ vault_standby_transit_unseal_status.json.sealed == false }} for {{ inventory_hostname }}"
-  when:
-    - (hostvars[inventory_hostname]['ansible_default_ipv4']['address'] | default(inventory_hostname)) != vault_master_node
-    - vault_global_standby_health_status.status in [501, 503]
-    - global_vault_transit_backend_enable | bool
 
 # Вызов блока для распечатывания Vault Standby Nodes посредством сохраненных ранее ключей:
-- block:
+- name: Unseal Vault Standby Nodes using previously saved keys
+  when:
+    - (hostvars[inventory_hostname]['ansible_default_ipv4']['address'] | default(inventory_hostname)) != vault_master_node
+    - vault_global_standby_health_status.status == 503
+    - not (global_vault_transit_backend_enable | bool)
+  block:
     # Считывание ключей из файла, который ранее был создан на исполняемой системе:
     - name: Read Unseal Keys from the file that was created during Vault initialization
       slurp:
@@ -352,7 +362,3 @@
     - name: Output of the actual result for Vault Standby Nodes
       debug:
         msg: "Vault Standby Nodes unseal status: {{ vault_standby_final_status.json.sealed == false }} for {{ inventory_hostname }}"
-  when:
-    - (hostvars[inventory_hostname]['ansible_default_ipv4']['address'] | default(inventory_hostname)) != vault_master_node
-    - vault_global_standby_health_status.status == 503
-    - not (global_vault_transit_backend_enable | bool)

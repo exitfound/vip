@@ -4,6 +4,7 @@ galaxy_info:
   namespace: mdd13
   author: Ivan Medaev
   company: Kitezh
+  license: MIT
   min_ansible_version: "2.11"
   description: |
     Create a self-signed CA and issue internal certificates for all nodes.
@@ -43,7 +44,6 @@ galaxy_info:
 
   # Issue tracker and repository:
   issue_tracker_url: https://github.com/exitfound/vip/issues
-  repository: https://github.com/exitfound/vip
 
 # Dependent roles will be executed before system-internal-certificates:
 dependencies:

@@ -12,11 +12,12 @@
 
   # Информирование о том, что Proxy Nginx в мануальном режиме был успешно установлен в системе:
   post_tasks:
+    - name: Gather service facts
+      ansible.builtin.service_facts:
+
     - name: Check that Nginx service is running
-      command: systemctl is-active nginx
-      register: nginx_service
-      changed_when: false
-      failed_when: nginx_service.rc != 0
+      ansible.builtin.assert:
+        that: ansible_facts.services['nginx.service'].state == 'running'
 
     - name: Validate Nginx configuration
       command: nginx -t

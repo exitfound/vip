@@ -112,6 +112,7 @@
 
 # Проверка того, что клиентский сертификат успешно работает на запущенном узле:
 - name: Check that certificate is valid on one of retry_join IPs on Linux distro
+  when: global_consul_manual_agent_enable_https | bool
   block:
     - name: Try connection to each IP from retry_join
       shell: |
@@ -129,7 +130,6 @@
       fail:
         msg: "No Consul agent responded with a valid certificate on HTTPS port"
       when: not consul_certificate_check_success
-  when: global_consul_manual_agent_enable_https | bool
 
 # Финальный вывод после проверки работоспособности сертификата:
 - name: Output the result on Linux distro

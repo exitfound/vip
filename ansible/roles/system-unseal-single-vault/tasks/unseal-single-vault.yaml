@@ -4,6 +4,7 @@
   file:
     path: "./{{ local_vault_single_unseal_output_keys }}"
     state: directory
+    mode: "0755"
   delegate_to: localhost
   run_once: true
   become: false
@@ -27,7 +28,9 @@
     msg: "Current status code is {{ vault_status }} for Vault on {{ hostvars[inventory_hostname].ansible_host | default(inventory_hostname) }}"
 
 # Вызов блока для инициализации Vault с Transit Auto-Unseal:
-- block:
+- name: Initialize Vault with Transit Auto-Unseal
+  when: vault_status | string == "501" and global_vault_transit_backend_enable | bool
+  block:
     # Запуск процесса инициализации Vault с Transit (Recovery Keys вместо Unseal Keys):
     - name: Start the Vault initialization process with Transit Auto-Unseal
       uri:
@@ -78,10 +81,11 @@
       file:
         path: "{{ local_vault_single_unseal_json_file }}"
         state: absent
-  when: vault_status | string == "501" and global_vault_transit_backend_enable | bool
 
 # Вызов блока для первоначальной инициализации и последующего распечатывания Vault (без Transit):
-- block:
+- name: Initialize and unseal Vault without Transit Auto-Unseal
+  when: vault_status | string == "501" and not (global_vault_transit_backend_enable | bool)
+  block:
     # Запуск процесса инициализации Vault в случае соблюдения входящего условия:
     - name: Start the Vault initialization process
       uri:
@@ -162,10 +166,11 @@
       file:
         path: "{{ local_vault_single_unseal_json_file }}"
         state: absent
-  when: vault_status | string == "501" and not (global_vault_transit_backend_enable | bool)
 
 # Вызов блока для повторного распечатывания Vault посредством сохраненных ранее ключей (без Transit):
-- block:
+- name: Re-unseal Vault using previously saved keys without Transit
+  when: vault_status | string == "503" and not (global_vault_transit_backend_enable | bool)
+  block:
     # Считывание ключей из файла, который ранее был создан на исполняемой системе:
     - name: Read Unseal Keys from the file that was created during Vault initialization
       slurp:
@@ -191,7 +196,6 @@
       loop: "{{ vault_keys_from_file[0:global_vault_unseal_secret_threshold] }}"
       no_log: true
       when: vault_keys_from_file is defined
-  when: vault_status | string == "503" and not (global_vault_transit_backend_enable | bool)
 
 # Прекращение исполнения роли в случае обнаружения уже проинициализированного и распечатонного Vault:
 - name: End the host if Vault already has been initialized and unsealed

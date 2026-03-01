@@ -10,7 +10,7 @@
     - name: "Include manual-single-vault role for testing"
       include_role:
         name: "manual-single-vault"
-  
+
     # Данный шаг вызывает роль system-proxy-nginx для прогона тестов с помощью Molecule:
     - name: "Include system-proxy-nginx role for testing"
       include_role:

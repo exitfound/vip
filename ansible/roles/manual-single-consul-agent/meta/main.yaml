@@ -4,6 +4,7 @@ galaxy_info:
   namespace: mdd13
   author: Ivan Medaev
   company: Kitezh
+  license: MIT
   min_ansible_version: "2.11"
   description: |
     Install and configure HashiCorp Consul as a single agent using manual binary installation.
@@ -39,13 +40,12 @@ galaxy_info:
   galaxy_tags:
     - consul
     - hashicorp
-    - service-mesh
-    - service-discovery
+    - servicemesh
+    - servicediscovery
     - agent
 
   # Issue tracker and repository:
   issue_tracker_url: https://github.com/exitfound/vip/issues
-  repository: https://github.com/exitfound/vip
 
 # Dependent roles will be executed before manual-single-consul-agent:
 dependencies:

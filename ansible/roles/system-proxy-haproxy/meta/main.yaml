@@ -4,6 +4,7 @@ galaxy_info:
   namespace: mdd13
   author: Ivan Medaev
   company: Kitezh
+  license: MIT
   min_ansible_version: "2.11"
   description: |
     Install and configure HAProxy as a reverse proxy for HashiCorp Vault with optional Certbot SSL certificates.
@@ -45,7 +46,6 @@ galaxy_info:
 
   # Issue tracker and repository:
   issue_tracker_url: https://github.com/exitfound/vip/issues
-  repository: https://github.com/exitfound/vip
 
 # Dependent roles will be executed before system-proxy-haproxy:
 dependencies:

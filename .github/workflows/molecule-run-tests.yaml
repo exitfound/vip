@@ -13,22 +13,31 @@ on:
       - main
 
 jobs:
-  hadolint:
+  ansible-lint:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Linting main Dockerfile
-        uses: hadolint/hadolint-action@v3.1.0
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          recursive: true
-          dockerfile: Dockerfile
-          ignore: "DL3018"
+          python-version: "3.12"
+
+      - name: Install linters
+        run: pip3 install yamllint ansible-lint
+
+      - name: Run yamllint
+        run: yamllint .
+        working-directory: ansible
+
+      - name: Run ansible-lint
+        run: ansible-lint
+        working-directory: ansible
 
   molecule:
+    needs: [ansible-lint]
     runs-on: ubuntu-latest
-    needs: hadolint
     outputs:
       manual-single-vault: ${{ steps.molecule.outputs.manual-single-vault }}
       manual-cluster-vault: ${{ steps.molecule.outputs.manual-cluster-vault }}
@@ -78,7 +87,7 @@ jobs:
   # ---- manual-single-vault ----
 
   manual-single-vault:
-    needs: molecule
+    needs: [molecule]
     if: ${{ needs.molecule.outputs.manual-single-vault == 'true' }}
     runs-on: ubuntu-latest
     steps:
@@ -126,7 +135,7 @@ jobs:
   # ---- manual-cluster-vault ----
 
   manual-cluster-vault:
-    needs: molecule
+    needs: [molecule, ansible-lint]
     if: ${{ needs.molecule.outputs.manual-cluster-vault == 'true' }}
     runs-on: ubuntu-latest
     steps:
@@ -174,7 +183,7 @@ jobs:
   # ---- manual-cluster-consul ----
 
   manual-cluster-consul:
-    needs: molecule
+    needs: [molecule, ansible-lint]
     if: ${{ needs.molecule.outputs.manual-cluster-consul == 'true' }}
     runs-on: ubuntu-latest
     steps:
@@ -222,7 +231,7 @@ jobs:
   # ---- manual-single-consul-agent ----
 
   manual-single-consul-agent:
-    needs: molecule
+    needs: [molecule, ansible-lint]
     if: ${{ needs.molecule.outputs.manual-single-consul-agent == 'true' }}
     runs-on: ubuntu-latest
     steps:
@@ -270,7 +279,7 @@ jobs:
   # ---- docker-single-vault ----
 
   docker-single-vault:
-    needs: molecule
+    needs: [molecule, ansible-lint]
     if: ${{ needs.molecule.outputs.docker-single-vault == 'true' }}
     runs-on: ubuntu-latest
     steps:
@@ -318,7 +327,7 @@ jobs:
   # ---- system-proxy-nginx ----
 
   system-proxy-nginx:
-    needs: molecule
+    needs: [molecule, ansible-lint]
     if: ${{ needs.molecule.outputs.system-proxy-nginx == 'true' }}
     runs-on: ubuntu-latest
     steps:
@@ -366,7 +375,7 @@ jobs:
   # ---- system-proxy-haproxy ----
 
   system-proxy-haproxy:
-    needs: molecule
+    needs: [molecule, ansible-lint]
     if: ${{ needs.molecule.outputs.system-proxy-haproxy == 'true' }}
     runs-on: ubuntu-latest
     steps:
@@ -414,7 +423,7 @@ jobs:
   # ---- system-unseal-single-vault ----
 
   system-unseal-single-vault:
-    needs: molecule
+    needs: [molecule, ansible-lint]
     if: ${{ needs.molecule.outputs.system-unseal-single-vault == 'true' }}
     runs-on: ubuntu-latest
     steps:
@@ -462,7 +471,7 @@ jobs:
   # ---- system-unseal-cluster-vault ----
 
   system-unseal-cluster-vault:
-    needs: molecule
+    needs: [molecule, ansible-lint]
     if: ${{ needs.molecule.outputs.system-unseal-cluster-vault == 'true' }}
     runs-on: ubuntu-latest
     steps:
@@ -510,7 +519,7 @@ jobs:
   # ---- system-prepare ----
 
   system-prepare:
-    needs: molecule
+    needs: [molecule, ansible-lint]
     if: ${{ needs.molecule.outputs.system-prepare == 'true' }}
     runs-on: ubuntu-latest
     env:
@@ -544,7 +553,7 @@ jobs:
   # ---- system-internal-certificates ----
 
   system-internal-certificates:
-    needs: molecule
+    needs: [molecule, ansible-lint]
     if: ${{ needs.molecule.outputs.system-internal-certificates == 'true' }}
     runs-on: ubuntu-latest
     env:
@@ -578,7 +587,7 @@ jobs:
   # ---- system-docker ----
 
   system-docker:
-    needs: molecule
+    needs: [molecule, ansible-lint]
     if: ${{ needs.molecule.outputs.system-docker == 'true' }}
     runs-on: ubuntu-latest
     env:

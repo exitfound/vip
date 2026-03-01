@@ -8,12 +8,16 @@ on:
     paths:
       - 'dockerfiles/**'
 
+env:
+  DOCKER_HUB_USER: "mdd13"
+  DOCKERFILES_CONTEXT: "./dockerfiles/"
+
 jobs:
   hadolint:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      max-parallel: 3
+      max-parallel: 5
       matrix:
         OS_VERSION: [opensuse15.6, opensuse16.0, sles15.6, sles16.0, centos9, redhat9, redhat10, debian11, debian12, debian13, ubuntu22.04, ubuntu24.04]
     steps:
@@ -63,16 +67,14 @@ jobs:
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v6
         env:
-          DOCKER_HUB_USER: "mdd13"
           DOCKER_HUB_REPOSITORY: "ansible-docker-suse"
-          IMAGE_TAG: ${{ matrix.OS_VERSION }}
         with:
           push: true
-          context: ./dockerfiles/
-          tags: ${{ env.DOCKER_HUB_USER }}/${{ env.DOCKER_HUB_REPOSITORY }}:${{ env.IMAGE_TAG }}
-          file: ./dockerfiles/${{ env.IMAGE_TAG }}.dockerfile
-          cache-from: type=gha,scope=${{ env.IMAGE_TAG }}
-          cache-to: type=gha,scope=${{ env.IMAGE_TAG }},mode=max
+          context: ${{ env.DOCKERFILES_CONTEXT }}
+          tags: ${{ env.DOCKER_HUB_USER }}/${{ env.DOCKER_HUB_REPOSITORY }}:${{ matrix.OS_VERSION }}
+          file: ${{ env.DOCKERFILES_CONTEXT }}${{ matrix.OS_VERSION }}.dockerfile
+          cache-from: type=gha,scope=${{ matrix.OS_VERSION }}
+          cache-to: type=gha,scope=${{ matrix.OS_VERSION }},mode=max
 
   build-redhat-image:
     needs: hadolint
@@ -108,16 +110,14 @@ jobs:
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v6
         env:
-          DOCKER_HUB_USER: "mdd13"
           DOCKER_HUB_REPOSITORY: "ansible-docker-redhat"
-          IMAGE_TAG: ${{ matrix.OS_VERSION }}
         with:
           push: true
-          context: ./dockerfiles/
-          tags: ${{ env.DOCKER_HUB_USER }}/${{ env.DOCKER_HUB_REPOSITORY }}:${{ env.IMAGE_TAG }}
-          file: ./dockerfiles/${{ env.IMAGE_TAG }}.dockerfile
-          cache-from: type=gha,scope=${{ env.IMAGE_TAG }}
-          cache-to: type=gha,scope=${{ env.IMAGE_TAG }},mode=max
+          context: ${{ env.DOCKERFILES_CONTEXT }}
+          tags: ${{ env.DOCKER_HUB_USER }}/${{ env.DOCKER_HUB_REPOSITORY }}:${{ matrix.OS_VERSION }}
+          file: ${{ env.DOCKERFILES_CONTEXT }}${{ matrix.OS_VERSION }}.dockerfile
+          cache-from: type=gha,scope=${{ matrix.OS_VERSION }}
+          cache-to: type=gha,scope=${{ matrix.OS_VERSION }},mode=max
 
   build-debian-image:
     needs: hadolint
@@ -153,16 +153,14 @@ jobs:
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v6
         env:
-          DOCKER_HUB_USER: "mdd13"
           DOCKER_HUB_REPOSITORY: "ansible-docker-debian"
-          IMAGE_TAG: ${{ matrix.OS_VERSION }}
         with:
           push: true
-          context: ./dockerfiles/
-          tags: ${{ env.DOCKER_HUB_USER }}/${{ env.DOCKER_HUB_REPOSITORY }}:${{ env.IMAGE_TAG }}
-          file: ./dockerfiles/${{ env.IMAGE_TAG }}.dockerfile
-          cache-from: type=gha,scope=${{ env.IMAGE_TAG }}
-          cache-to: type=gha,scope=${{ env.IMAGE_TAG }},mode=max
+          context: ${{ env.DOCKERFILES_CONTEXT }}
+          tags: ${{ env.DOCKER_HUB_USER }}/${{ env.DOCKER_HUB_REPOSITORY }}:${{ matrix.OS_VERSION }}
+          file: ${{ env.DOCKERFILES_CONTEXT }}${{ matrix.OS_VERSION }}.dockerfile
+          cache-from: type=gha,scope=${{ matrix.OS_VERSION }}
+          cache-to: type=gha,scope=${{ matrix.OS_VERSION }},mode=max
 
   build-ubuntu-image:
     needs: hadolint
@@ -198,13 +196,11 @@ jobs:
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v6
         env:
-          DOCKER_HUB_USER: "mdd13"
           DOCKER_HUB_REPOSITORY: "ansible-docker-ubuntu"
-          IMAGE_TAG: ${{ matrix.OS_VERSION }}
         with:
           push: true
-          context: ./dockerfiles/
-          tags: ${{ env.DOCKER_HUB_USER }}/${{ env.DOCKER_HUB_REPOSITORY }}:${{ env.IMAGE_TAG }}
-          file: ./dockerfiles/${{ env.IMAGE_TAG }}.dockerfile
-          cache-from: type=gha,scope=${{ env.IMAGE_TAG }}
-          cache-to: type=gha,scope=${{ env.IMAGE_TAG }},mode=max
+          context: ${{ env.DOCKERFILES_CONTEXT }}
+          tags: ${{ env.DOCKER_HUB_USER }}/${{ env.DOCKER_HUB_REPOSITORY }}:${{ matrix.OS_VERSION }}
+          file: ${{ env.DOCKERFILES_CONTEXT }}${{ matrix.OS_VERSION }}.dockerfile
+          cache-from: type=gha,scope=${{ matrix.OS_VERSION }}
+          cache-to: type=gha,scope=${{ matrix.OS_VERSION }},mode=max
