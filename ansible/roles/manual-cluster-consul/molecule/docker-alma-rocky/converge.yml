@@ -1,0 +1,10 @@
+---
+# Данный файл используется для преобразования состояния экземпляров в реальное состояние, объявленное в реальных тестируемых ролях:
+- name: Converge
+  hosts: all
+  gather_facts: true
+  tasks:
+    # Данный шаг вызывает роль manual-cluster-consul для прогона тестов с помощью Molecule:
+    - name: "Include manual-cluster-consul role for testing"
+      include_role:
+        name: "manual-cluster-consul"

@@ -22,7 +22,7 @@
     baseurl: "{{ local_system_redhat_centos_docker_repository_baseurl }}"
     gpgkey: "{{ local_system_redhat_centos_docker_repository_gpgkey }}"
     gpgcheck: true
-  when: ansible_distribution == 'CentOS'
+  when: ansible_distribution in ['CentOS', 'AlmaLinux', 'Rocky']
 
 # Добавление репозитория для последующей установки Docker в системе:
 - name: Add package repository address on RedHat family distro (Only RedHat)

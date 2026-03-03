@@ -15,7 +15,7 @@ pip3 install -r --user requirements.txt
 Чтобы запустить полный прогон, необходимо выполнить команду, указав путь к тому или иному виду теста. Так, например, чтобы запустить тесты в среде Docker, укажите желаемое семейство дистрибутивов, для которого хотите прогнать роль:
 
 ```
-molecule test -s [docker-debian, docker-ubuntu, docker-suse, docker-redhat] # Укажите на выбор одно из семейств дистрибутивов Linux;
+molecule test -s [docker-debian, docker-ubuntu, docker-suse, docker-redhat, docker-alma-rocky] # Укажите на выбор одно из семейств дистрибутивов Linux;
 ```
 
 В данном случае в каждой из директорий с именем `docker-*` указан примерно один и тот же набор параметров для запуска тестов. Отличаются только образы в зависимости от используемого семейства. Сами тесты были разбиты на условные семейства по той простой причине, что для запуска всех образов за раз необходимо немалое число ресурсов, которых может не быть на вашем устройстве изначально. Учитывая общее число возможных версий дистрибутивов это чревато последствиями. К тому же по такому распределению проще было интегрировать процесс CI.
@@ -85,28 +85,28 @@ aws ec2 describe-images --owners 309956199498 --filters "Name=name,Values=*RHEL-
 Если вы хотите только подготовить ресурсную базу, без прогона самих ролей, то для этого выполните следующую команду на выбор в зависимости от вашей платформы (в первую очередь актуально для облаков, где мы подготавливаем инфраструктуру):
 
 ```
-molecule create -s [docker-debian, docker-ubuntu, docker-suse, docker-redhat] # Укажите на выбор одно из семейств дистрибутивов Linux;
+molecule create -s [docker-debian, docker-ubuntu, docker-suse, docker-redhat, docker-alma-rocky] # Укажите на выбор одно из семейств дистрибутивов Linux;
 molecule create -s [aws-debian, aws-ubuntu, aws-suse, aws-redhat] # Укажите на выбор одно из семейств дистрибутивов Linux;
 ```
 
 Если вы хотите запустить прогон тестов для роли без проверки идемпотентности, то для этого выполните следующую команду на выбор в зависимости от вашей платформы:
 
 ```
-molecule converge -s [docker-debian, docker-ubuntu, docker-suse, docker-redhat] # Укажите на выбор одно из семейств дистрибутивов Linux;
+molecule converge -s [docker-debian, docker-ubuntu, docker-suse, docker-redhat, docker-alma-rocky] # Укажите на выбор одно из семейств дистрибутивов Linux;
 molecule converge -s [aws-debian, aws-ubuntu, aws-suse, aws-redhat] # Укажите на выбор одно из семейств дистрибутивов Linux;
 ```
 
 Для проверки идемпотентности запускаемой роли можно использовать следующую команду:
 
 ```
-molecule idempotence -s [docker-debian, docker-ubuntu, docker-suse, docker-redhat] # Укажите на выбор одно из семейств дистрибутивов Linux;
+molecule idempotence -s [docker-debian, docker-ubuntu, docker-suse, docker-redhat, docker-alma-rocky] # Укажите на выбор одно из семейств дистрибутивов Linux;
 molecule idempotence -s [aws-debian, aws-ubuntu, aws-suse, aws-redhat] # Укажите на выбор одно из семейств дистрибутивов Linux;
 ```
 
 Чтобы явно уничтожить следы деятельности прогона тестов используйте следующую команду:
 
 ```
-molecule destroy -s [docker-debian, docker-ubuntu, docker-suse, docker-redhat] # Укажите на выбор одно из семейств дистрибутивов Linux;
+molecule destroy -s [docker-debian, docker-ubuntu, docker-suse, docker-redhat, docker-alma-rocky] # Укажите на выбор одно из семейств дистрибутивов Linux;
 molecule destroy -s [aws-debian, aws-ubuntu, aws-suse, aws-redhat] # Укажите на выбор одно из семейств дистрибутивов Linux;
 ```
 

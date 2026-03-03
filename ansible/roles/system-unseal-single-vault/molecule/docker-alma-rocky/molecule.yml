@@ -1,0 +1,43 @@
+---
+dependency:
+  name: galaxy
+
+driver:
+  name: docker
+
+platforms:
+  - name: almalinux9
+    image: mdd13/ansible-docker-redhat:almalinux9
+    <<: &platform_defaults
+      pre_build_image: true
+      privileged: true
+      override_command: false
+      cgroup_parent: docker.slice
+      cgroupns_mode: host
+      security_opts:
+        - seccomp=unconfined
+
+  - name: almalinux10
+    image: mdd13/ansible-docker-redhat:almalinux10
+    <<: *platform_defaults
+
+  - name: rocky9
+    image: mdd13/ansible-docker-redhat:rocky9
+    <<: *platform_defaults
+
+  - name: rocky10
+    image: mdd13/ansible-docker-redhat:rocky10
+    <<: *platform_defaults
+
+provisioner:
+  name: ansible
+  env:
+    ANSIBLE_STDOUT_CALLBACK: default
+    ANSIBLE_ROLES_PATH: "../../../../roles"
+    ANSIBLE_RESULT_FORMAT: yaml
+  inventory:
+    links:
+      group_vars: ../../../../inventory/group_vars/
+
+verifier:
+  name: ansible

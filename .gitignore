@@ -2,6 +2,7 @@
 **/vault_keys/
 **/.terraform
 **/terraform.tfstate*
+**/.ansible/
 LICENSE.txt
 vault_1.*
 todo.txt

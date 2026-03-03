@@ -40,6 +40,7 @@ provisioner:
   name: ansible
   env:
     ANSIBLE_STDOUT_CALLBACK: default
+    ANSIBLE_ROLES_PATH: "../../../../roles"
     ANSIBLE_RESULT_FORMAT: yaml
   inventory:
     links:

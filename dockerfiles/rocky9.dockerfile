@@ -1,20 +1,22 @@
-FROM redhat/ubi8:latest AS molecule-image
+FROM rockylinux/rockylinux:9.7 AS molecule-image
 
 LABEL maintainer="Ivan Medaev"
 
-RUN dnf update -y \
+RUN dnf install -y dnf-plugins-core \
+    && dnf config-manager --set-enabled crb \
+    && dnf update -y \
     && dnf install -y \
+        epel-release \
         iproute \
         procps-ng \
         python3-devel \
         python3-pip \
         python3-wheel \
-        openssl \
         sudo \
         systemd \
     && dnf clean all \
     && pip3 install --no-cache-dir --upgrade pip \
-    && pip3 install --no-cache-dir 'ansible-core>=2.11,<2.12' 'ansible>=4,<5' \
+    && pip3 install --no-cache-dir 'ansible-core>=2.15,<2.16' 'ansible>=8,<9' \
     && rm -rf /usr/share/doc \
     && rm -rf /usr/share/man
 

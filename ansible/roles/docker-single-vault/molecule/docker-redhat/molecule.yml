@@ -26,14 +26,11 @@ platforms:
     image: mdd13/ansible-docker-redhat:redhat9
     <<: *platform_defaults
 
-  - name: redhat10
-    image: mdd13/ansible-docker-redhat:redhat10
-    <<: *platform_defaults
-
 provisioner:
   name: ansible
   env:
     ANSIBLE_STDOUT_CALLBACK: default
+    ANSIBLE_ROLES_PATH: "../../../../roles"
     ANSIBLE_RESULT_FORMAT: yaml
   inventory:
     links:

@@ -5,7 +5,7 @@ galaxy_info:
   author: Ivan Medaev
   company: Kitezh
   license: MIT
-  min_ansible_version: "2.11"
+  min_ansible_version: "2.15"
   description: |
     Create a self-signed CA and issue internal certificates for all nodes.
 
@@ -26,14 +26,18 @@ galaxy_info:
         - "8"         # RHEL 8 / CentOS 8
         - "9"         # RHEL 9 / CentOS 9
         - "10"        # RHEL 10
-    - name: OpenSUSE Leap
+    - name: AlmaLinux
       versions:
-        - "15.6"      # Leap 15.6
-        - "16.0"      # Leap 16.0
+        - all
+    - name: Rocky
+      versions:
+        - all
+    - name: opensuse
+      versions:
+        - all
     - name: SLES
       versions:
-        - "15.6"      # SLES 15.6
-        - "16.0"      # SLES 16.0
+        - all
 
   # Tags for Ansible Galaxy search:
   galaxy_tags:

@@ -9,3 +9,4 @@
 - name: Generate new certificate if one doesn't exist on any distro
   command: "{{ global_nginx_enable_certbot_certificates_command }}"
   when: not letsencrypt_cert.stat.exists
+  changed_when: false

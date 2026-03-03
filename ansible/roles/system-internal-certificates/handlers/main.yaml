@@ -4,15 +4,18 @@
   command: update-ca-certificates
   environment:
     PATH: "{{ local_system_internal_bin_path }}"
+  changed_when: false
 
 # Обновление центра сертификации в системе для дистрибутивов семейства RedHat:
 - name: Update RedHat CA store
   command: update-ca-trust
   environment:
     PATH: "{{ local_system_internal_bin_path }}"
+  changed_when: false
 
 # Обновление центра сертификации в системе для дистрибутивов семейства SUSE:
 - name: Update SUSE CA store
   command: update-ca-certificates
   environment:
     PATH: "{{ local_system_internal_bin_path }}"
+  changed_when: false

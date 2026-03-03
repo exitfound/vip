@@ -1,13 +1,10 @@
 skip_list:
-  - fqcn-builtins
   - fqcn[action]
   - fqcn[action-core]
   - fqcn[canonical]
-  - schema[meta]
   - schema[playbook]
   - run-once[task]
-  - no-changed-when
   - role-name
   - risky-shell-pipe
-  - '403'
-  - '503'
+  - package-latest
+  - no-handler
