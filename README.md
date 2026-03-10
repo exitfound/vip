@@ -8,26 +8,40 @@
   - [Мотивация](#мотивация)
   - [Предустановка](#предустановка)
   - [Структура репозитория](#структура-репозитория)
-  - [Мануальное развертывание](#мануальное-развертывание-vault)
+  - [Локальное развертывание](#локальное-развертывание-vault)
+    - [Развертывание Vault с помощью Bash Script](#развертывание-vault-с-помощью-bash-script)
+    - [Развертывание Vault с помощью Docker Compose](#развертывание-vault-с-помощью-docker-compose)
   - [Автоматизированное развертывание с помощью Ansible](#автоматизированное-развертывание-vault-с-помощью-ansible)
-    - [Подготовка](#подготовка)
     - [Поддерживаемые операционные системы](#поддерживаемые-операционные-системы)
-    - [manual-single-vault.yaml](#запуск-плейбука-manual-single-vaultyaml)
-    - [docker-single-vault.yaml](#запуск-плейбука-docker-single-vaultyaml)
-    - [manual-cluster-vault.yaml](#запуск-плейбука-manual-cluster-vaultyaml)
-    - [manual-cluster-consul.yaml](#запуск-плейбука-manual-cluster-consulyaml)
-    - [manual-single-consul-agent.yaml](#запуск-плейбука-manual-single-consul-agentyaml)
-    - [system-unseal-single-vault.yaml](#запуск-плейбука-system-unseal-single-vaultyaml)
-    - [system-unseal-cluster-vault.yaml](#запуск-плейбука-system-unseal-cluster-vaultyaml)
-    - [system-proxy-nginx.yaml](#запуск-плейбука-system-proxy-nginxyaml)
-    - [system-proxy-haproxy.yaml](#запуск-плейбука-system-proxy-haproxyyaml)
-  - [Автоматизированное конфигурирование с помощью Terraform](#автоматизированное-конфигурирование-с-помощью-terraform)
+    - [Роль Manual Single Vault](#запуск-плейбука-manual-single-vaultyaml)
+    - [Роль Docker Single Vaultl](#запуск-плейбука-docker-single-vaultyaml)
+    - [Роль Manual Cluster Vault](#запуск-плейбука-manual-cluster-vaultyaml)
+    - [Роль Manual Cluster Consul](#запуск-плейбука-manual-cluster-consulyaml)
+    - [Роль Manual Single Consul Agent](#запуск-плейбука-manual-single-consul-agentyaml)
+    - [Роль System Unseal Single Vault](#запуск-плейбука-system-unseal-single-vaultyaml)
+    - [Роль System Unseal Cluster Vault](#запуск-плейбука-system-unseal-cluster-vaultyaml)
+    - [Роль System Proxy Nginx](#запуск-плейбука-system-proxy-nginxyaml)
+    - [Роль System Proxy HAProxy](#запуск-плейбука-system-proxy-haproxyyaml)
+  - [Автоматизированное конфигурирование с помощью Terraform](#автоматизированное-конфигурирование-vault-с-помощью-terraform)
+    - [Структура иерархии и процесс запуска](#структура-иерархии-и-процесс-запуска)
+    - [Модуль включения аудита](#вызов-модуля-system_audit)
+    - [Модуль политики по умолчанию](#вызов-модуля-vault_default_policy)
+    - [Модуль произвольных политик](#вызов-модуля-vault_custom_policy)
+    - [Модуль парольной политики](#вызов-модуля-system_password_policy)
+    - [Модуль аутентификации AppRole](#вызов-модуля-auth_approle)
+    - [Модуль аутентификации JWT](#вызов-модуля-auth_jwt)
+    - [Модуль аутентификации Userpass](#вызов-модуля-auth_userpass)
+    - [Модуль хранилища секретов KV](#вызов-модуля-secret_engine_kv)
+    - [Модуль хранилища секретов Transit Engine](#вызов-модуля-secret_engine_transit)
+    - [Модуль Identity Entity](#вызов-модуля-system_identity_entity)
+    - [Модуль Identity Group](#вызов-модуля-system_identity_group)
+    - [Модуль Identity OIDC](#вызов-модуля-system_identity_oidc)
 
-## **Мотивация:**
+## **Мотивация**
 
 Каких-то явных причин для достижения реальных целей или надобности при решении тех или иных проблем не было. Проект, в первую очередь, несёт образовательный характер. Возник интерес понять, как развертывать Vault в том или ином режиме работы и используя для этого тот или иной инструмент автоматизации. Однако это не отменяет того, что предоставленные здесь решения также могут быть использованы в Production-среде.
 
-## **Предустановка:**
+## **Предустановка**
 
 Для комфортной работы необходимо установить минимальное количество программных компонентов. В частности, это:
 
@@ -35,13 +49,13 @@
 
 - `Docker` (и `Docker Compose`), средствами которых осуществляется мануальное (в представлении этого репозитория) развертывание Vault в системе.
 
-- `Ansible`, если вы собираетесь развертывать Vault в автоматическом режиме на двух или более серверах с разными ОС. Ещё потребуется пользователь с правами sudo на удаленных серверах, из под которого будут запускаться плейбуки.
+- `Ansible`, если вы собираетесь развертывать Vault в автоматическом режиме на двух или более серверах с разными ОС. Ещё потребуется пользователь с правами sudo на удаленных серверах, из-под которого будут запускаться плейбуки.
 
 - `Terraform`, если вы собираетесь конфигурировать непосредственно сам Vault с помощью IaC подхода.
 
 - `K8s`-инструментарий для взаимодействия, если вы собираетесь развертывать Vault в кластере Kubernetes.
 
-## **Структура репозитория:**
+## **Структура репозитория**
 
 Ниже представлено краткое описание того, что собой представляет каждый файл или директория в корне репозитория:
 
@@ -57,15 +71,64 @@
 
 - **dockerfiles:** Директория с файлами Dockerfiles, на базе которых были собраны образы различных операционных систем (образы хранятся на DockerHub). На данный момент это актуальные версии Debian/Ubuntu, CentOS/RedHat/AlmaLinux/Rocky и OpenSUSE/SLES. В будущем возможно расширение представленного списка. Данные образы используются для тестирования плейбуков Ansible, а сам процесс осуществляется с помощью такого инструмента, как Molecule. По умолчанию все тесты организованы на базе Docker. Представлены здесь исключительно в ознакомительных целях и никак не влияют непосредственно на развертывание самого Vault. Однако при желании вы можете запустить тесты и у себя, чтобы посмотреть на результат работы. Особенно это уместно, если вы решите внести те или иные изменения в работу одной из ролей.
 
+- **terraform:** Директория, предназначенная для конфигурирования Vault с помощью такого инструмента автоматизации, как Terraform. Содержит в себе различного рода самописные модули и окружения, где эти модули могут быть вызваны, что в конечном итоге позволяет описать конфигурацию Vault в виде кода.
+
 Прочие файлы являются вспомогательными и не представляют особого интереса.
 
-## **Мануальное развертывание Vault:**
+## **Локальное развертывание Vault**
 
-...
+Локальное развертывание подразумевает под собой запуск Vault в ручном режиме на локальном узле, без участия каких-либо сторонних инструментов автоматизации. Это на тот случай, если кто-то с Ansible незнаком, считает его использование избыточным и просто хочет понять, что собой представляет Vault. И, чисто технически, вы можете использовать данный подход для развертывания Vault на узле в реальном окружении. Однако подразумевается, что для таких целей всё же будет применен тот или иной инструмент автоматизации. При этом для каждого из сценариев используются конфигурационные файлы из директории `properties`. Можно поменять как конфигурацию непосредственно самого Vault, так и файл Systemd для нативного запуска в системе. В общем случае после того, как проект был склонирован, есть два варианта локального развертывания Vault в системе.
 
-## **Автоматизированное развертывание Vault с помощью Ansible:**
+---
 
-### Подготовка:
+### Развертывание Vault с помощью Bash Script:
+
+Этот вариант предлагает использовать файл `vault.sh` для простого развертывания Vault в системе. В сущности своей данный самописный сценарий заменяет N-ое количество шагов, которые необходимо было бы выполнить вручную. Является сжатым вариантом того, что происходит, когда мы развертываем Vault с помощью Ansible на удаленных узлах. Сценарий поддерживает самые распространенные дистрибутивы таких семейств как Debian, Redhat и SUSE. И, хотя он покрывает базовые варианты развития событий, данный сценарий не был протестирован на каждой версии каждого дистрибутива ранее вышеупомянутых семейств. Об этом стоит помнить. Чтобы запустить его выполните следующую команду:
+
+```
+sudo ./vault.sh
+```
+
+Сценарий `vault.sh` также обладает несколькими параметрами, с помощью которых, например, можно узнать список доступных версий Vault, чтобы в свою очередь установить желаемый вариант:
+
+```
+sudo ./vault.sh -l
+```
+
+Если вы всё же надумали установить более старую версию Vault, то в таком случае можно воспользоваться этой командой:
+
+```
+sudo ./vault.sh -s 1.19.0
+```
+
+---
+
+### Развертывание Vault с помощью Docker Compose:
+
+Этот вариант подразумевает запуск Vault с помощью Docker Compose. На самом деле в случае с Vault вариант через Docker хоть и упрощает установку, в то же время этот метод подвержен ряду недостатков со стороны безопасности, поскольку секреты можно получить из памяти при работе Vault в контейнере. С другой стороны, в нашем случае уже была добавлена реализация по предотвращению данного инцидента в лице:
+
+```
+cap_add:
+  - IPC_LOCK
+ulimits:
+  memlock:
+    soft: -1
+    hard: -1
+```
+
+Чтобы запустить сам Vault с помощью Docker Compose необходимо воспользоваться следующей командой:
+
+```
+docker compose -f vault-docker-compose.yaml up -d
+```
+
+Если есть потребность в смене версии Vault, то в таком случае нужно изменить значение аргумента `VERSION` внутри файла Compose. Это же можно сделать через передачу аргумента во время выполнения команды:
+
+```
+docker compose up -f vault-docker-compose.yaml -d --build --build-arg VERSION=1.19.0
+```
+
+## **Автоматизированное развертывание Vault с помощью Ansible**
 
 Для начала вводная часть. Директория `ansible/`, как уже было отмечено ранее, содержит в себе набор плейбуков, ролей и переменных, которые используются для вызова различных сценариев, что в конечном итоге приводит к автоматизированному развертыванию Vault. Некоторые из ролей обладают двумя или более вариантами развертывания (и дальше это будет подсвечено), каждый из которых достигается за счёт использования той или иной переменной в каждой из ролей. В общем случае структура директории `ansible` такова:
 
@@ -730,8 +793,532 @@ ansible-playbook -i <inventory> -l <group> -u <user> -e global_haproxy_host_doma
 
 ---
 
-## **Автоматизированное конфигурирование с помощью Terraform:**
+## **Автоматизированное конфигурирование Vault с помощью Terraform**
 
-...
+Сперва общая информация. Директория `terraform/`, как было отмечено ранее, содержит набор модулей и окружений, предназначенных для конфигурирования уже развёрнутого сервера Vault. Иными словами, если Ansible отвечает за установку и запуск Vault в системе, то Terraform берёт на себя всё, что происходит внутри него: создание хранилищ секретов, политик, методов аутентификации и т.д. Оркестрация между окружениями организована через [Terragrunt](https://terragrunt.gruntwork.io/), поэтому его наличие в вашей системе обязательно. Он генерирует файлы `versions.tf`, `backend.tf` и `provider.tf` для каждой рабочей директории автоматически при каждом выполнении инициализации. Эти файлы создаются в момент исполнения и в репозиторий не попадают. Вручную нужно описать только сами `.tf` файлы, которые вызывают нужные вам модули. Если вы не готовы использовать Terragrunt, то в таком случае вышеупомянутые файлы `versions.tf`, `backend.tf` и `provider.tf` придется создать и заполнить самостоятельно. Только после этого команда `terraform` заработает. В общем случае структура директории `terraform/` такова:
+
+- **Директория modules:** Данная директория содержит список переиспользуемых модулей, каждый из которых инкапсулирует один логический блок конфигурации Vault. На данный момент этих модулей 12 и все они отражают базовые возможности Terraform. Можно написать свой модуль и также легко его внедрить в общую структуру иерархии.
+
+- **Директория environments:** На данный момент содержит такие окружения как `localhost` с локальным состоянием инфраструктуры (для разработки и тестирования) и `production` с удаленным состоянием инфраструктуры на базе S3 (для реального использования). Каждое окружение содержит одну или несколько рабочих директорий с набором `.tf` файлов, которые в свою очередь вызывают нужные модули.
+
+Вы можете создавать столько рабочих директорий, сколько вам нужно в рамках того или иного окружения. По своей сути вся текущая инфраструктура, представленная в директории `environments`, является лишь одним большим примером для общего понимания. В рамках данного репозитория рабочая директория с именем `vault-local-1` по пути `./environments/localhost/` представляет собой сугубо демонстрационный вариант вызова всех модулей. Каждый модуль вызывается в том или ином `.tf` файле в корне вышеупомянутой директории. В общем случае все вызываемые модули представлены в виде двух вариантов:
+
+- **Простой вариант:** Минимальный автономный пример с приставкой `simple` без зависимостей на другие модули. Удобен как отправная точка для копирования.
+
+- **Полный вариант:** Конфигурация со связями между модулями, где политика передаётся в Auth-роль, Auth-роль используется для алиаса в Entity, а сам Entity добавляется в группу. Все ключевые переменные заполнены валидными значениями и каждый модуль работает из коробки.
+
+---
+
+### Структура иерархии и процесс запуска:
+
+На самом деле вариантов того, как выстроить архитектуру через Terraform (+ Terragrunt) для работы с Vault (да и не только) масса. Какие-то варианты плохие, какие-то хорошие, но все они, так или иначе, позволят конфигурировать целевой объект и описывать все настройки в виде кода. Предложенный в данном репозитории вариант является лишь одним из возможных. По определению нельзя учесть все варианты развития событий, поскольку Vault может быть использован для разных целей. Он также имеет большое число интеграций, поэтому очень сложно выстроить такую структуру и описать все модули так, чтобы они подошли каждому. Это важно понимать. Так что не стоит зацикливаться на том, как это было реализовано конкретно здесь. В общем случае структура иерархии при работе с Terraform (+ Terragrunt) в рамках данного репозитория выглядит следующим образом:
+
+```
+terraform/
+├── modules/
+│   ├── audit_device/           # Audit devices
+│   ├── vault_default_policy/   # Default policy
+│   ├── vault_custom_policy/    # User ACL policies
+│   ├── secrets_kv/             # KV v2 Secrets Engine
+│   ├── auth_approle/           # AppRole Auth Method
+│   ├── auth_jwt/               # JWT/OIDC Auth Method (GitHub Actions, GitLab CI)
+│   ├── auth_userpass/          # Userpass Auth Method
+│   ├── transit_backend_key/    # Transit Engine
+│   ├── identity_entity/        # Identity Entity + aliases
+│   ├── identity_group/         # Identity Group
+│   ├── identity_oidc/          # OIDC token provider (signing key + roles)
+│   └── password_policy/        # Password Policy
+└── environments/
+    ├── localhost/              # Local state
+    │   ├── terragrunt.hcl
+    │   └── vault-local-1/
+    │       ├── terragrunt.hcl
+    │       ├── audit.tf
+    │       ├── default_policy.tf
+    │       ├── custom_policy.tf
+    │       ├── secrets_kv.tf
+    │       ├── auth_approle.tf
+    │       ├── auth_jwt.tf
+    │       ├── auth_userpass.tf
+    │       ├── transit.tf
+    │       ├── identity_entity.tf
+    │       ├── identity_group.tf
+    │       ├── identity_oidc.tf
+    │       ├── password_policy.tf
+    │       └── outputs.tf
+    └── production/             # Remote state в S3
+        ├── terragrunt.hcl
+        ├── vault-single-1/
+        └── vault-cluster-1/
+```
+
+Перед запуском в любой рабочей директории необходимо выставить переменные окружения, которые провайдер Vault считывает нативно – адрес узла и токен аутентификации с соответствующими правами для управления и настройки:
+
+```bash
+export VAULT_ADDR=http://vault:8200
+export VAULT_TOKEN=hvs.xxx
+```
+
+После этого запускается стандартная последовательность команд. Все примеры ниже приведены для рабочей директории `vault-local-1`, однако для любого другого окружения команды идентичны:
+
+```bash
+cd terraform/environments/localhost/vault-local-1
+terragrunt init
+terragrunt plan
+terragrunt apply
+```
+
+Примечание: Для работы с Production-окружением необходимо предварительно прописать свой S3-бакет в файле `environments/production/terragrunt.hcl`, заменив плейсхолдер `YOUR-STATE-BUCKET` на реальное название вашего бакета. Состояние инфраструктуры будет отдельно храниться в файле S3. Для доступа к S3 дополнительно потребуется переменная `AWS_PROFILE` с именем профиля из `~/.aws/credentials`. 
+
+После выполнения команды `terragrunt apply` все созданные значения доступны через Outputs. Sensitive-значения – токены, начальные пароли, secret_id не отображаются в стандартном выводе и запрашиваются явно:
+
+```bash
+terragrunt output -raw transit_token
+terragrunt output -json auth_userpass_initial_passwords
+terragrunt output auth_approle_role_id
+terragrunt output auth_approle_secret_id_accessor
+```
+
+---
+
+### Вызов модуля `system_audit`:
+
+**Модуль system_audit** – используется для включения функции аудита в Vault. Поддерживает два типа: `file` (запись в файл на диске) и `syslog` (передача в системный журнал). Поскольку Vault не позволяет зарегистрировать два варианта одного типа на одном и том же пути, один экземпляр модуля отвечает только за один тип и для включения обоих необходимо создать два отдельных экземпляра:
+
+```yaml
+enable_file: true/false    # Включить file audit device
+enable_syslog: true/false  # Включить syslog audit device
+file_path: ""              # Путь к файлу (только при enable_file = true)
+file_mode: "0600"          # Права на файл
+log_raw: false             # Писать данные в открытом виде – только для отладки
+hmac_accessor: true        # Хешировать Accessor токена в записях
+format: "json"             # Формат записей: json или jsonx
+syslog_facility: "AUTH"    # Syslog facility (только при enable_syslog = true)
+syslog_tag: "vault"        # Syslog tag (только при enable_syslog = true)
+```
+
+Параметр `log_raw = true` выводит секреты в открытом виде, что допустимо исключительно в отладочных целях. Важно помнить, что при включённом аудите Vault отказывается обрабатывать запросы, если запись в источник аудита завершается с ошибкой. Это поведение по умолчанию, обеспечивающее гарантию аудита. Пример вызова модуля ниже:
+
+```hcl
+module "audit_file" {
+  source = "../../../modules/system_audit"
+
+  enable_file = true
+  file_path   = "/var/log/vault/audit.log"
+}
+
+module "audit_syslog" {
+  source = "../../../modules/system_audit"
+
+  enable_syslog = true
+}
+```
+
+Примечание: Подробнее про модуль можно посмотреть [тут](terraform/modules/system_audit/README.md).
+
+---
+
+### Вызов модуля `vault_default_policy`:
+
+**Модуль vault_default_policy** – используется для управления встроенной политикой `default` в Vault. Эта политика автоматически выдаётся всем токенам, если они не создаются с явным указанием параметра `no_default_policy`. Базовый набор правил, который модуль всегда включает, состоит из `auth/token/lookup-self`, `auth/token/renew-self`, `auth/token/revoke-self`, `sys/leases/renew`, `sys/leases/lookup`, `sys/capabilities-self`. Через переменную `extra_rules` можно добавить дополнительные правила поверх базовых, не заменяя их:
+
+```yaml
+extra_rules: []  # Список дополнительных правил поверх базовых (пусто – только базовые)
+```
+
+На ресурс `vault_policy.default` внутри модуля выставлен `lifecycle { prevent_destroy = true }` – удаление политики `default` через Terraform заблокировано, что предотвращает случайное уничтожение встроенной политики Vault. Один экземпляр данного модуля для всего узла Vault. Пример вызова модуля ниже:
+
+```hcl
+module "default_policy" {
+  source = "../../../modules/vault_default_policy"
+
+  extra_rules = [
+    { path = "sys/mounts",       capabilities = ["read"] },
+    { path = "sys/policies/acl", capabilities = ["list"] },
+  ]
+}
+```
+
+Примечание: Подробнее про модуль можно посмотреть [тут](terraform/modules/vault_default_policy/README.md).
+
+---
+
+### Вызов модуля `vault_custom_policy`:
+
+**Модуль vault_custom_policy** – используется для создания произвольных ACL-политик. Один экземпляр модуля соответствует одной политике. Правила описываются структурированным списком объектов с полями `path` и `capabilities`. Модуль самостоятельно рендерит HCL-синтаксис политики из переданных данных, поэтому отдельный `.hcl` файл политики создавать не нужно. Имя политики затем передаётся в другие модули через собственные переменные:
+
+```yaml
+name: ""   # Имя политики (обязательно)
+rules: []  # Список правил; формат: [{ path = "...", capabilities = ["read", "list"] }]
+```
+
+```hcl
+module "policy_app" {
+  source = "../../../modules/vault_custom_policy"
+  name   = "app-policy"
+
+  rules = [
+    { path = "my-app/data/*",          capabilities = ["read", "list"] },
+    { path = "my-app/metadata/*",      capabilities = ["list"] },
+    { path = "auth/token/lookup-self", capabilities = ["read"] },
+    { path = "auth/token/renew-self",  capabilities = ["update"] },
+  ]
+}
+```
+
+Примечание: Подробнее про модуль можно посмотреть [тут](terraform/modules/vault_custom_policy/README.md).
+
+---
+
+### Вызов модуля `system_password_policy`:
+
+**Модуль system_password_policy** – используется для создания Password Policy. Password Policy в Vault описывает правила генерации паролей на стороне сервера: длину и набор допустимых символов с минимальными требованиями к каждому набору. После `terragrunt apply` пароль генерируется по запросу командой:
+
+```
+vault read sys/policies/password/<name>/generate
+```
+
+И не попадает в состояние инфраструктуры, что принципиально отличает этот подход от генерации через `random_password`. Типичный сценарий представляет собой создание политики через модуль, после чего использовать её имя для ручной генерации паролей операторами:
+
+```yaml
+name: ""    # Имя политики паролей
+length: 20  # Длина генерируемых паролей
+rules: []   # Правила символов и формат вида [{ charset = "abc...", min_chars = 1 }]
+```
+
+Сумма всех `min_chars` не должна превышать `length`. В противном случае Vault отклонит политику с ошибкой при выполнении `terragrunt apply`. В рабочей директории `vault-local-1` представлены три готовых примера: `demo-password` (16 символов, только буквы и цифры), `ops-password` (24 символа, с заглавными и спецсимволами) и `service-password` (32 символа, для машинных учётных записей). Пример вызова модуля ниже:
+
+```hcl
+module "password_policy_ops" {
+  source = "../../../modules/system_password_policy"
+  name   = "ops-password"
+  length = 24
+
+  rules = [
+    { charset = "abcdefghijklmnopqrstuvwxyz", min_chars = 2 },
+    { charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ", min_chars = 2 },
+    { charset = "0123456789",                 min_chars = 2 },
+    { charset = "!@#$%&*",                    min_chars = 1 },
+  ]
+}
+```
+
+Примечание: Подробнее про модуль можно посмотреть [тут](terraform/modules/system_password_policy/README.md).
+
+---
+
+### Вызов модуля `auth_approle`:
+
+**Модуль auth_approle** – используется для настройки метода аутентификации AppRole. Данный метод предназначен для машинной аутентификации: сервисы и приложения проходят этап аутентификации в Vault, предъявляя `role_id` и `secret_id`. Параметр `role_id` статичен и является публичным идентификатором роли, тогда как `secret_id` – это секрет, который должен передаваться приложению вне Terraform (например, через CI/CD). Если выставить `generate_secret_id = true`, модуль создаст `secret_id` самостоятельно и выставит его как Sensitive Output. При этом повторный `terragrunt apply` не перегенерирует `secret_id`, поскольку на ресурс наложен `lifecycle { ignore_changes = [...] }`:
+
+```yaml
+path: "approle"           # Путь монтирования для AppRole Backend
+role_name: "my-app-role"  # Имя роли
+token_policies: []        # Список политик, выдаваемых токену
+token_ttl: 3600           # TTL токена в секундах
+token_max_ttl: 86400      # Максимальный TTL токена в секундах
+token_num_uses: 0         # Количество использований токена (0 = неограниченно)
+token_period: 0           # Период periodic-токена (0 = обычный токен с TTL)
+token_type: "default"     # Тип токена – default, service или batch
+token_bound_cidrs: []     # CIDR-ограничения на использование токена
+bind_secret_id: true      # Требовать secret_id при логине
+secret_id_ttl: 86400      # TTL secret_id в секундах (0 = без истечения)
+secret_id_num_uses: 5     # Количество использований secret_id (0 = неограниченно)
+secret_id_bound_cidrs: [] # CIDR-ограничения на использование secret_id
+generate_secret_id: false # Создать secret_id через Terraform и вывести как Output
+```
+
+Параметр `token_period` при ненулевом значении создаёт периодический токен без TTL, который продлевается при каждом использовании. Это удобно для долгоживущих сервисов. Параметр `bind_secret_id = false` позволяет логиниться только по `role_id` без `secret_id`, что допустимо при использовании совместно с `token_bound_cidrs` в доверенных сетях. Пример вызова модуля ниже:
+
+```hcl
+module "auth_approle" {
+  source = "../../../modules/auth_approle"
+
+  path           = "approle"
+  role_name      = "my-app-role"
+  token_policies = [module.policy_app.policy_name]
+  token_ttl      = 3600
+  token_max_ttl  = 86400
+  token_type     = "default"
+
+  bind_secret_id     = true
+  secret_id_num_uses = 0
+}
+```
+
+Примечание: Подробнее про модуль можно посмотреть [тут](terraform/modules/auth_approle/README.md).
+
+---
+
+### Вызов модуля `auth_jwt`:
+
+**Модуль auth_jwt** – используется для настройки метода аутентификации JWT/OIDC. Предназначен прежде всего для аутентификации в CI/CD: GitHub Actions и GitLab CI выпускают подписанные JWT, которые Vault верифицирует через JWKS Endpoint. Параметры `bound_claims` позволяют ограничить доступ по конкретному репозиторию, ветке или окружению – Vault примет токен только если все указанные Claims совпадают с теми, что содержатся в JWT:
+
+```yaml
+path: "jwt"                    # Путь монтирования JWT Backend
+role_name: "github-actions"    # Имя роли
+role_type: "jwt"               # Тип – jwt или oidc
+user_claim: "sub"              # Claim из JWT, используемый как имя пользователя
+jwks_url: ""                   # URL для получения JWKS (публичных ключей)
+jwks_ca_pem: ""                # PEM CA для JWKS URL (пусто = системный CA)
+bound_issuer: ""               # Ожидаемый issuer (iss claim), пусто = не проверять
+bound_audiences: []            # Ожидаемые audience (aud claim)
+bound_subject: ""              # Ожидаемый subject (sub claim), пусто = не проверять
+bound_claims: {}               # Map claims, которые должны присутствовать в JWT
+token_policies: []             # Список политик
+token_ttl: 300                 # TTL токена в секундах
+token_max_ttl: 300             # Максимальный TTL токена
+token_type: "batch"            # Тип токена
+token_bound_cidrs: []          # CIDR-ограничения
+```
+
+Для GitHub Actions `jwks_url` – `https://token.actions.githubusercontent.com/.well-known/jwks`, тогда как для GitLab CI – `https://gitlab.example.com/-/jwks`. При использовании самоподписного сертификата для JWKS Endpoint PEM сертификат передаётся через `jwks_ca_pem`. Параметр `token_type = "batch"` – оптимальный выбор для CI, потому что batch-токены легковесны, не хранятся в хранилище Vault и автоматически инвалидируются по истечении TTL. Пример вызова модуля ниже:
+
+```hcl
+module "auth_jwt" {
+  source = "../../../modules/auth_jwt"
+
+  path           = "jwt"
+  role_name      = "github-actions"
+  jwks_url       = "https://token.actions.githubusercontent.com/.well-known/jwks"
+  token_policies = [module.policy_ci.policy_name]
+  token_ttl      = 300
+  token_max_ttl  = 300
+  token_type     = "batch"
+
+  bound_claims = {
+    repository = "my-org/my-repo"
+  }
+}
+```
+
+Примечание: Подробнее про модуль можно посмотреть [тут](terraform/modules/auth_jwt/README.md).
+
+---
+
+### Вызов модуля `auth_userpass`:
+
+**Модуль auth_userpass** – используется для настройки метода аутентификации Userpass. Предназначен для аутентификации операторов и людей, логинящихся в Vault с именем пользователя и паролем. Пользователи описываются списком объектов, каждый из которых содержит имя, политики и параметры токена. Terraform управляет конфигурацией пользователей, но не паролями в долгосрочной перспективе: начальный пароль генерируется автоматически через `random_password` при первом `terragrunt apply` и доступен как Sensitive Output – пользователь должен поменять его самостоятельно после первого входа, а Terraform никогда не перезапишет уже установленный пароль:
+
+```yaml
+path: "userpass"  # Путь монтирования Userpass Backend
+description: ""   # Описание Backend
+users: []         # Список пользователей, поля каждого объекта:
+                    # username, token_policies, token_ttl, token_max_ttl, token_type, token_num_uses, token_bound_cidrs
+```
+
+Получить начальные пароли после apply можно с помощью следующей команды:
+
+```
+terragrunt output -json auth_userpass_initial_passwords
+```
+
+Сменить пароль вручную можно с помощью следующей команды:
+
+```
+vault write auth/<path>/users/<username>/password password=<new>
+```
+
+При последующем выполнении `terragrunt apply` пароль на стороне Vault остаётся нетронутым – обновляются только политики и TTL. Пример вызова модуля ниже:
+
+
+```hcl
+module "auth_userpass" {
+  source      = "../../../modules/auth_userpass"
+  path        = "userpass"
+  description = "Userpass auth for operations team"
+
+  users = [
+    {
+      username          = "alice"
+      token_policies    = [module.policy_ops.policy_name]
+      token_ttl         = 3600
+      token_max_ttl     = 28800
+      token_type        = "default"
+      token_num_uses    = 0
+      token_bound_cidrs = []
+    },
+  ]
+}
+```
+
+Примечание: Подробнее про модуль можно посмотреть [тут](terraform/modules/auth_userpass/README.md).
+
+---
+
+### Вызов модуля `secret_engine_kv`:
+
+**Модуль secret_engine_kv** – используется для создания KV Secrets Engine версии 2. Создаёт Mount с заданным путём и конфигурирует параметры версионирования. Terraform управляет только монтированием и его настройками, а контент (сами секреты) заносит пользователь вручную или через CI/CD после `terragrunt apply`. Как правило, каждый сервис или команда получают свой изолированный путь монтирования с независимой конфигурацией:
+
+```yaml
+path: "my-app"                # Путь монтирования в Vault
+max_versions: 10              # Количество хранимых версий секрета (0 = неограниченно)
+cas_required: false           # Обязательная проверка Check-And-Set при записи
+delete_version_after: "24h"   # TTL версии секрета, "" = не удалять
+```
+
+Параметр `cas_required = true` при записи требует явно указывать текущую версию секрета – это защищает от гонок при конкурентной записи. Параметр `delete_version_after` принимает строку в формате Go Duration (`"24h"`, `"168h"` и т.д.), по истечении которой версия автоматически помечается как удалённая. Пример вызова модуля ниже:
+
+```hcl
+module "kv_my_app" {
+  source = "../../../modules/secret_engine_kv"
+
+  path         = "my-app"
+  max_versions = 10
+}
+```
+
+Примечание: Подробнее про модуль можно посмотреть [тут](terraform/modules/secret_engine_kv/README.md).
+
+---
+
+### Вызов модуля `secret_engine_transit`:
+
+**Модуль secret_engine_transit** – используется для создания Transit Secret Engine с ключом шифрования и периодическим бесхозным токеном для автоматического распечатывания Vault. Transit Engine – это Encryption as a Service. Данные не хранятся внутри Vault, он лишь шифрует и расшифровывает их по запросу. Наиболее распространённое применение в рамках данного проекта – Transit Auto-Unseal, когда один узел Vault выступает Transit-сервером для автоматического распечатывания другого (или кластера). Для этого сценария модуль создаёт токен с параметром (`no_parent = true`) и с политикой, ограниченной только операциями `encrypt/decrypt` на конкретном ключе:
+
+```yaml
+name: "autounseal"              # Имя Transit ключа
+path: "transit"                 # Путь монтирования Transit Engine
+policy_name: ""                 # Имя политики, прикреплённой к токену
+period: "8760h"                 # Период обновления periodic-токена (0 = обычный токен)
+renewable: true                 # Разрешить ручное продление токена
+no_default_policy: true         # Исключить политику default из токена
+no_parent: true                 # Orphan-токен, не привязанный к Terraform-сессии
+explicit_max_ttl: ""            # Жёсткий лимит жизни токена вне зависимости от продлений
+allow_plaintext_backup: false   # Разрешить plaintext-бэкап ключа
+deletion_allowed: false         # Разрешить удаление ключа через API
+exportable: false               # Разрешить экспорт материала ключа
+auto_rotate_period: 0           # Автоматическая ротация ключа в секундах (0 = выключено)
+```
+
+Значение токена доступно как Sensitive Output. Именно это значение передаётся в переменную `global_vault_transit_backend_token` при развёртывании Vault с Transit Auto-Unseal через Ansible. Пример вызова модуля ниже:
+
+```hcl
+module "transit" {
+  source = "../../../modules/secret_engine_transit"
+
+  name        = "autounseal"
+  path        = "transit"
+  policy_name = module.policy_transit.policy_name
+  period      = "8760h"
+}
+```
+
+Примечание: Подробнее про модуль можно посмотреть [тут](terraform/modules/secret_engine_transit/README.md).
+
+---
+
+### Вызов модуля `system_identity_entity`:
+
+**Модуль system_identity_entity** – используется для создания Identity Entity. Entity – это логическая сущность, объединяющая несколько способов аутентификации одного и того же пользователя или сервиса в единую идентичность с общими метаданными. Например, если у пользователя есть и Userpass-логин, и AppRole, через Entity можно объединить оба алиаса под одной сущностью. Метаданные, назначенные Entity, доступны в OIDC-токенах и Vault ACL-шаблонах через `identity.entity.metadata.*`:
+
+```yaml
+name: ""         # Имя Entity
+metadata: {}     # Произвольные метаданные { ключ = "значение" }
+disabled: false  # Заблокировать Entity (все токены через алиасы будут отклоняться)
+policies: []     # Политики напрямую на Entity (рекомендуется назначать через группы)
+aliases: []      # Алиасы аутентификации формата [{ name = "...", mount_accessor = "..." }]
+```
+
+Параметр `disabled = true` немедленно блокирует все токены, выданные через любой алиас данной Entity, без удаления самой сущности. Бывает полезно для временной блокировки пользователя без потери конфигурации. Пример вызова модуля ниже:
+
+```hcl
+module "entity_alice" {
+  source   = "../../../modules/system_identity_entity"
+  name     = "alice"
+  metadata = { team = "ops", env = "prod" }
+  disabled = false
+
+  aliases = [
+    {
+      name           = "alice"
+      mount_accessor = module.auth_userpass.accessor
+    },
+  ]
+}
+```
+
+Примечание: Подробнее про модуль можно посмотреть [тут](terraform/modules/system_identity_entity/README.md).
+
+---
+
+### Вызов модуля `system_identity_group`:
+
+**Модуль system_identity_group** – используется для создания Identity Group. Группы позволяют назначать политики сразу множеству Entity, а также выстраивать иерархию через вложенные группы и это предпочтительный способ управления правами по сравнению с прямым назначением политик на Entity. Модуль поддерживает два типа групп:
+
+- **Internal:** Члены группы назначаются явно через параметр `member_entity_ids` и `member_group_ids`.
+
+- **External:** Членство синхронизируется из внешней системы (LDAP, GitHub) через алиас групп и в таком случае `member_entity_ids` не используется:
+
+```yaml
+name: ""                  # Имя группы
+type: "internal"          # Internal (Terraform управляет составом) или External (членство из внешней системы)
+policies: []              # Политики, наследуемые всеми членами группы
+metadata: {}              # Произвольные метаданные группы
+member_entity_ids: []     # ID Entity-участников (только для Internal)
+member_group_ids: []      # ID дочерних групп (только для Internal)
+alias_name: ""            # Имя группы во внешней системе (только для External)
+alias_mount_accessor: ""  # Accessor Auth Backend, предоставляющего внешнее членство (только для External)
+```
+
+Для External-группы вместо `member_entity_ids` задаются `alias_name` (имя группы во внешней системе, например DN в LDAP или Slug команды в GitHub) и `alias_mount_accessor` (Accessor соответствующего Auth Backend). Пример вызова модуля ниже:
+
+```hcl
+module "group_ops" {
+  source            = "../../../modules/system_identity_group"
+  name              = "ops-team"
+  type              = "internal"
+  policies          = []
+  member_entity_ids = [module.entity_alice.entity_id, module.entity_bob.entity_id]
+  member_group_ids  = []
+  metadata          = { team = "ops" }
+}
+```
+
+Примечание: Подробнее про модуль можно посмотреть [тут](terraform/modules/system_identity_group/README.md).
+
+---
+
+### Вызов модуля `system_identity_oidc`:
+
+**Модуль system_identity_oidc** – используется для превращения Vault в OIDC Token Provider. Vault может выпускать подписанные JWT-токены с Claims, основанными на метаданных Entity и группах. Это позволяет использовать Vault как источник идентичности для внешних систем, умеющих верифицировать OIDC-токены. Модуль создаёт подписанный ключ с автоматической ротацией и набором ролей, каждая из которых определяет TTL токена, его Claims-шаблон и опциональный идентификатор клиента. Параметр `verification_ttl` должен быть не меньше `rotation_period`, чтобы клиенты успевали обновить публичный ключ после ротации:
+
+```yaml
+key_name: "default"      # Имя подписывающего ключа
+algorithm: "RS256"       # Алгоритмы подписи – RS256/RS384/RS512/ES256/ES384/ES512/EdDSA
+rotation_period: 86400   # Период ротации ключа в секундах
+verification_ttl: 86400  # TTL публичного ключа после ротации в секундах (должен быть >= rotation_period)
+allowed_client_ids: []   # Разрешённые client_id ролей (пусто = все)
+issuer: ""               # Issuer URL OIDC-провайдера (пусто = адрес Vault)
+roles: []                # Список ролей и формат вида [{ name, ttl, template, client_id }]
+```
+
+Токен для конкретной роли генерируется следующей командой:
+```
+vault read identity/oidc/token/<role_name>
+```
+
+Поле `template` задаётся как строка с Vault-шаблонами в `{{...}}` для подстановки данных в Entity. Пустая строка означает токен без дополнительных Claims. Пример вызова модуля ниже:
+
+```hcl
+module "oidc" {
+  source           = "../../../modules/system_identity_oidc"
+  key_name         = "apps"
+  algorithm        = "RS256"
+  rotation_period  = 86400
+  verification_ttl = 172800
+
+  roles = [
+    {
+      name      = "my-app"
+      ttl       = 3600
+      template  = "{\"groups\": {{identity.entity.groups.names}}, \"team\": {{identity.entity.metadata.team}}}"
+      client_id = ""
+    },
+  ]
+}
+```
+
+Примечание: Подробнее про модуль можно посмотреть [тут](terraform/modules/system_identity_oidc/README.md).
 
 ---

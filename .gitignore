@@ -1,8 +1,35 @@
+# General
 **/data
-**/vault_keys/
-**/.terraform
-**/terraform.tfstate*
-**/.ansible/
 LICENSE.txt
 vault_1.*
 todo.txt
+
+# Ansible vault keys and generated files
+**/vault_keys/
+**/.ansible/
+
+# Terragrunt generated files (created per-stack at runtime)
+terraform/**/versions.tf
+terraform/**/backend.tf
+terraform/**/provider.tf
+
+# Terraform generated files
+terraform/**/.terraform/
+terraform/**/.terraform.lock.hcl
+terraform/**/*.tfstate
+terraform/**/*.tfstate.backup
+terraform/**/*.tfstate.*.backup
+terraform/**/crash.log
+
+# Terragrunt cache
+terraform/**/.terragrunt-cache/
+
+# Secrets — never commit
+terraform/**/*.tfvars
+!terraform/**/*.tfvars.example
+
+# Override files
+terraform/**/override.tf
+terraform/**/override.tf.json
+terraform/**/*_override.tf
+terraform/**/*_override.tf.json
